@@ -14,6 +14,36 @@
   - Distance: sample GPS while driving and sum small distances; no offline OSM
     recalculation afterwards (not needed for reporting)
   - Data storage: local Room database, no server/account
+- [x] Define the UI precisely (see UI.md):
+  - Jetpack Compose, Material 3 default palette, dark theme only, English
+  - Bottom navigation with 3 tabs: Home / Devices / Report
+  - Home: status card (monitoring state + live recording info + manual
+    start/stop fallback), recent trips of today/yesterday, tap-to-expand
+    detail with Delete (no edit)
+  - Devices: master "Monitor trips" switch, registered devices list with
+    remove, paired devices list with add; no in-app pairing
+  - Report: date range picker (default last month), Generate, summary + preview,
+    Export → Android share sheet
+  - Background notification: minimal content, no cancel action
+  - Custom app icon to be designed later
+- [x] Settle behavior questions (details in UI.md + README):
+  - Reconnect grace period: BT disconnect ends trip only after N minutes;
+    reconnect within period continues same trip; configurable on Devices page
+    (1–15 min, default 3)
+  - GPS sampling: 30 s interval, keep fixes only if moved ≥ 10 m and accuracy
+    ≤ 50 m, drop steps implying > 160 km/h; distance = sum of Haversine steps
+  - Sampling interval fixed in code (not configurable) for now
+  - Manual Start records a trip without a device (fallback)
+  - Reverse geocoding: attempt at trip end; on failure store coordinates with
+    "address pending"; retried lazily on app open and at Report Generate
+  - Trip recovery after phone restart/force-stop: discard partial trip (KISS)
+  - GPS gaps mid-trip accepted: distance slightly under, OK for reporting
+  - CSV columns: start date (ISO) / start time (HH:mm) / start month (YYYY-MM) /
+    end date (ISO) / end time / start city / start address / end city /
+    end address / km (1 decimal, dot); chronological; totals row; UTF-8
+  - Address stored as street + city separately (reverse geocoder returns
+    structured data)
+  - Reports contain trip rows only; no cost fields in v1
 
 ## Core features (backlog)
 
@@ -42,33 +72,7 @@
 - [ ] Add beginner-friendly comments in the code while implementing
 - [ ] Code should have tests (unit + instrumented)
 
-## Open questions — not decided yet
+## Open questions
 
-On **how the app should look**:
-
-- UI toolkit: Jetpack Compose vs XML layouts? (First Android app; Compose is the
-  modern default, XML more classic. Not decided.)
-- Screens needed: trip list, live recording status, Bluetooth device picker,
-  report/export screen? Main screen layout?
-- Should the app show a manual "start/stop trip" fallback button (when BT trigger
-  fails), or rely 100% on Bluetooth?
-- Dark/light theme, language (English only?), app icon?
-
-On **how the app should work**:
-
-- How does the user select the car's Bluetooth device? (Assumption in README:
-  pick from paired devices list, stored in settings.)
-- Trip edge cases: engine on but car parked (no movement), traffic stops,
-  GPS signal lost mid-trip, app force-stopped during a trip → how to recover?
-- GPS sampling: what interval is a good battery/precision trade-off? Filter
-  inaccurate fixes / jitter while stopped?
-- Reverse geocoding needs network. No network at trip end → store position only
-  and geocode later? Offline geocoding option?
-- CSV format details: column order, date format, decimal separator / encoding for
-  spreadsheet compatibility (Excel, Google Sheets, LibreOffice)?
-- Is 1 decimal on km enough? Do addresses need to be one column or split
-  (street / city)?
-- Distance per trip or cumulative daily? Any trip editing (manual fix of
-  address/distance) before export?
-- Do expense reports need more than trip rows (e.g. per-trip cost field, or a
-  daily total sheet)? Currently no cost data is modeled.
+None for v1 core scope — UI (UI.md) and behavior decisions are settled.
+Remaining work is implementation, tracked in plan.md.

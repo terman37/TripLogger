@@ -54,7 +54,7 @@ for expense reports.
 └───────┬──────────┘        └──────────┬───────────┘
         │                              │
 ┌───────▼──────────────────────────────▼───────────────────┐
-│  UI (single activity + fragments or Compose screens)     │
+│  UI (single activity, Compose, bottom nav)               │
 │  - trip list / current trip status                       │
 │  - device selection                                      │
 │  - report screen: pick date range → export spreadsheet   │
@@ -146,5 +146,6 @@ the JVM without an emulator.
 
 - [todo.md](todo.md) — user feature list and open questions
 - [plan.md](plan.md) — step-by-step implementation plan (checkboxes)
+- [UI.md](UI.md) — precise visual specification of the app
 - [AGENTS.md](AGENTS.md) — conventions for AI agents / contributors working in this repo
 - [BUILD.md](BUILD.md) — how to produce an installable file
