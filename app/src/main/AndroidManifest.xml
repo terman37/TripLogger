@@ -2,6 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--
+        Permissions needed by the trip monitor (see README / todo.md):
+        - BLUETOOTH_CONNECT: observe the car device's connect/disconnect
+          (dangerous permission → runtime request on Android 12+).
+        - ACCESS_FINE_LOCATION: GPS fixes for distance and addresses
+          (dangerous → runtime request).
+        - POST_NOTIFICATIONS: show the foreground-service notification
+          (dangerous → runtime request on Android 13+).
+        - FOREGROUND_SERVICE + types: running the monitoring service; the
+          types must match the <service> declaration below.
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
     <application
         android:name=".TripLoggerApplication"
         android:allowBackup="true"
@@ -21,6 +39,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+            Foreground service hosting the Bluetooth monitor and the trip
+            recorder. exported=false: only this app starts it. The foreground
+            service type must be declared here AND granted at runtime before
+            startForeground is called.
+        -->
+        <service
+            android:name=".monitor.TripMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice|location" />
 
     </application>
 

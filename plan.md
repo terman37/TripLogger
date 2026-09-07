@@ -92,7 +92,7 @@ not approved. Every step must leave the project compiling:
 - Notes: UI reads state through one `AppViewModel` per screen.
 - Validation: `:app:assembleDebug`, tests pass.
 
-### [ ] Step 8: Bluetooth monitoring + foreground service
+### [x] Step 8: Bluetooth monitoring + foreground service
 - Goal: detect registered device connect/disconnect; run recorder continuously.
 - Key files: `monitor/BluetoothMonitor.kt` (dynamic receiver for
   `ACTION_ACL_CONNECTED` / `ACTION_ACL_DISCONNECTED`, filters to registered
