@@ -41,7 +41,7 @@ not approved. Every step must leave the project compiling:
   emulator/device); JVM tests start at Step 3.
 - Validation: `:app:assembleDebug`; instrumented test file compiles.
 
-### [ ] Step 3: Core pure logic — distance + filters + CSV-independent models
+### [x] Step 3: Core pure logic — distance + filters + CSV-independent models
 - Goal: JVM-testable calculation units.
 - Key files: `core/DistanceCalculator.kt` (Haversine), `core/LocationFilter.kt`
   (keep fix if ≥ 10 m displacement, accuracy ≤ 50 m, implied speed ≤ 160 km/h),
