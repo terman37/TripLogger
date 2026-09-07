@@ -3,6 +3,9 @@ plugins {
     // Compose compiler plugin: required since Kotlin 2.0, turns @Composable
     // functions into Compose runtime calls. Version matches built-in Kotlin.
     alias(libs.plugins.compose.compiler)
+    // KSP (Kotlin Symbol Processing): generates Room DAO implementations at
+    // compile time from the @Dao annotations.
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -54,7 +57,14 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    // Room: runtime + KTX (suspend DAO functions); compiler runs via KSP.
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    // Room helper to open an in-memory database inside instrumented tests.
+    androidTestImplementation(libs.room.testing)
 }

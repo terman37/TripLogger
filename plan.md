@@ -30,7 +30,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `./gradlew :app:assembleDebug`; unit tests still pass.
 - Review: open app in emulator → dark theme, 3 tabs switch.
 
-### [ ] Step 2: Trip database (Room)
+### [x] Step 2: Trip database (Room)
 - Goal: typed storage for trips.
 - Key files: `data/Trip.kt` (entity: start/end epoch ms, start/end lat+lng,
   start/end street, start/end city, distanceKm, origin auto/manual),
