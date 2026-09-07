@@ -242,6 +242,28 @@ class TripRecorderTest {
     }
 
     @Test
+    fun updatedGracePeriod_isUsedForNextDisconnect() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.updateGracePeriodMillis(60_000L) // user set 1 minute
+
+        recorder.onDeviceConnected("Car")
+        clock.now = base + 5_000
+        recorder.onDeviceDisconnected()
+
+        // 59 s after disconnect: still in grace (not yet 60 s).
+        clock.now = base + 5_000 + 59_000
+        recorder.onGraceTimerExpired()
+        assertEquals(TripRecorder.Phase.GRACE, recorder.snapshot().phase)
+
+        // 1 s later: grace over, trip finished.
+        clock.now = base + 5_000 + 60_000
+        recorder.onGraceTimerExpired()
+        assertEquals(TripRecorder.Phase.IDLE, recorder.snapshot().phase)
+        assertEquals(1, recorder.takeFinishedTrips().size)
+    }
+
+    @Test
     fun snapshot_reflectsLiveState() {
         val clock = FakeClock(base)
         val recorder = TripRecorder(clock, graceMs)

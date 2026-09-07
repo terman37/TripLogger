@@ -29,13 +29,15 @@ data class Trip(
     val startEpochMillis: Long,
     val startLat: Double?,
     val startLng: Double?,
-    val startStreet: String?,
-    val startCity: String?,
+    // Address fields default to null = "not geocoded yet" (most trips are
+    // created without addresses and filled in later, see PendingAddresses).
+    val startStreet: String? = null,
+    val startCity: String? = null,
     val endEpochMillis: Long,
     val endLat: Double?,
     val endLng: Double?,
-    val endStreet: String?,
-    val endCity: String?,
+    val endStreet: String? = null,
+    val endCity: String? = null,
     val distanceKm: Double,
     val origin: TripOrigin,
 )

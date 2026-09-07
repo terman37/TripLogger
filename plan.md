@@ -82,7 +82,7 @@ not approved. Every step must leave the project compiling:
   fields).
 - Validation: `:app:testDebugUnitTest`, `:app:assembleDebug`.
 
-### [ ] Step 7: Settings + repositories + app wiring
+### [x] Step 7: Settings + repositories + app wiring
 - Goal: single place owning app state.
 - Key files: `settings/SettingsRepository.kt` interface (monitoringEnabled,
   registered devices list, graceMinutes, sampling fixed constant),

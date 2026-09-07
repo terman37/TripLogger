@@ -32,8 +32,11 @@ package com.terman37.triplogger.core
  */
 class TripRecorder(
     private val clock: Clock,
-    private val gracePeriodMillis: Long = 3 * 60_000L,
+    gracePeriodMillis: Long = 3 * 60_000L,
 ) {
+    // Grace period length, changeable at runtime (the user edits it in the
+    // Devices screen; the app container pushes new values here).
+    private var gracePeriodMillis: Long = gracePeriodMillis
     // The active recording session, or null when idle.
     private var session: Session? = null
 
@@ -93,6 +96,12 @@ class TripRecorder(
      * persist them). */
     fun takeFinishedTrips(): List<TripDraft> =
         finishedTrips.toList().also { finishedTrips.clear() }
+
+    /** Called when the user changes the grace period (Devices screen). */
+    fun updateGracePeriodMillis(millis: Long) {
+        require(millis > 0) { "grace period must be positive: $millis" }
+        gracePeriodMillis = millis
+    }
 
     // --- Events -----------------------------------------------------------
 

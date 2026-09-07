@@ -46,6 +46,13 @@ interface TripDao {
     suspend fun tripsSince(sinceEpochMillis: Long): List<Trip>
 
     /**
+     * Every trip, oldest first. Used by the lazy address retry (todo.md):
+     * pending addresses may belong to any past trip.
+     */
+    @Query("SELECT * FROM trips ORDER BY startEpochMillis ASC")
+    suspend fun allTrips(): List<Trip>
+
+    /**
      * Removes one trip (UI.md: delete from the expanded row on Home).
      */
     @Delete
