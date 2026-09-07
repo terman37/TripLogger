@@ -50,7 +50,7 @@ not approved. Every step must leave the project compiling:
   (fixed known inputs, e.g. 1° latitude ≈ 111.19 km).
 - Validation: `./gradlew :app:testDebugUnitTest`.
 
-### [ ] Step 4: Trip session state machine (recorder)
+### [x] Step 4: Trip session state machine (recorder)
 - Goal: decide start/end/resume of a trip from events, pure and testable.
 - Key files: `core/TripRecorder.kt` (states Idle → Recording →
   GracePeriod → Recording; events: deviceConnected, deviceDisconnected,

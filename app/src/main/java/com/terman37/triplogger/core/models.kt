@@ -1,6 +1,17 @@
 package com.terman37.triplogger.core
 
 /**
+ * How a trip was started. AUTO = started because a registered Bluetooth device
+ * connected (or resumed within the grace period); MANUAL = started with the
+ * fallback button on the Home screen. Stored in the database so the UI can show
+ * "Started manually" instead of a connected device name (UI.md).
+ */
+enum class TripOrigin {
+    AUTO,
+    MANUAL,
+}
+
+/**
  * Tuning constants for trip tracking. Kept in ONE place on purpose: they are
  * decisions from todo.md/plan.md and may change without touching logic.
  */

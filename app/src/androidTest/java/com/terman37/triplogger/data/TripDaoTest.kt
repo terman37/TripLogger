@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.terman37.triplogger.core.TripOrigin
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
