@@ -65,7 +65,7 @@
 
 ## Process / instructions
 
-- [ ] Create plan.md: step-by-step implementation plan with checkboxes
+- [x] Create plan.md: step-by-step implementation plan with checkboxes
   - each step small enough to review and commit separately
   - update plan after each step
 - [ ] Create BUILD.md: instructions to generate the installable APK
