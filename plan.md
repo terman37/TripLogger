@@ -63,7 +63,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 2 — Android plumbing
 
-### [ ] Step 5: Location sampling
+### [x] Step 5: Location sampling
 - Goal: feed location fixes to the recorder.
 - Key files: `location/LocationSampler.kt` (thin wrapper over
   `LocationManager.requestLocationUpdates`, 30 s interval; forwards fixes),
