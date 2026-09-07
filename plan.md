@@ -17,7 +17,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 1 — skeleton, data, core logic (no UI yet)
 
-### Step 1: Compose + dark theme + bottom navigation shell
+### [x] Step 1: Compose + dark theme + bottom navigation shell
 - Goal: empty app with 3 tabs (Home / Devices / Report) navigating between
   placeholder screens, Material 3 dark theme, English.
 - Key files: `app/build.gradle.kts` (Compose deps), `gradle/libs.versions.toml`
@@ -30,7 +30,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `./gradlew :app:assembleDebug`; unit tests still pass.
 - Review: open app in emulator → dark theme, 3 tabs switch.
 
-### Step 2: Trip database (Room)
+### [ ] Step 2: Trip database (Room)
 - Goal: typed storage for trips.
 - Key files: `data/Trip.kt` (entity: start/end epoch ms, start/end lat+lng,
   start/end street, start/end city, distanceKm, origin auto/manual),
@@ -41,7 +41,7 @@ not approved. Every step must leave the project compiling:
   emulator/device); JVM tests start at Step 3.
 - Validation: `:app:assembleDebug`; instrumented test file compiles.
 
-### Step 3: Core pure logic — distance + filters + CSV-independent models
+### [ ] Step 3: Core pure logic — distance + filters + CSV-independent models
 - Goal: JVM-testable calculation units.
 - Key files: `core/DistanceCalculator.kt` (Haversine), `core/LocationFilter.kt`
   (keep fix if ≥ 10 m displacement, accuracy ≤ 50 m, implied speed ≤ 160 km/h),
@@ -50,7 +50,7 @@ not approved. Every step must leave the project compiling:
   (fixed known inputs, e.g. 1° latitude ≈ 111.19 km).
 - Validation: `./gradlew :app:testDebugUnitTest`.
 
-### Step 4: Trip session state machine (recorder)
+### [ ] Step 4: Trip session state machine (recorder)
 - Goal: decide start/end/resume of a trip from events, pure and testable.
 - Key files: `core/TripRecorder.kt` (states Idle → Recording →
   GracePeriod → Recording; events: deviceConnected, deviceDisconnected,
@@ -63,7 +63,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 2 — Android plumbing
 
-### Step 5: Location sampling
+### [ ] Step 5: Location sampling
 - Goal: feed location fixes to the recorder.
 - Key files: `location/LocationSampler.kt` (thin wrapper over
   `LocationManager.requestLocationUpdates`, 30 s interval; forwards fixes),
@@ -72,7 +72,7 @@ not approved. Every step must leave the project compiling:
   (plain LocationManager: no Play Services dependency, works on emulator).
 - Validation: `:app:assembleDebug`.
 
-### Step 6: Reverse geocoding
+### [ ] Step 6: Reverse geocoding
 - Goal: coordinates → street + city; retry queue for failed lookups.
 - Key files: `geocoding/GeocoderClient.kt` interface + Android `Geocoder`
   implementation (thoroughfare/subThoroughfare → street, locality → city),
@@ -82,7 +82,7 @@ not approved. Every step must leave the project compiling:
   fields).
 - Validation: `:app:testDebugUnitTest`, `:app:assembleDebug`.
 
-### Step 7: Settings + repositories + app wiring
+### [ ] Step 7: Settings + repositories + app wiring
 - Goal: single place owning app state.
 - Key files: `settings/SettingsRepository.kt` interface (monitoringEnabled,
   registered devices list, graceMinutes, sampling fixed constant),
@@ -92,7 +92,7 @@ not approved. Every step must leave the project compiling:
 - Notes: UI reads state through one `AppViewModel` per screen.
 - Validation: `:app:assembleDebug`, tests pass.
 
-### Step 8: Bluetooth monitoring + foreground service
+### [ ] Step 8: Bluetooth monitoring + foreground service
 - Goal: detect registered device connect/disconnect; run recorder continuously.
 - Key files: `monitor/BluetoothMonitor.kt` (dynamic receiver for
   `ACTION_ACL_CONNECTED` / `ACTION_ACL_DISCONNECTED`, filters to registered
@@ -108,7 +108,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 3 — UI
 
-### Step 9: Home screen
+### [ ] Step 9: Home screen
 - Goal: status card + today/yesterday trips with expand/delete.
 - Key files: `ui/home/*` — state from a mapper (`UiStateMapper` pure function,
   unit-tested), status card states per UI.md (monitoring off / waiting / recording
@@ -120,7 +120,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `:app:testDebugUnitTest`, `:app:assembleDebug`, manual emulator
   run.
 
-### Step 10: Devices screen
+### [ ] Step 10: Devices screen
 - Goal: master monitoring switch, grace period picker (1–15 min, default 3),
   registered devices (add from paired list, remove, no duplicates).
 - Key files: `ui/devices/*` — read paired devices
@@ -130,7 +130,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `:app:assembleDebug`; manual run: register a device, remove it,
   toggle switch.
 
-### Step 11: Report screen
+### [ ] Step 11: Report screen
 - Goal: date range → preview → export CSV → share.
 - Key files: `report/ReportCsvBuilder.kt` (pure, unit-tested: columns per
   todo.md, ISO dates, HH:mm, YYYY-MM month, chronological, totals row, UTF-8),
@@ -145,7 +145,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 4 — release polish
 
-### Step 12: End-to-end device validation + fixes
+### [ ] Step 12: End-to-end device validation + fixes
 - Goal: verify real flow on a phone with the car.
 - Manual checklist: pair car → register → enable monitoring → drive → auto
   trip saved → kill phone mid-trip → restart (partial discarded) → generate
@@ -153,22 +153,32 @@ not approved. Every step must leave the project compiling:
 - Validation: all checklist items pass; fix defects found as separate small
   steps.
 
-### Step 13: App icon + BUILD.md + doc sync
+### [ ] Step 13: App icon + BUILD.md + doc sync
 - Goal: custom launcher icon (design chosen by owner), BUILD.md with installable
   APK instructions (debug + release signing), README/UI.md/todo.md updated to
   match final behavior, plan.md completed.
 
-## Questions to answer before implementation
+## Questions answered
 
-1. Bluetooth detection method: rely on `ACTION_ACL_CONNECTED/DISCONNECTED`
+1. Bluetooth detection: **ACL broadcasts** (`ACTION_ACL_CONNECTED/DISCONNECTED`)
+   — agreed. Profile-listener fallback only if real-device test fails.
+2. Release signing: **debug APK only for now**; release signing documented when
+   needed (Step 13 builds debug instructions; release optional).
+3. Emulator **mock-location accepted** for early validation; real-driving test
+   at Step 12.
+4. **No migration infra until schema v2** exists; Room migrations added then.
+
+## Open questions
+
+- Bluetooth detection: rely on `ACTION_ACL_CONNECTED/DISCONNECTED`
    broadcasts (simple, works for most car units) — accepted? If the owner's car
    unit proves unreliable, fallback = listen on `BluetoothHeadset`/
    `BluetoothA2dp` profile connection states (needs profile support). Confirm
    default now, revisit at Step 8 device test.
-2. Release signing: installable APK for personal use only — debug build
+- Release signing: installable APK for personal use only — debug build
    sufficient, or need release keystore + signed APK (BUILD.md covers both)?
-3. Fake location testing: unit tests use synthetic coordinates; real device
+- Fake location testing: unit tests use synthetic coordinates; real device
    validation needs actual driving. Emulator mock-location acceptable for early
    steps?
-4. Database on-device migration strategy: v1 no migrations needed (fresh
+- Database on-device migration strategy: v1 no migrations needed (fresh
    installs); Room migration test added only when schema v2 appears — OK?

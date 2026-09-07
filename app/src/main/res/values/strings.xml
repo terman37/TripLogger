@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">TripLogger</string>
+    <!-- App name shown under the launcher icon. -->
+    <string name="app_name">Trip Logger</string>
 </resources>
