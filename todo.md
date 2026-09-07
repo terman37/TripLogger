@@ -44,24 +44,24 @@
   - Address stored as street + city separately (reverse geocoder returns
     structured data)
   - Reports contain trip rows only; no cost fields in v1
+- [x] Recording engine implemented (plan Steps 2–8): Room schema/DAO, distance+filters, recorder state machine with grace period, GPS sampling, geocoding with lazy retry, settings + repository + DI, Bluetooth ACL monitoring + foreground service
 
 ## Core features (backlog)
 
-- [ ] Detect when the configured Bluetooth device connects → start recording trip
-- [ ] Get start address (reverse geocoding)
-- [ ] Detect when it disconnects → end trip
-- [ ] Get end address
-- [ ] Compute distance in km
-- [ ] Write row in db:
-  - [ ] start timestamp
-  - [ ] start position
-  - [ ] start address
-  - [ ] end timestamp
-  - [ ] end position
-  - [ ] end address
-  - [ ] number of kilometers
-- [ ] Generate a report between two dates
-- [ ] Share the report
+- [x] Trip logging engine — detect registered Bluetooth connect/disconnect,
+  start/end trip, reverse-geocoded addresses, distance in km, database row
+  with all fields (implemented in plan Steps 2–8). Becomes usable once the
+  Home/Devices UI lands (Steps 9–10): until then nothing can enable it.
+- [ ] Generate a report between two dates (Step 11)
+- [ ] Share the report as spreadsheet (Step 11)
+
+## Later / additional features
+
+- [ ] Store picture of tickets with date
+- [ ] Extract information from ticket picture:
+  - [ ] date
+  - [ ] value
+  - [ ] debited account
 
 ## Process / instructions
 
@@ -69,10 +69,20 @@
   - each step small enough to review and commit separately
   - update plan after each step
 - [ ] Create BUILD.md: instructions to generate the installable APK
-- [ ] Add beginner-friendly comments in the code while implementing
-- [ ] Code should have tests (unit + instrumented)
+- [x] Add beginner-friendly comments in the code while implementing
+- [x] Code should have tests (unit + instrumented; DAO tests need a device: connectedDebugAndroidTest not yet run)
 
 ## Open questions
 
 None for v1 core scope — UI (UI.md) and behavior decisions are settled.
 Remaining work is implementation, tracked in plan.md.
+
+## Project documentation (to do)
+
+- [ ] Refresh README.md + UI.md to match the implemented code. README
+  "Status" section still claims "no feature code written yet" — stale since
+  Step 1. Update architecture notes (package layout changed: core/, data/,
+  settings/, geocoding/, location/, monitor/, ui/) and record final
+  behaviors. Planned as part of plan Step 13, but an interim pass after the
+  UI steps is welcome.
+
