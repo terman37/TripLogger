@@ -130,6 +130,24 @@ class TripDaoTest {
     // Runs a suspend DAO call on the test thread. (Room test helper for
     // coroutines would need runTest; plain runBlocking is enough here because
     // the in-memory DB allows main-thread queries.)
+    @Test
+    fun update_changesAddressAndKeepsId() {
+        runBlockingTest {
+            // A trip stored without addresses (geocoding was offline at end).
+            val noAddress = tripAt(1_000L).copy(startStreet = null, startCity = null)
+            val id = dao.insert(noAddress)
+
+            val withAddress = dao.tripsBetween(0L, 100_000L).single()
+                .copy(startStreet = "12 Rue de Rivoli", startCity = "Paris")
+            dao.update(withAddress)
+
+            val reloaded = dao.tripsBetween(0L, 100_000L).single()
+            assertEquals(id, reloaded.id)
+            assertEquals("12 Rue de Rivoli", reloaded.startStreet)
+            assertEquals("Paris", reloaded.startCity)
+        }
+    }
+
     private fun <T> runBlockingTest(block: suspend () -> T): T =
         kotlinx.coroutines.runBlocking { block() }
 }

@@ -72,7 +72,7 @@ not approved. Every step must leave the project compiling:
   (plain LocationManager: no Play Services dependency, works on emulator).
 - Validation: `:app:assembleDebug`.
 
-### [ ] Step 6: Reverse geocoding
+### [x] Step 6: Reverse geocoding
 - Goal: coordinates → street + city; retry queue for failed lookups.
 - Key files: `geocoding/GeocoderClient.kt` interface + Android `Geocoder`
   implementation (thoroughfare/subThoroughfare → street, locality → city),

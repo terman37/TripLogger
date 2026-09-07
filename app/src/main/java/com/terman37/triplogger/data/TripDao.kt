@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 /**
  * Database queries for trips. Room checks the @Query SQL at compile time: a
@@ -49,4 +50,11 @@ interface TripDao {
      */
     @Delete
     suspend fun delete(trip: Trip)
+
+    /**
+     * Updates an existing trip (same id). Used to fill in addresses after a
+     * delayed reverse geocode (todo.md lazy retry).
+     */
+    @Update
+    suspend fun update(trip: Trip)
 }
