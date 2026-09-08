@@ -130,7 +130,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `:app:assembleDebug`; manual run: register a device, remove it,
   toggle switch.
 
-### [ ] Step 11: Report screen
+### [x] Step 11: Report screen
 - Goal: date range → preview → export CSV → share.
 - Key files: `report/ReportCsvBuilder.kt` (pure, unit-tested: columns per
   todo.md, ISO dates, HH:mm, YYYY-MM month, chronological, totals row, UTF-8),

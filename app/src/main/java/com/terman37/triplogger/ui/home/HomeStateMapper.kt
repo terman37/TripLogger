@@ -31,28 +31,7 @@ object HomeStateMapper {
             else -> CardUiState.MonitoringOff
         }
 
-        val rows = trips.map { it.toRowUi(zone) }
+        val rows = trips.map { tripToRowUi(it, zone) }
         return HomeUiState(card = card, recentTrips = rows, hasTrips = rows.isNotEmpty())
     }
-}
-
-/** Formats one database trip into a display row. */
-private fun Trip.toRowUi(zone: java.time.ZoneId): TripRowUi {
-    val startAddress = TripText.addressText(startStreet, startCity, hasCoordinates = startLat != null && startLng != null)
-    val endAddress = TripText.addressText(endStreet, endCity, hasCoordinates = endLat != null && endLng != null)
-    val summary = TripText.shortLabel(startStreet, startCity, "Start") +
-        " → " +
-        TripText.shortLabel(endStreet, endCity, "End")
-    return TripRowUi(
-        id = id,
-        title = TripText.dateTimeText(startEpochMillis, zone),
-        summary = summary,
-        distanceText = TripText.kmText(distanceKm),
-        origin = origin,
-        timeRangeText = "${TripText.timeText(startEpochMillis, zone)} – " +
-            TripText.timeText(endEpochMillis, zone),
-        durationText = TripText.durationText(startEpochMillis, endEpochMillis),
-        startAddressText = startAddress,
-        endAddressText = endAddress,
-    )
 }

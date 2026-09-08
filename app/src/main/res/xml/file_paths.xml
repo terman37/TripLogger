@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FileProvider paths: which files the provider may hand to other apps.
+    Only the export folder inside the app CACHE is exposed (no storage
+    permission needed, nothing sensitive).
+-->
+<paths>
+    <cache-path name="exports" path="exports/" />
+</paths>

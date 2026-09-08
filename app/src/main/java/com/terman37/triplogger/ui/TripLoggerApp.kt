@@ -22,7 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.terman37.triplogger.ui.home.HomeScreen
 import com.terman37.triplogger.ui.devices.DevicesScreen
-import com.terman37.triplogger.ui.screens.ReportScreen
+import com.terman37.triplogger.ui.report.ReportScreen
 
 /**
  * The three top-level destinations shown in the bottom navigation bar
