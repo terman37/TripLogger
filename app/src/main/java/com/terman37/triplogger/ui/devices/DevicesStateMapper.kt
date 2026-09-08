@@ -1,0 +1,52 @@
+package com.terman37.triplogger.ui.devices
+
+import com.terman37.triplogger.data.RegisteredDevice
+import com.terman37.triplogger.monitor.PairedDeviceInfo
+
+/**
+ * Pure mapping for the Devices screen (see [DevicesUiState]). Android-free so
+ * the composition rules (exclusion, ordering, hints) are unit-tested.
+ */
+object DevicesStateMapper {
+
+    fun toUi(
+        monitoringEnabled: Boolean,
+        graceMinutes: Int,
+        registered: List<RegisteredDevice>,
+        paired: List<PairedDeviceInfo>,
+        permissionsGranted: Boolean,
+    ): DevicesUiState {
+        // Display names: prefer the live name the system reports now; fall
+        // back to the stored name (device may be temporarily out of range).
+        val liveName = paired.associate { it.address to it.name }
+
+        val registeredRows = registered.map { device ->
+            DeviceRow(
+                address = device.address,
+                name = liveName[device.address] ?: device.name,
+            )
+        }
+
+        val registeredAddresses = registered.mapTo(mutableSetOf()) { it.address }
+        val available = paired
+            .filterNot { it.address in registeredAddresses }
+            .map { DeviceRow(it.address, it.name) }
+
+        val hint = when {
+            !permissionsGranted -> "Bluetooth access needed to list devices."
+            paired.isEmpty() -> "No paired devices. Pair in Android settings, then come back."
+            available.isEmpty() && registered.isEmpty() -> null
+            else -> null
+        }
+
+        return DevicesUiState(
+            monitoringEnabled = monitoringEnabled,
+            graceMinutes = graceMinutes,
+            canEnableMonitoring = registered.isNotEmpty(),
+            permissionsGranted = permissionsGranted,
+            registered = registeredRows,
+            available = available,
+            bluetoothHint = hint,
+        )
+    }
+}

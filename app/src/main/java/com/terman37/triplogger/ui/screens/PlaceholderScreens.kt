@@ -8,14 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-// Placeholder screens for Step 1 (plan.md). Each screen is replaced by its
-// real implementation in a later step (Devices → Step 10, Report → Step 11).
-// Home was replaced in Step 9.
-
-@Composable
-fun DevicesScreen() {
-    PlaceholderText("Devices — monitoring settings (Step 10)")
-}
+// Placeholder screens for Step 1 (plan.md). Report is replaced in Step 11;
+// Home (Step 9) and Devices (Step 10) already have real screens.
 
 @Composable
 fun ReportScreen() {

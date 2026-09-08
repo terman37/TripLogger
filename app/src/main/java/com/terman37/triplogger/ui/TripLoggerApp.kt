@@ -21,7 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.terman37.triplogger.ui.home.HomeScreen
-import com.terman37.triplogger.ui.screens.DevicesScreen
+import com.terman37.triplogger.ui.devices.DevicesScreen
 import com.terman37.triplogger.ui.screens.ReportScreen
 
 /**

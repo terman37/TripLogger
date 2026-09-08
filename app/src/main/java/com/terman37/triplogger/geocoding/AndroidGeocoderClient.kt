@@ -21,6 +21,10 @@ class AndroidGeocoderClient(context: Context) : GeocoderClient {
 
     private val geocoder = Geocoder(context.applicationContext)
 
+    @Suppress("DEPRECATION")
+    // getFromLocation is marked deprecated in recent SDKs; the replacement is
+    // the geocoding backend of Play services, which this app deliberately
+    // avoids (plan.md). The platform Geocoder still works on all devices.
     override fun reverse(latitude: Double, longitude: Double): ReverseGeocodeResult? {
         // Geocoder throws IOException on network problems and
         // IllegalArgumentException on bad coordinates — both mean "no result".

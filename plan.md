@@ -120,7 +120,7 @@ not approved. Every step must leave the project compiling:
 - Validation: `:app:testDebugUnitTest`, `:app:assembleDebug`, manual emulator
   run.
 
-### [ ] Step 10: Devices screen
+### [x] Step 10: Devices screen
 - Goal: master monitoring switch, grace period picker (1–15 min, default 3),
   registered devices (add from paired list, remove, no duplicates).
 - Key files: `ui/devices/*` — read paired devices
