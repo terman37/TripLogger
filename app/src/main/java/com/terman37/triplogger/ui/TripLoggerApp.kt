@@ -20,8 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.terman37.triplogger.ui.home.HomeScreen
 import com.terman37.triplogger.ui.screens.DevicesScreen
-import com.terman37.triplogger.ui.screens.HomeScreen
 import com.terman37.triplogger.ui.screens.ReportScreen
 
 /**
@@ -95,7 +95,13 @@ fun TripLoggerApp() {
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            composable(TopLevelDestination.HOME.route) { HomeScreen() }
+            composable(TopLevelDestination.HOME.route) {
+                HomeScreen(
+                    onOpenDevices = {
+                        navController.navigate(TopLevelDestination.DEVICES.route)
+                    },
+                )
+            }
             composable(TopLevelDestination.DEVICES.route) { DevicesScreen() }
             composable(TopLevelDestination.REPORT.route) { ReportScreen() }
         }

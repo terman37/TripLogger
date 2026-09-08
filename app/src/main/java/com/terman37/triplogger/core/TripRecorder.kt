@@ -1,5 +1,8 @@
 package com.terman37.triplogger.core
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
 /**
  * The trip session state machine. Inputs are events (Bluetooth connect/
  * disconnect, GPS samples, manual start/stop, grace timer) and outputs are
@@ -45,6 +48,11 @@ class TripRecorder(
 
     // Trips finished but not yet collected by the caller.
     private val finishedTrips = mutableListOf<TripDraft>()
+
+    // Observable mirror of snapshot(): the UI collects this instead of
+    // polling. Updated after every event that can change the state.
+    private val _snapshotFlow = MutableStateFlow(snapshot())
+    val snapshotFlow: StateFlow<Snapshot> = _snapshotFlow
 
     /** Mutable trip state; recreated on every new trip (fresh distance
      * filter = fresh anchor). */
@@ -118,6 +126,7 @@ class TripRecorder(
             graceUntilMillis = null
         }
         // Recording already active: another device connected — ignore.
+        publish()
     }
 
     /** A Bluetooth device disconnected. Ends the trip only after the grace
@@ -129,6 +138,7 @@ class TripRecorder(
         // Only a recording (not an already-graceful) trip enters grace.
         if (graceUntilMillis != null) return
         graceUntilMillis = clock.nowMillis() + gracePeriodMillis
+        publish()
     }
 
     /**
@@ -151,18 +161,21 @@ class TripRecorder(
                 }
             }
         }
+        publish()
     }
 
     /** Fallback start button (no Bluetooth). */
     fun onManualStart() {
         if (session != null) return // already recording (any kind)
         startTrip(clock.nowMillis(), TripOrigin.MANUAL, deviceName = null)
+        publish()
     }
 
     /** Fallback stop button; ends any active trip immediately. */
     fun onManualStop() {
         if (session == null) return
         finishTrip()
+        publish()
     }
 
     /** Called by the service when the grace timer elapses. */
@@ -173,6 +186,7 @@ class TripRecorder(
         val until = graceUntilMillis ?: return
         if (clock.nowMillis() < until) return
         finishTrip()
+        publish()
     }
 
     // --- Internals --------------------------------------------------------
@@ -201,5 +215,10 @@ class TripRecorder(
         )
         session = null
         graceUntilMillis = null
+    }
+
+    /** Re-emits the current snapshot to observers. */
+    private fun publish() {
+        _snapshotFlow.value = snapshot()
     }
 }

@@ -1,5 +1,7 @@
 package com.terman37.triplogger.data
 
+import kotlinx.coroutines.flow.map
+
 /**
  * In-memory [TripDao] for JVM tests. Implements the Room interface by hand so
  * TripRepository can be tested without an emulator.
@@ -17,6 +19,7 @@ class FakeTripDao : TripDao {
     override suspend fun insert(trip: Trip): Long = synchronized(lock) {
         val copy = trip.copy(id = nextId++)
         trips += copy
+        mirror()
         copy.id
     }
 
@@ -32,20 +35,47 @@ class FakeTripDao : TripDao {
                 .sortedByDescending { it.startEpochMillis }
         }
 
+    override fun tripsSinceFlow(sinceEpochMillis: Long): kotlinx.coroutines.flow.Flow<List<Trip>> =
+        flowMirror.map { list ->
+            list.filter { it.startEpochMillis >= sinceEpochMillis }
+                .sortedByDescending { it.startEpochMillis }
+        }
+
     override suspend fun allTrips(): List<Trip> =
         synchronized(lock) { trips.sortedBy { it.startEpochMillis } }
 
+    override suspend fun deleteById(id: Long) {
+        synchronized(lock) {
+            trips.removeAll { it.id == id }
+            mirror()
+        }
+    }
+
     override suspend fun delete(trip: Trip) {
-        synchronized(lock) { trips.removeAll { it.id == trip.id } }
+        synchronized(lock) {
+            trips.removeAll { it.id == trip.id }
+            mirror()
+        }
     }
 
     override suspend fun update(trip: Trip) {
         synchronized(lock) {
             val index = trips.indexOfFirst { it.id == trip.id }
             if (index >= 0) trips[index] = trip
+            mirror()
         }
     }
 
     /** Test helper: current contents. */
     fun snapshot(): List<Trip> = synchronized(lock) { trips.toList() }
+
+    // --- flow plumbing ----------------------------------------------------
+
+    // Mirror of [trips] that Room's Flow query would emulate: every mutation
+    // pushes a fresh copy here.
+    private val flowMirror = kotlinx.coroutines.flow.MutableStateFlow<List<Trip>>(emptyList())
+
+    private fun mirror() {
+        flowMirror.value = trips.toList()
+    }
 }

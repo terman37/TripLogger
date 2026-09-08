@@ -8,14 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-// Placeholder screens for Step 1 (plan.md): the bottom-navigation shell with
-// empty tabs. Each screen is replaced by its real implementation in a later
-// step (Home → Step 9, Devices → Step 10, Report → Step 11).
-
-@Composable
-fun HomeScreen() {
-    PlaceholderText("Home — trip status and recent trips (Step 9)")
-}
+// Placeholder screens for Step 1 (plan.md). Each screen is replaced by its
+// real implementation in a later step (Devices → Step 10, Report → Step 11).
+// Home was replaced in Step 9.
 
 @Composable
 fun DevicesScreen() {

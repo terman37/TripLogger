@@ -46,6 +46,17 @@ interface TripDao {
     suspend fun tripsSince(sinceEpochMillis: Long): List<Trip>
 
     /**
+     * Same as [tripsSince] but as a reactive Flow: Room re-emits whenever the
+     * table changes, so the Home list refreshes itself after insert/delete
+     * (no manual reloads).
+     */
+    @Query(
+        "SELECT * FROM trips WHERE startEpochMillis >= :sinceEpochMillis " +
+            "ORDER BY startEpochMillis DESC",
+    )
+    fun tripsSinceFlow(sinceEpochMillis: Long): kotlinx.coroutines.flow.Flow<List<Trip>>
+
+    /**
      * Every trip, oldest first. Used by the lazy address retry (todo.md):
      * pending addresses may belong to any past trip.
      */
@@ -57,6 +68,10 @@ interface TripDao {
      */
     @Delete
     suspend fun delete(trip: Trip)
+
+    /** Removes a trip by id (UI calls this with the row id). */
+    @Query("DELETE FROM trips WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
     /**
      * Updates an existing trip (same id). Used to fill in addresses after a

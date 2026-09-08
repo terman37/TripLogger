@@ -108,7 +108,7 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 3 — UI
 
-### [ ] Step 9: Home screen
+### [x] Step 9: Home screen
 - Goal: status card + today/yesterday trips with expand/delete.
 - Key files: `ui/home/*` — state from a mapper (`UiStateMapper` pure function,
   unit-tested), status card states per UI.md (monitoring off / waiting / recording
