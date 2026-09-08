@@ -15,6 +15,7 @@ object DevicesStateMapper {
         registered: List<RegisteredDevice>,
         paired: List<PairedDeviceInfo>,
         permissionsGranted: Boolean,
+        hasBluetoothPermission: Boolean = permissionsGranted,
     ): DevicesUiState {
         // Display names: prefer the live name the system reports now; fall
         // back to the stored name (device may be temporarily out of range).
@@ -33,9 +34,8 @@ object DevicesStateMapper {
             .map { DeviceRow(it.address, it.name) }
 
         val hint = when {
-            !permissionsGranted -> "Bluetooth access needed to list devices."
+            !hasBluetoothPermission -> "Allow Bluetooth access to see paired devices."
             paired.isEmpty() -> "No paired devices. Pair in Android settings, then come back."
-            available.isEmpty() && registered.isEmpty() -> null
             else -> null
         }
 
@@ -44,6 +44,7 @@ object DevicesStateMapper {
             graceMinutes = graceMinutes,
             canEnableMonitoring = registered.isNotEmpty(),
             permissionsGranted = permissionsGranted,
+            hasBluetoothPermission = hasBluetoothPermission,
             registered = registeredRows,
             available = available,
             bluetoothHint = hint,

@@ -46,6 +46,9 @@ class TripRecorder(
     // When the grace period ends (epoch ms), only meaningful in GRACE state.
     private var graceUntilMillis: Long? = null
 
+    // When the grace period started (epoch ms), for the Home "since …" line.
+    private var graceStartedAt: Long? = null
+
     // Trips finished but not yet collected by the caller.
     private val finishedTrips = mutableListOf<TripDraft>()
 
@@ -81,6 +84,9 @@ class TripRecorder(
         val origin: TripOrigin?,
         /** Name of the connected device, or null for manual trips. */
         val deviceName: String?,
+        /** When the grace period started (for "Disconnected since …", UI); null
+         * unless the trip is in GRACE. */
+        val graceStartedAtEpochMillis: Long? = null,
     )
 
     enum class Phase { IDLE, RECORDING, GRACE }
@@ -96,6 +102,7 @@ class TripRecorder(
                 startEpochMillis = s.startEpochMillis,
                 origin = s.origin,
                 deviceName = s.deviceName,
+                graceStartedAtEpochMillis = graceStartedAt,
             )
         }
     }
@@ -124,6 +131,7 @@ class TripRecorder(
             // Reconnect inside the grace period: resume the SAME trip (start
             // time and accumulated distance are preserved).
             graceUntilMillis = null
+            graceStartedAt = null
         }
         // Recording already active: another device connected — ignore.
         publish()
@@ -137,7 +145,9 @@ class TripRecorder(
         if (s.origin != TripOrigin.AUTO) return
         // Only a recording (not an already-graceful) trip enters grace.
         if (graceUntilMillis != null) return
-        graceUntilMillis = clock.nowMillis() + gracePeriodMillis
+        val now = clock.nowMillis()
+        graceUntilMillis = now + gracePeriodMillis
+        graceStartedAt = now
         publish()
     }
 
@@ -198,6 +208,7 @@ class TripRecorder(
             deviceName = deviceName,
         )
         graceUntilMillis = null
+        graceStartedAt = null
     }
 
     private fun finishTrip() {
@@ -215,6 +226,7 @@ class TripRecorder(
         )
         session = null
         graceUntilMillis = null
+        graceStartedAt = null
     }
 
     /** Re-emits the current snapshot to observers. */

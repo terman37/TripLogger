@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -66,104 +64,108 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
     // Live selection inside the date picker dialog (reset when opened).
     val datePickerState = rememberDatePickerState()
 
-    Column(
+    val current = data
+    val rowById = current?.let { remember(it) { viewModel.toRows(it).associateBy { it.id } } }
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
-        Text("From", style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { pickerFor = DateField.FROM }) { Text(from.toString()) }
+        item {
+            Text("From", style = MaterialTheme.typography.labelLarge)
+            OutlinedButton(onClick = { pickerFor = DateField.FROM }) { Text(from.toString()) }
 
-        Text("To", style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { pickerFor = DateField.TO }) { Text(to.toString()) }
+            Text("To", style = MaterialTheme.typography.labelLarge)
+            OutlinedButton(onClick = { pickerFor = DateField.TO }) { Text(to.toString()) }
 
-        if (from.isAfter(to)) {
-            Text(
-                "From must not be after To.",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        error?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
-
-        Spacer(Modifier.height(8.dp))
-        Button(
-            onClick = {
-                scope.launch {
-                    generating = true
-                    error = null
-                    data = viewModel.generate(from, to)
-                    expandedIds = emptySet()
-                    generating = false
-                }
-            },
-            enabled = !generating && !from.isAfter(to),
-        ) {
-            Text(if (generating) "Generating…" else "Generate")
-        }
-
-        val current = data
-        if (current != null) {
-            Spacer(Modifier.height(16.dp))
-            val rowById = remember(current) {
-                viewModel.toRows(current).associateBy { it.id }
-            }
-            Text(
-                text = String.format(
-                    Locale.US, "%d %s · %.1f km",
-                    current.trips.size,
-                    if (current.trips.size == 1) "trip" else "trips",
-                    current.totalKm,
-                ),
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            if (current.trips.isEmpty()) {
+            if (from.isAfter(to)) {
                 Text(
-                    "No trips in this period",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
+                    "From must not be after To.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
                 )
-            } else {
+            }
+            error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    scope.launch {
+                        generating = true
+                        error = null
+                        data = viewModel.generate(from, to)
+                        expandedIds = emptySet()
+                        generating = false
+                    }
+                },
+                enabled = !generating && !from.isAfter(to),
+            ) {
+                Text(if (generating) "Generating…" else "Generate")
+            }
+        }
+
+        if (current != null) {
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = String.format(
+                        Locale.US, "%d %s · %.1f km",
+                        current.trips.size,
+                        if (current.trips.size == 1) "trip" else "trips",
+                        current.totalKm,
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                if (current.trips.isEmpty()) {
+                    Text(
+                        "No trips in this period",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                    )
+                }
+            }
+
+            if (current.trips.isNotEmpty()) {
                 // Chronological preview (DAO order); expanding shows the same
                 // detail as Home. No delete here: this view mirrors the data.
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(current.trips, key = { it.id }) { trip ->
-                        val row = rowById[trip.id] ?: return@items
-                        TripRowCard(
-                            row = row,
-                            expanded = trip.id in expandedIds,
-                            onToggle = {
-                                expandedIds = if (trip.id in expandedIds) {
-                                    expandedIds - trip.id
-                                } else {
-                                    expandedIds + trip.id
-                                }
-                            },
-                        )
-                    }
+                items(current.trips, key = { it.id }) { trip ->
+                    val row = rowById?.get(trip.id) ?: return@items
+                    TripRowCard(
+                        row = row,
+                        expanded = trip.id in expandedIds,
+                        onToggle = {
+                            expandedIds = if (trip.id in expandedIds) {
+                                expandedIds - trip.id
+                            } else {
+                                expandedIds + trip.id
+                            }
+                        },
+                    )
                 }
 
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        scope.launch {
-                            error = null
-                            val file = viewModel.exportCsv(from, to)
-                            if (file != null) {
-                                shareCsv(context, file)
-                            } else {
-                                error = "Export failed"
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                error = null
+                                val file = viewModel.exportCsv(from, to)
+                                if (file != null) {
+                                    shareCsv(context, file)
+                                } else {
+                                    error = "Export failed"
+                                }
                             }
-                        }
-                    },
-                ) {
-                    Text("Export spreadsheet")
+                        },
+                    ) {
+                        Text("Export spreadsheet")
+                    }
                 }
             }
         }

@@ -142,10 +142,15 @@ state machine, CSV formatting, report date-range queries (Room in-memory). Where
 Android APIs are involved, logic is isolated behind interfaces so tests run on
 the JVM without an emulator.
 
+Instrumented DAO tests live in `app/src/androidTest` (run on a device:
+`./gradlew :app:connectedDebugAndroidTest`). Manual end-to-end validation is
+described in [DeviceTest.md](DeviceTest.md).
+
 ## Documentation
 
 - [todo.md](todo.md) — user feature list and open questions
 - [plan.md](plan.md) — step-by-step implementation plan (checkboxes)
+- [DeviceTest.md](DeviceTest.md) — manual on-device validation checklist
 - [UI.md](UI.md) — precise visual specification of the app
 - [AGENTS.md](AGENTS.md) — conventions for AI agents / contributors working in this repo
 - [BUILD.md](BUILD.md) — how to produce an installable file

@@ -2,9 +2,10 @@
     <!-- App name shown under the launcher icon. -->
     <string name="app_name">Trip Logger</string>
 
-    <!-- Foreground service notification (UI.md: minimal content, no actions). -->
+    <!-- Foreground service notification (user request): always leads with
+         "Monitoring active", the state follows after the dash. -->
     <string name="notification_channel_name">Trip monitoring</string>
     <string name="notification_monitoring_text">Monitoring active</string>
-    <string name="notification_manual_text">Trip recording active</string>
-    <string name="notification_grace_text">Disconnected — finishing trip…</string>
+    <string name="notification_recording_label">Recording</string>
+    <string name="notification_disconnected_label">Disconnected, finishing trip…</string>
 </resources>

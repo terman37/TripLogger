@@ -35,6 +35,7 @@ class HomeStateMapperTest {
         startEpochMillis = 1000L,
         origin = TripOrigin.AUTO,
         deviceName = "Car",
+        graceStartedAtEpochMillis = 5000L,
     )
 
     private fun trip(
@@ -121,7 +122,10 @@ class HomeStateMapperTest {
             trips = emptyList(),
             zone = utc,
         )
-        assertEquals(CardUiState.GracePeriod(distanceKm = 7.3), state.card)
+        assertEquals(
+            CardUiState.GracePeriod(distanceKm = 7.3, graceStartedAtEpochMillis = 5000L),
+            state.card,
+        )
     }
 
     @Test

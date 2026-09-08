@@ -14,6 +14,10 @@ data class DevicesUiState(
     val canEnableMonitoring: Boolean,
     /** True when all runtime permissions needed for monitoring are granted. */
     val permissionsGranted: Boolean,
+
+    /** True when BLUETOOTH_CONNECT is granted (needed just to LIST paired
+     * devices — separate from full monitoring permissions). */
+    val hasBluetoothPermission: Boolean,
     /** Registered trigger devices (address + last known name). */
     val registered: List<DeviceRow>,
     /** Paired devices that are NOT registered yet. */

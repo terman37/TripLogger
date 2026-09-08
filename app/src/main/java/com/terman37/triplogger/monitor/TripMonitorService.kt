@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.terman37.triplogger.AppContainer
@@ -59,14 +60,22 @@ class TripMonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.i(TAG, "onCreate")
         container = (application as TripLoggerApplication).container
         recorder = container.tripRecorder
         createNotificationChannel()
+        Log.i(TAG, "onCreate done")
     }
 
     // --- Android service callbacks ----------------------------------------
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Android contract: a service started via startForegroundService() MUST
+        // call startForeground() quickly — even when we will then decide to
+        // stop. Doing it here first prevents the process being killed with
+        // ForegroundServiceDidNotStartInTimeException (seen on device, B4).
+        startForegroundCompat()
+
         when (intent?.action) {
             ACTION_MANUAL_START -> recorder.onManualStart()
             ACTION_MANUAL_STOP -> recorder.onManualStop()
@@ -102,6 +111,7 @@ class TripMonitorService : Service() {
         val monitoringEnabled = container.settings.monitoringEnabled.value
         val phase = recorder.snapshot().phase
         val wantsToRun = monitoringEnabled || phase != TripRecorder.Phase.IDLE
+        Log.i(TAG, "evaluate: monitoring=$monitoringEnabled phase=$phase wantsToRun=$wantsToRun")
 
         if (!wantsToRun) {
             locationSource?.stop()
@@ -121,7 +131,8 @@ class TripMonitorService : Service() {
         if (monitoringEnabled && hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             if (monitor == null) {
                 monitor = BluetoothMonitor(
-                    this,
+                    context = this,
+                    scope = scope,
                     onDeviceConnected = ::handleDeviceConnected,
                     onDeviceDisconnected = ::handleDeviceDisconnected,
                 )
@@ -141,6 +152,7 @@ class TripMonitorService : Service() {
 
     private fun handleDeviceConnected(device: BluetoothDevice) {
         val registered = isRegistered(device.address)
+        Log.i(TAG, "deviceConnected ${device.address} registered=$registered")
         if (!registered) return // not a trigger device: ignore
         recorder.onDeviceConnected(deviceName(device))
         persistFinishedTrips()
@@ -149,6 +161,7 @@ class TripMonitorService : Service() {
 
     private fun handleDeviceDisconnected(device: BluetoothDevice) {
         val registered = isRegistered(device.address)
+        Log.i(TAG, "deviceDisconnected ${device.address} registered=$registered")
         if (!registered) return
         recorder.onDeviceDisconnected()
         persistFinishedTrips()
@@ -265,14 +278,22 @@ class TripMonitorService : Service() {
 
     private fun buildNotification(monitoringEnabled: Boolean): Notification {
         val snap = recorder.snapshot()
-        // Text per UI.md: minimal content, no actions, tap opens the app.
+        // Text per user request (plan.md Step 12): the notification always
+        // leads with "Monitoring active" and appends what is happening.
+        // Content stays minimal: no actions, tap opens the app.
         val text = when (snap.phase) {
-            TripRecorder.Phase.RECORDING ->
-                String.format(Locale.US, "Recording — %.1f km", snap.distanceKm)
-            TripRecorder.Phase.GRACE -> getString(R.string.notification_grace_text)
-            TripRecorder.Phase.IDLE ->
-                if (monitoringEnabled) getString(R.string.notification_monitoring_text)
-                else getString(R.string.notification_manual_text)
+            TripRecorder.Phase.RECORDING -> String.format(
+                Locale.US, "%s — %s %.1f km",
+                getString(R.string.notification_monitoring_text),
+                getString(R.string.notification_recording_label),
+                snap.distanceKm,
+            )
+            TripRecorder.Phase.GRACE -> String.format(
+                Locale.US, "%s — %s",
+                getString(R.string.notification_monitoring_text),
+                getString(R.string.notification_disconnected_label),
+            )
+            TripRecorder.Phase.IDLE -> getString(R.string.notification_monitoring_text)
         }
         val openApp = PendingIntent.getActivity(
             this,

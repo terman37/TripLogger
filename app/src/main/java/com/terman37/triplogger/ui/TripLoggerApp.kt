@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -55,25 +56,27 @@ fun TripLoggerApp() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
+    // Tab switching without save/restore flags: every tab is a flat sibling of
+    // the start destination. (Earlier saveState/restoreState + a pushed
+    // destination left the back stack in a state where the Home tab could no
+    // longer be selected — fixed, plan.md Step 12.)
+    fun switchTo(route: String) {
+        android.util.Log.i("TripNav", "switchTo $route (current=$currentRoute)")
+        navController.navigate(route) {
+            // Pop everything above the start destination, then go to the tab:
+            // no tab ever stacks on another.
+            popUpTo(navController.graph.findStartDestination().id)
+            launchSingleTop = true
+        }
+    }
+
     Scaffold(
         bottomBar = {
             NavigationBar {
                 TopLevelDestination.entries.forEach { destination ->
                     NavigationBarItem(
                         selected = currentRoute == destination.route,
-                        onClick = {
-                            // Standard bottom-navigation behavior: re-selecting
-                            // a tab must not stack copies of it (launchSingleTop)
-                            // and each tab keeps its state when you leave it and
-                            // come back (saveState / restoreState).
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        onClick = { switchTo(destination.route) },
                         icon = {
                             Icon(
                                 imageVector = destination.icon,
@@ -96,14 +99,19 @@ fun TripLoggerApp() {
                 .padding(innerPadding),
         ) {
             composable(TopLevelDestination.HOME.route) {
+                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered HOME") }
                 HomeScreen(
-                    onOpenDevices = {
-                        navController.navigate(TopLevelDestination.DEVICES.route)
-                    },
+                    onOpenDevices = { switchTo(TopLevelDestination.DEVICES.route) },
                 )
             }
-            composable(TopLevelDestination.DEVICES.route) { DevicesScreen() }
-            composable(TopLevelDestination.REPORT.route) { ReportScreen() }
+            composable(TopLevelDestination.DEVICES.route) {
+                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered DEVICES") }
+                DevicesScreen()
+            }
+            composable(TopLevelDestination.REPORT.route) {
+                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered REPORT") }
+                ReportScreen()
+            }
         }
     }
 }

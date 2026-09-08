@@ -1,70 +1,163 @@
 package com.terman37.triplogger.monitor
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
- * Watches Bluetooth ACL connection events for the whole device.
+ * Watches Bluetooth connections of the registered devices.
  *
- * Why ACL broadcasts (decision, plan.md): Android broadcasts
- * ACTION_ACL_CONNECTED / ACTION_ACL_DISCONNECTED whenever ANY paired device
- * establishes/drops its link-layer connection — including a car head unit. No
- * profile (HFP/A2DP) support is required. The receiver must be REGISTERED
- * (dynamic) — it only works while the trip service is running, which is what
- * we want: no service, no monitoring.
+ * IMPLEMENTATION NOTE (found on device, Android 17, plan.md Step 12): the
+ * classic ACTION_ACL_CONNECTED/DISCONNECTED broadcasts are NOT delivered to
+ * this app anymore. There is also no per-device "connection state" API. So
+ * this monitor keeps PROFILE PROXIES (A2DP + HEADSET + sink variants — covers
+ * car units and headsets) and POLLS [BluetoothProfile.getConnectedDevices].
  *
- * The listener is called with the raw device; the service decides whether the
- * device is registered and forwards the event to the recorder.
+ * Poll interval 10 s: a trip start is delayed by at most one interval (the
+ * first GPS fix takes up to 30 s anyway) and the grace period (minutes)
+ * absorbs the same delay on disconnect.
  */
 class BluetoothMonitor(
     private val context: Context,
+    private val scope: CoroutineScope,
     private val onDeviceConnected: (device: BluetoothDevice) -> Unit,
     private val onDeviceDisconnected: (device: BluetoothDevice) -> Unit,
 ) {
-    private var registered = false
+    private val appContext = context.applicationContext
+    private val pollIntervalMillis = 10_000L
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            // EXTRA_DEVICE carries the device the event is about; Bluetooth
-            // may deliver duplicates (one per profile), which the recorder's
-            // state machine tolerates (events in the wrong state are no-ops).
-            val device: BluetoothDevice =
-                intent?.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
-                    ?: return
-            when (intent.action) {
-                BluetoothDevice.ACTION_ACL_CONNECTED -> onDeviceConnected(device)
-                BluetoothDevice.ACTION_ACL_DISCONNECTED -> onDeviceDisconnected(device)
+    // Profiles whose connection state we track (proxy connected = poll it).
+    private val profiles = listOf(
+        BluetoothProfile.A2DP,      // phone streams music to the car unit / headset
+        BluetoothProfile.HEADSET,   // car unit / headset hands-free (HFP)
+        BluetoothProfile.LE_AUDIO,  // newer LE-audio car units and headsets
+    )
+
+    private val adapter: BluetoothAdapter? =
+        (appContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?)?.adapter
+
+    private val proxies = mutableMapOf<Int, BluetoothProfile>()
+    private val proxyRequested = mutableSetOf<Int>()
+
+    private var registered = false
+    private var pollJob: Job? = null
+
+    // Addresses connected at the last poll (union over all profiles).
+    private var lastConnected = emptySet<String>()
+
+    // One ServiceListener serves all profile requests; onServiceConnected adds
+    // the proxy, onServiceDisconnected removes it.
+    @SuppressLint("MissingPermission") // guarded in pollOnce
+    private val serviceListener = object : BluetoothProfile.ServiceListener {
+        override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
+            Log.i(TAG, "profile proxy connected: $profile")
+            synchronized(proxies) { proxies[profile] = proxy }
+        }
+
+        override fun onServiceDisconnected(profile: Int) {
+            Log.i(TAG, "profile proxy disconnected: $profile")
+            synchronized(proxies) { proxies.remove(profile) }
+        }
+    }
+
+    /** Starts polling; safe to call twice. */
+    fun register() {
+        if (registered) return
+        registered = true
+        Log.i(TAG, "register() — polling every ${pollIntervalMillis / 1000} s")
+        pollJob = scope.launch {
+            while (isActive) {
+                pollOnce()
+                delay(pollIntervalMillis)
             }
         }
     }
 
-    /** Registers the receiver; safe to call twice (no-op). */
-    fun register() {
-        if (registered) return
-        val filter = IntentFilter().apply {
-            addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
-            addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
-        }
-        // Android 14 requires an explicit exported flag for dynamic receivers.
-        // NOT_EXPORTED is correct here: ACL broadcasts are protected system
-        // broadcasts, delivered to our receiver regardless.
-        ContextCompat.registerReceiver(
-            context,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
-        )
-        registered = true
-    }
-
-    /** Unregisters the receiver; safe to call twice. */
+    /** Stops polling; safe to call twice. */
     fun unregister() {
         if (!registered) return
-        context.unregisterReceiver(receiver)
         registered = false
+        pollJob?.cancel()
+        pollJob = null
+        lastConnected = emptySet()
+        adapter?.let { bt ->
+            synchronized(proxies) {
+                profiles.forEach { profile ->
+                    proxies.remove(profile)?.let { bt.closeProfileProxy(profile, it) }
+                }
+            }
+        }
+        synchronized(proxyRequested) { proxyRequested.clear() }
+        Log.i(TAG, "unregister()")
+    }
+
+    private fun pollOnce() {
+        val bt = adapter
+        if (bt == null || !bt.isEnabled) return
+        val hasPermission = ContextCompat.checkSelfPermission(
+            appContext, Manifest.permission.BLUETOOTH_CONNECT,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!hasPermission) return
+
+        // Ask the system for each proxy until it answers (async ServiceListener).
+        synchronized(proxyRequested) {
+            for (profile in profiles) {
+                if (profile !in proxies && profile !in proxyRequested) {
+                    proxyRequested += profile
+                    try {
+                        bt.getProfileProxy(appContext, serviceListener, profile)
+                    } catch (e: SecurityException) {
+                        Log.w(TAG, "getProfileProxy failed for $profile", e)
+                        proxyRequested -= profile
+                    }
+                }
+            }
+        }
+
+        // Union of currently connected devices across ready proxies.
+        val connected: Map<String, BluetoothDevice>
+        synchronized(proxies) {
+            val collected = mutableMapOf<String, BluetoothDevice>()
+            for (proxy in proxies.values) {
+                try {
+                    proxy.getConnectedDevices().forEach { collected[it.address] = it }
+                } catch (e: SecurityException) {
+                    Log.w(TAG, "getConnectedDevices failed", e)
+                }
+            }
+            connected = collected
+        }
+        if (connected.isEmpty() && proxies.isEmpty()) return // proxies still coming up
+
+        val now = connected.keys
+
+        for (address in now - lastConnected) {
+            val device = connected[address]
+            if (device != null) {
+                Log.i(TAG, "connected: $address (${device.name})")
+                onDeviceConnected(device)
+            }
+        }
+        for (address in lastConnected - now) {
+            Log.i(TAG, "disconnected: $address")
+            onDeviceDisconnected(bt.getRemoteDevice(address))
+        }
+        lastConnected = now
+    }
+
+    private companion object {
+        const val TAG = "BluetoothMonitor"
     }
 }

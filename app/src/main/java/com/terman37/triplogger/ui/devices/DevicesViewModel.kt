@@ -48,6 +48,7 @@ class DevicesViewModel(application: Application) : AndroidViewModel(application)
                 registered = registered,
                 paired = devices,
                 permissionsGranted = permissionsGranted(),
+                hasBluetoothPermission = hasBluetoothPermission(),
             )
         }.stateIn(
             scope = viewModelScope,
@@ -58,6 +59,7 @@ class DevicesViewModel(application: Application) : AndroidViewModel(application)
                 registered = settings.registeredDevices.value,
                 paired = paired.value,
                 permissionsGranted = permissionsGranted(),
+                hasBluetoothPermission = hasBluetoothPermission(),
             ),
         )
 
@@ -93,6 +95,19 @@ class DevicesViewModel(application: Application) : AndroidViewModel(application)
     fun refreshPairedDevices() {
         paired.value = pairedSource.list()
     }
+
+    /**
+     * Called after the standalone "Allow Bluetooth access" request. Only
+     * refreshes the paired list — does NOT enable monitoring.
+     */
+    fun onBluetoothPermissionResult(granted: Boolean) {
+        if (granted) paired.value = pairedSource.list()
+    }
+
+    private fun hasBluetoothPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            getApplication(), Manifest.permission.BLUETOOTH_CONNECT,
+        ) == PackageManager.PERMISSION_GRANTED
 
     /** Are all runtime permissions that monitoring needs granted? */
     fun permissionsGranted(): Boolean = listOf(

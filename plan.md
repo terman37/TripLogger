@@ -145,7 +145,11 @@ not approved. Every step must leave the project compiling:
 
 ## Phase 4 — release polish
 
-### [ ] Step 12: End-to-end device validation + fixes
+### [ ] Step 12: End-to-end device validation + fixes  ⏳ awaiting owner device run
+- Status: implementation complete (Steps 1–11). ✅ A (instrumented DAO tests) passed on Pixel 9a / Android 17; B scenarios pending owner run.
+  (no adb/emulator in the dev environment). Checklist: DeviceTest.md —
+  run section A (connectedDebugAndroidTest) + scenarios B1–B8 and report
+  results; fixes become their own steps.
 - Goal: verify real flow on a phone with the car.
 - Manual checklist: pair car → register → enable monitoring → drive → auto
   trip saved → kill phone mid-trip → restart (partial discarded) → generate

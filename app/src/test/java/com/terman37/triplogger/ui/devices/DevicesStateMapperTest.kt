@@ -63,9 +63,9 @@ class DevicesStateMapperTest {
 
     @Test
     fun hints_onlyWhenRelevant() {
-        // Permission missing → ask for Bluetooth access first.
+        // Bluetooth permission missing → ask for Bluetooth access first.
         assertEquals(
-            "Bluetooth access needed to list devices.",
+            "Allow Bluetooth access to see paired devices.",
             map(permissions = false).bluetoothHint,
         )
         // Permission ok but nothing paired → point to Android settings.

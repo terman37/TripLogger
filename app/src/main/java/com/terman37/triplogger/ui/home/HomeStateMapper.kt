@@ -26,6 +26,7 @@ object HomeStateMapper {
             )
             snapshot.phase == TripRecorder.Phase.GRACE -> CardUiState.GracePeriod(
                 distanceKm = snapshot.distanceKm,
+                graceStartedAtEpochMillis = snapshot.graceStartedAtEpochMillis ?: 0L,
             )
             monitoringEnabled -> CardUiState.Waiting(deviceNames)
             else -> CardUiState.MonitoringOff

@@ -75,6 +75,12 @@ fun HomeScreen(
                 modifier = Modifier.padding(16.dp),
             )
         } else {
+            // Heading above the list (trip rows carry their own date+time).
+            Text(
+                text = "Recent trips",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(uiState.recentTrips, key = { it.id }) { row ->
                     TripRowCard(
@@ -172,6 +178,11 @@ private fun StatusCard(
                     Text("Disconnected", style = MaterialTheme.typography.titleLarge)
                     Text(
                         "Finishing trip — reconnect to resume.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        "Disconnected since " +
+                            TripText.durationText(state.graceStartedAtEpochMillis, now),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(

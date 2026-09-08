@@ -14,6 +14,8 @@ class TripLoggerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        android.util.Log.i("TripLoggerApp", "onCreate")
         container = AppContainer(this)
+        android.util.Log.i("TripLoggerApp", "container ready")
     }
 }

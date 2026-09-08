@@ -67,6 +67,15 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
         viewModel.onPermissionsResult(results.values.all { it })
     }
 
+    // Standalone Bluetooth access request: listing paired devices needs only
+    // BLUETOOTH_CONNECT, so the user can grant it BEFORE registering any
+    // device (no monitoring enable required — avoids a UX deadlock).
+    val bluetoothAccessLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        viewModel.onBluetoothPermissionResult(granted)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -130,8 +139,22 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
             style = MaterialTheme.typography.bodySmall,
         )
         Spacer(Modifier.height(8.dp))
-        uiState.bluetoothHint?.let { hint ->
-            Text(hint, style = MaterialTheme.typography.bodyMedium)
+        if (!uiState.hasBluetoothPermission) {
+            Text(
+                "Bluetooth access is needed to see paired devices.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(
+                onClick = {
+                    bluetoothAccessLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                },
+            ) {
+                Text("Allow Bluetooth access")
+            }
+        } else {
+            uiState.bluetoothHint?.let { hint ->
+                Text(hint, style = MaterialTheme.typography.bodyMedium)
+            }
         }
         uiState.available.forEach { row ->
             DeviceRowItem(

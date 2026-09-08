@@ -35,8 +35,12 @@ sealed interface CardUiState {
         val startedAtEpochMillis: Long,
     ) : CardUiState
 
-    /** Bluetooth dropped; the grace timer is running (trip not finished yet). */
-    data class GracePeriod(val distanceKm: Double) : CardUiState
+    /** Bluetooth dropped; the grace timer is running (trip not finished yet).
+     * [graceStartedAtEpochMillis] drives the "Disconnected since …" line. */
+    data class GracePeriod(
+        val distanceKm: Double,
+        val graceStartedAtEpochMillis: Long,
+    ) : CardUiState
 }
 
 /**
