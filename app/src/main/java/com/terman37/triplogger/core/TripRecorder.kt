@@ -214,16 +214,20 @@ class TripRecorder(
     private fun finishTrip() {
         val s = session ?: return
         val endPosition = s.lastKeptSample
-        finishedTrips += TripDraft(
-            startEpochMillis = s.startEpochMillis,
-            startLat = s.startLat,
-            startLng = s.startLng,
-            endEpochMillis = clock.nowMillis(),
-            endLat = endPosition?.latitude,
-            endLng = endPosition?.longitude,
-            distanceKm = s.distanceKm,
-            origin = s.origin,
-        )
+        // Drop trips that barely moved (see TrackingPolicy.MIN_TRIP_DISTANCE_KM):
+        // they are parked-engine noise, not trips worth reporting.
+        if (s.distanceKm >= TrackingPolicy.MIN_TRIP_DISTANCE_KM) {
+            finishedTrips += TripDraft(
+                startEpochMillis = s.startEpochMillis,
+                startLat = s.startLat,
+                startLng = s.startLng,
+                endEpochMillis = clock.nowMillis(),
+                endLat = endPosition?.latitude,
+                endLng = endPosition?.longitude,
+                distanceKm = s.distanceKm,
+                origin = s.origin,
+            )
+        }
         session = null
         graceUntilMillis = null
         graceStartedAt = null

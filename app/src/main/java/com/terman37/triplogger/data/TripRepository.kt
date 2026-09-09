@@ -103,6 +103,11 @@ class TripRepository(
         dao.deleteById(id)
     }
 
+    /** Deletes all trips in the range (Report cleanup action). */
+    suspend fun deleteTripsBetween(fromInclusive: Long, untilExclusive: Long) {
+        dao.deleteBetween(fromInclusive, untilExclusive)
+    }
+
     private fun resolveAddress(lat: Double?, lng: Double?): com.terman37.triplogger.core.ReverseGeocodeResult? {
         if (lat == null || lng == null) return null // no coordinates → nothing to geocode
         return geocoder.reverse(lat, lng)

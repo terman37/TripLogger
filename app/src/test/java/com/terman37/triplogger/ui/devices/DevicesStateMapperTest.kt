@@ -3,9 +3,7 @@ package com.terman37.triplogger.ui.devices
 import com.terman37.triplogger.data.RegisteredDevice
 import com.terman37.triplogger.monitor.PairedDeviceInfo
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DevicesStateMapperTest {
@@ -14,23 +12,15 @@ class DevicesStateMapperTest {
     private fun paired(address: String, name: String) = PairedDeviceInfo(address, name)
 
     private fun map(
-        monitoring: Boolean = false,
         registered: List<RegisteredDevice> = emptyList(),
         pairedDevices: List<PairedDeviceInfo> = emptyList(),
-        permissions: Boolean = true,
+        btPermission: Boolean = true,
     ) = DevicesStateMapper.toUi(
-        monitoringEnabled = monitoring,
         graceMinutes = 3,
         registered = registered,
         paired = pairedDevices,
-        permissionsGranted = permissions,
+        hasBluetoothPermission = btPermission,
     )
-
-    @Test
-    fun canEnable_onlyWithRegisteredDevice() {
-        assertFalse(map().canEnableMonitoring)
-        assertTrue(map(registered = listOf(reg("AA:BB", "Car"))).canEnableMonitoring)
-    }
 
     @Test
     fun available_excludesRegistered() {
@@ -63,21 +53,19 @@ class DevicesStateMapperTest {
 
     @Test
     fun hints_onlyWhenRelevant() {
-        // Bluetooth permission missing → ask for Bluetooth access first.
+        // Bluetooth permission missing → ask for access first.
         assertEquals(
             "Allow Bluetooth access to see paired devices.",
-            map(permissions = false).bluetoothHint,
+            map(btPermission = false).bluetoothHint,
         )
         // Permission ok but nothing paired → point to Android settings.
         assertEquals(
             "No paired devices. Pair in Android settings, then come back.",
-            map(permissions = true).bluetoothHint,
+            map().bluetoothHint,
         )
         // Paired devices exist → no hint needed.
         assertNull(
-            map(
-                pairedDevices = listOf(paired("CC:DD", "Headphones")),
-            ).bluetoothHint,
+            map(pairedDevices = listOf(paired("CC:DD", "Headphones"))).bluetoothHint,
         )
     }
 }

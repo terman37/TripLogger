@@ -4,19 +4,15 @@ package com.terman37.triplogger.ui.devices
  * UI state for the Devices screen (UI.md). Rendered directly by
  * DevicesScreen — produced by [DevicesStateMapper] from settings + paired
  * devices, so the mapping rules are JVM-testable.
+ *
+ * Note: the master "Monitor trips" switch moved to the HOME screen (user
+ * request); this screen only manages registered devices, the grace period and
+ * Bluetooth listing permission.
  */
 data class DevicesUiState(
-    /** Master "Monitor trips" switch. */
-    val monitoringEnabled: Boolean,
     /** Grace period in minutes (1–15). */
     val graceMinutes: Int,
-    /** False when no device is registered → switch disabled (UI.md). */
-    val canEnableMonitoring: Boolean,
-    /** True when all runtime permissions needed for monitoring are granted. */
-    val permissionsGranted: Boolean,
-
-    /** True when BLUETOOTH_CONNECT is granted (needed just to LIST paired
-     * devices — separate from full monitoring permissions). */
+    /** True when BLUETOOTH_CONNECT is granted (needed to list paired devices). */
     val hasBluetoothPermission: Boolean,
     /** Registered trigger devices (address + last known name). */
     val registered: List<DeviceRow>,

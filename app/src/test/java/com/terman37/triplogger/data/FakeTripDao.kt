@@ -51,6 +51,15 @@ class FakeTripDao : TripDao {
         }
     }
 
+    override suspend fun deleteBetween(fromInclusive: Long, untilExclusive: Long) {
+        synchronized(lock) {
+            trips.removeAll {
+                it.startEpochMillis in fromInclusive until untilExclusive
+            }
+            mirror()
+        }
+    }
+
     override suspend fun delete(trip: Trip) {
         synchronized(lock) {
             trips.removeAll { it.id == trip.id }

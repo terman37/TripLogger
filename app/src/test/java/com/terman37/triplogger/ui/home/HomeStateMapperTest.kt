@@ -74,6 +74,24 @@ class HomeStateMapperTest {
     }
 
     @Test
+    fun switchFlags_reflectSettingsAndRegisteredDevices() {
+        // No registered devices → switch disabled even when off.
+        val empty = HomeStateMapper.toUi(idle(), false, emptyList(), emptyList(), utc)
+        assertEquals(false, empty.monitoringEnabled)
+        assertEquals(false, empty.canEnableMonitoring)
+
+        val withDevices = HomeStateMapper.toUi(
+            snapshot = idle(),
+            monitoringEnabled = true,
+            deviceNames = listOf("Car"),
+            trips = emptyList(),
+            zone = utc,
+        )
+        assertEquals(true, withDevices.monitoringEnabled)
+        assertEquals(true, withDevices.canEnableMonitoring)
+    }
+
+    @Test
     fun waiting_listsDeviceNames() {
         val state = HomeStateMapper.toUi(
             snapshot = idle(),

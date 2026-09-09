@@ -34,9 +34,10 @@ enum class TopLevelDestination(
     val label: String,
     val icon: ImageVector,
 ) {
+    // Tab order (user request): Home, Report, Devices.
     HOME("home", "Home", Icons.Filled.Home),
-    DEVICES("devices", "Devices", Icons.Filled.Bluetooth),
     REPORT("report", "Report", Icons.Filled.Assessment),
+    DEVICES("devices", "Devices", Icons.Filled.Bluetooth),
 }
 
 /**
@@ -100,9 +101,7 @@ fun TripLoggerApp() {
         ) {
             composable(TopLevelDestination.HOME.route) {
                 LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered HOME") }
-                HomeScreen(
-                    onOpenDevices = { switchTo(TopLevelDestination.DEVICES.route) },
-                )
+                HomeScreen()
             }
             composable(TopLevelDestination.DEVICES.route) {
                 LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered DEVICES") }

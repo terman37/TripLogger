@@ -1,6 +1,9 @@
 package com.terman37.triplogger.ui.home
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.terman37.triplogger.TripLoggerApplication
@@ -68,6 +71,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             .toInstant()
             .toEpochMilli()
         return container.tripRepository.tripsSinceFlow(startOfYesterday)
+    }
+
+    /** True when all runtime permissions that monitoring needs are granted. */
+    fun monitoringPermissionsGranted(): Boolean = listOf(
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS,
+    ).all { ContextCompat.checkSelfPermission(getApplication(), it) == PackageManager.PERMISSION_GRANTED }
+
+    /** Called after the runtime-permission dialog result (switch on Home). */
+    fun onPermissionsResult(granted: Boolean) {
+        if (granted) setMonitoringEnabled(true)
+    }
+
+    /** Master switch: starts/stops the trip service accordingly. */
+    fun setMonitoringEnabled(enabled: Boolean) {
+        container.settings.setMonitoringEnabled(enabled)
+        val action = if (enabled) TripMonitorService.ACTION_START
+        else TripMonitorService.ACTION_STOP
+        TripMonitorService.startWithAction(getApplication(), action)
     }
 
     /** Fallback start button → trip service (which starts GPS etc.). */

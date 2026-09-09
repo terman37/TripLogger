@@ -3,6 +3,7 @@ package com.terman37.triplogger.ui.report
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.terman37.triplogger.TripLoggerApplication
 import com.terman37.triplogger.data.Trip
 import com.terman37.triplogger.report.ReportCsvBuilder
@@ -11,6 +12,7 @@ import java.io.File
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -34,23 +36,30 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
     private val zone: ZoneId = ZoneId.systemDefault()
     private val tag = "ReportViewModel"
 
-    /** Default range = the previous calendar month (todo.md "last month"). */
-    fun defaultFrom(): LocalDate = LocalDate.now(zone).minusMonths(1).withDayOfMonth(1)
+    init {
+        // Lazy address retry (todo.md): the old "Generate" button used to
+        // trigger it; without Generate it runs once when the screen opens.
+        viewModelScope.launch {
+            runCatching { container.tripRepository.retryPendingAddresses() }
+                .onFailure { Log.e(tag, "initial address retry failed", it) }
+        }
+    }
 
-    fun defaultTo(): LocalDate = defaultFrom().withDayOfMonth(defaultFrom().lengthOfMonth())
+    /** Default range = the last 7 days including today (user request). */
+    fun defaultFrom(): LocalDate = LocalDate.now(zone).minusDays(6)
+
+    fun defaultTo(): LocalDate = LocalDate.now(zone)
 
     /**
-     * Generates the report for [from]..[to] (both inclusive). Before reading
-     * the trips it retries pending reverse geocodes so addresses are as fresh
-     * as possible (decision, todo.md).
+     * Loads the trips for [from]..[to] (both inclusive). Pure local query —
+     * the list refreshes whenever the dates change, no Generate button.
      */
-    suspend fun generate(from: LocalDate, to: LocalDate): ReportData? = withContext(Dispatchers.IO) {
+    suspend fun load(from: LocalDate, to: LocalDate): ReportData? = withContext(Dispatchers.IO) {
         try {
-            container.tripRepository.retryPendingAddresses()
             val trips = queryRange(from, to)
             ReportData(trips = trips, totalKm = trips.sumOf { it.distanceKm })
         } catch (e: Exception) {
-            Log.e(tag, "generate failed", e)
+            Log.e(tag, "load failed", e)
             null
         }
     }
@@ -65,6 +74,7 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
      */
     suspend fun exportCsv(from: LocalDate, to: LocalDate): File? = withContext(Dispatchers.IO) {
         try {
+            container.tripRepository.retryPendingAddresses() // freshest addresses in the file
             val trips = queryRange(from, to)
             val csv = ReportCsvBuilder.build(trips, zone)
             val dir = File(getApplication<Application>().cacheDir, "exports").apply { mkdirs() }
@@ -78,9 +88,31 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private suspend fun queryRange(from: LocalDate, to: LocalDate): List<Trip> {
+        val (fromMillis, untilMillis) = rangeMillis(from, to)
+        return container.tripRepository.tripsBetween(fromMillis, untilMillis)
+    }
+
+    /**
+     * Permanently deletes every trip whose start is in the range (Report
+     * footer trash action). Returns false on failure.
+     */
+    suspend fun deleteRange(from: LocalDate, to: LocalDate): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val (fromMillis, untilMillis) = rangeMillis(from, to)
+                container.tripRepository.deleteTripsBetween(fromMillis, untilMillis)
+                true
+            } catch (e: Exception) {
+                Log.e(tag, "deleteRange failed", e)
+                false
+            }
+        }
+
+    /** [from, to+1day) in epoch millis — shared by all range operations. */
+    private fun rangeMillis(from: LocalDate, to: LocalDate): Pair<Long, Long> {
         val fromMillis = from.atStartOfDay(zone).toInstant().toEpochMilli()
         // +1 day: the DAO range is [from, until) — end of "to" must be included.
         val untilMillis = to.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        return container.tripRepository.tripsBetween(fromMillis, untilMillis)
+        return fromMillis to untilMillis
     }
 }

@@ -29,5 +29,13 @@ fun tripToRowUi(trip: Trip, zone: java.time.ZoneId): TripRowUi {
         durationText = TripText.durationText(trip.startEpochMillis, trip.endEpochMillis),
         startAddressText = startAddress,
         endAddressText = endAddress,
+        startStreet = trip.startStreet,
+        startCity = trip.startCity,
+        startLat = trip.startLat,
+        startLng = trip.startLng,
+        endStreet = trip.endStreet,
+        endCity = trip.endCity,
+        endLat = trip.endLat,
+        endLng = trip.endLng,
     )
 }

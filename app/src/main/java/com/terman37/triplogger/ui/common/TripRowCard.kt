@@ -1,5 +1,10 @@
 package com.terman37.triplogger.ui.common
 
+import android.content.Intent
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,6 +42,19 @@ fun TripRowCard(
     onToggle: () -> Unit,
     onDelete: (() -> Unit)? = null,
 ) {
+    val mapsUrl = remember(row.id) {
+        DirectionsUrl.build(
+            originStreet = row.startStreet,
+            originCity = row.startCity,
+            originLat = row.startLat,
+            originLng = row.startLng,
+            destinationStreet = row.endStreet,
+            destinationCity = row.endCity,
+            destinationLat = row.endLat,
+            destinationLng = row.endLng,
+        )
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,6 +66,20 @@ fun TripRowCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(row.title, style = MaterialTheme.typography.titleMedium)
                     Text(row.summary, style = MaterialTheme.typography.bodyMedium)
+                }
+                // Directions shortcut on the recap row (user request): the icon
+                // opens Google Maps between start and end; hidden when neither
+                // side has any location data. Its own click does not expand.
+                if (mapsUrl != null) {
+                    val context = LocalContext.current
+                    IconButton(onClick = {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl)))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Map,
+                            contentDescription = "Open directions in Google Maps",
+                        )
+                    }
                 }
                 Text(
                     row.distanceText,

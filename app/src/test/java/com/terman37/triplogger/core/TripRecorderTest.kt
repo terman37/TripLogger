@@ -75,6 +75,20 @@ class TripRecorderTest {
     }
 
     @Test
+    fun graceStartedAt_isExposedInSnapshot() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+
+        recorder.onDeviceConnected("Car")
+        clock.now = base + 7_000
+        recorder.onDeviceDisconnected()
+
+        val snap = recorder.snapshot()
+        assertEquals(TripRecorder.Phase.GRACE, snap.phase)
+        assertEquals(base + 7_000, snap.graceStartedAtEpochMillis)
+    }
+
+    @Test
     fun reconnectInsideGrace_resumesSameTrip() {
         val clock = FakeClock(base)
         val recorder = TripRecorder(clock, graceMs)
@@ -111,8 +125,8 @@ class TripRecorderTest {
         clock.now = base + 10_000
         recorder.onDeviceDisconnected()
         clock.now = base + 10_000 + graceMs
-        recorder.onGraceTimerExpired() // finishes trip 1
-        assertEquals(1, recorder.takeFinishedTrips().size)
+        recorder.onGraceTimerExpired() // finishes trip 1 (0 km → discarded)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
 
         // Reconnect much later = brand new trip.
         clock.now = base + 1_000_000
@@ -157,7 +171,8 @@ class TripRecorderTest {
         assertPhase(recorder, TripRecorder.Phase.GRACE)
 
         recorder.onManualStop() // user aborts while in grace
-        assertEquals(1, recorder.takeFinishedTrips().size)
+        // No movement happened → the aborted trip is discarded.
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
         assertPhase(recorder, TripRecorder.Phase.IDLE)
     }
 
@@ -174,11 +189,13 @@ class TripRecorderTest {
         assertPhase(recorder, TripRecorder.Phase.IDLE)
         assertTrue(recorder.takeFinishedTrips().isEmpty())
 
-        // manualStart while an auto trip runs is ignored (no second session).
+        // manualStart while an auto trip runs is ignored (no second session);
+        // stopping a 0-km trip discards it.
         recorder.onDeviceConnected("Car")
         recorder.onManualStart()
         recorder.onManualStop()
-        assertEquals(1, recorder.takeFinishedTrips().size) // exactly one trip
+        assertPhase(recorder, TripRecorder.Phase.IDLE)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
 
     // --- GPS edge cases --------------------------------------------------
@@ -199,12 +216,12 @@ class TripRecorderTest {
         clock.now = base + 60_000 + graceMs
         recorder.onGraceTimerExpired()
 
-        val trip = recorder.takeFinishedTrips().single()
-        assertEquals(0.0, trip.distanceKm, 0.0)
+        // Only the (zero-distance) anchor fix existed → trip discarded.
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
 
     @Test
-    fun noGpsFixAtAll_yieldsTripWithoutCoordinates() {
+    fun noGpsFixAtAll_discardsTrip() {
         val clock = FakeClock(base)
         val recorder = TripRecorder(clock, graceMs)
 
@@ -214,52 +231,58 @@ class TripRecorderTest {
         clock.now = base + 30_000 + graceMs
         recorder.onGraceTimerExpired()
 
-        val trip = recorder.takeFinishedTrips().single()
-        assertEquals(0.0, trip.distanceKm, 0.0)
-        assertNull(trip.startLat)
-        assertNull(trip.startLng)
-        assertNull(trip.endLat)
-        assertNull(trip.endLng)
+        // 0 km is parked noise: the state machine finishes but nothing is
+        // stored (TrackingPolicy.MIN_TRIP_DISTANCE_KM, plan.md Step 12).
+        assertPhase(recorder, TripRecorder.Phase.IDLE)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
 
     @Test
-    fun parkedTrip_stillFinishesWithZeroKm() {
+    fun parkedTrip_finishesWithoutSavingRow() {
         val clock = FakeClock(base)
         val recorder = TripRecorder(clock, graceMs)
 
         recorder.onDeviceConnected("Car")
-        // GPS jitter below the displacement gate: distance stays 0, but the
-        // fix is still a valid start position.
+        // GPS jitter below the displacement gate: distance stays 0.
         recorder.onLocationSample(sampleAt(base + 30_000, 0.00002))
         clock.now = base + 30_000
         recorder.onDeviceDisconnected()
         clock.now = base + 30_000 + graceMs
         recorder.onGraceTimerExpired()
 
-        val trip = recorder.takeFinishedTrips().single()
-        assertEquals(0.0, trip.distanceKm, 0.0)
-        assertEquals(48.8566 + 0.00002, trip.startLat!!, 1e-9)
+        assertPhase(recorder, TripRecorder.Phase.IDLE)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
 
     @Test
-    fun updatedGracePeriod_isUsedForNextDisconnect() {
+    fun tripShorterThanThreshold_isDiscarded() {
         val clock = FakeClock(base)
         val recorder = TripRecorder(clock, graceMs)
-        recorder.updateGracePeriodMillis(60_000L) // user set 1 minute
-
         recorder.onDeviceConnected("Car")
-        clock.now = base + 5_000
+        // Total movement 40 m (< 50 m threshold): anchor fix, then one 40 m step.
+        val offset40m = 40.0 / 111_190.0
+        recorder.onLocationSample(sampleAt(base + 30_000, 0.0))          // anchor (0 km)
+        recorder.onLocationSample(sampleAt(base + 60_000, offset40m))    // +0.04 km
+        clock.now = base + 60_000
         recorder.onDeviceDisconnected()
-
-        // 59 s after disconnect: still in grace (not yet 60 s).
-        clock.now = base + 5_000 + 59_000
+        clock.now = base + 60_000 + graceMs
         recorder.onGraceTimerExpired()
-        assertEquals(TripRecorder.Phase.GRACE, recorder.snapshot().phase)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
+    }
 
-        // 1 s later: grace over, trip finished.
-        clock.now = base + 5_000 + 60_000
+    @Test
+    fun tripAboveThreshold_isSaved() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.onDeviceConnected("Car")
+        // Total movement 60 m (≥ 50 m threshold).
+        val offset60m = 60.0 / 111_190.0
+        recorder.onLocationSample(sampleAt(base + 30_000, 0.0))          // anchor (0 km)
+        recorder.onLocationSample(sampleAt(base + 60_000, offset60m))    // +0.06 km
+        clock.now = base + 60_000
+        recorder.onDeviceDisconnected()
+        clock.now = base + 60_000 + graceMs
         recorder.onGraceTimerExpired()
-        assertEquals(TripRecorder.Phase.IDLE, recorder.snapshot().phase)
         assertEquals(1, recorder.takeFinishedTrips().size)
     }
 
@@ -277,5 +300,27 @@ class TripRecorderTest {
         assertEquals(base, snap.startEpochMillis)
         assertEquals("Car bluetooth", snap.deviceName)
         assertEquals(TripOrigin.AUTO, snap.origin)
+    }
+
+    @Test
+    fun updatedGracePeriod_isUsedForNextDisconnect() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.updateGracePeriodMillis(60_000L) // user set 1 minute
+
+        recorder.onDeviceConnected("Car")
+        clock.now = base + 5_000
+        recorder.onDeviceDisconnected()
+
+        // 59 s after disconnect: still in grace (not yet 60 s).
+        clock.now = base + 5_000 + 59_000
+        recorder.onGraceTimerExpired()
+        assertEquals(TripRecorder.Phase.GRACE, recorder.snapshot().phase)
+
+        // 1 s later: grace over, trip finished (and discarded: 0 km).
+        clock.now = base + 5_000 + 60_000
+        recorder.onGraceTimerExpired()
+        assertEquals(TripRecorder.Phase.IDLE, recorder.snapshot().phase)
+        assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
 }

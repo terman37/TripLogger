@@ -33,6 +33,14 @@ object HomeStateMapper {
         }
 
         val rows = trips.map { tripToRowUi(it, zone) }
-        return HomeUiState(card = card, recentTrips = rows, hasTrips = rows.isNotEmpty())
+        return HomeUiState(
+            card = card,
+            recentTrips = rows,
+            hasTrips = rows.isNotEmpty(),
+            monitoringEnabled = monitoringEnabled,
+            // Registered devices == the names passed in; an empty list means the
+            // switch must stay disabled (register first, UI.md).
+            canEnableMonitoring = deviceNames.isNotEmpty(),
+        )
     }
 }

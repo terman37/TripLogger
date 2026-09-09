@@ -74,6 +74,17 @@ interface TripDao {
     suspend fun deleteById(id: Long)
 
     /**
+     * Removes every trip whose start falls in [fromInclusive, untilExclusive)
+     * — the Report page "cleanup the displayed trips" action. Same boundary
+     * semantics as [tripsBetween].
+     */
+    @Query(
+        "DELETE FROM trips WHERE startEpochMillis >= :fromInclusive " +
+            "AND startEpochMillis < :untilExclusive",
+    )
+    suspend fun deleteBetween(fromInclusive: Long, untilExclusive: Long)
+
+    /**
      * Updates an existing trip (same id). Used to fill in addresses after a
      * delayed reverse geocode (todo.md lazy retry).
      */

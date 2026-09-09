@@ -4,7 +4,10 @@ package com.terman37.triplogger.ui.report
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,13 +26,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -42,9 +52,11 @@ import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
- * Report tab (UI.md): pick a date range (default last month) → Generate →
- * summary + preview → Export spreadsheet (CSV, shared through the Android
- * share sheet).
+ * Report tab (user rework, plan.md Step 12):
+ * - From/To date filters side by side on top (default: last 7 days),
+ * - the trip list below, ALWAYS shown for the selected range (no Generate —
+ *   it reloads when the dates change),
+ * - export button pinned bottom-right.
  */
 @Composable
 fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
@@ -52,90 +64,87 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
     val zone = ZoneId.systemDefault()
     val scope = rememberCoroutineScope()
 
-    // Screen-owned state (nothing persisted between app runs).
     var from by remember { mutableStateOf(viewModel.defaultFrom()) }
     var to by remember { mutableStateOf(viewModel.defaultTo()) }
-    var generating by remember { mutableStateOf(false) }
     var data by remember { mutableStateOf<ReportData?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var pickerFor by remember { mutableStateOf<DateField?>(null) }
     var expandedIds by remember { mutableStateOf(setOf<Long>()) }
+    var deletePending by remember { mutableStateOf(false) }
 
-    // Live selection inside the date picker dialog (reset when opened).
     val datePickerState = rememberDatePickerState()
 
-    val current = data
-    val rowById = current?.let { remember(it) { viewModel.toRows(it).associateBy { it.id } } }
+    // Live reload: every date change re-queries (no Generate button anymore).
+    LaunchedEffect(from, to) {
+        data = viewModel.load(from, to)
+        expandedIds = emptySet()
+    }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-    ) {
-        item {
-            Text("From", style = MaterialTheme.typography.labelLarge)
-            OutlinedButton(onClick = { pickerFor = DateField.FROM }) { Text(from.toString()) }
-
-            Text("To", style = MaterialTheme.typography.labelLarge)
-            OutlinedButton(onClick = { pickerFor = DateField.TO }) { Text(to.toString()) }
-
-            if (from.isAfter(to)) {
-                Text(
-                    "From must not be after To.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            error?.let {
-                Text(it, color = MaterialTheme.colorScheme.error)
-            }
-
-            Spacer(Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    scope.launch {
-                        generating = true
-                        error = null
-                        data = viewModel.generate(from, to)
-                        expandedIds = emptySet()
-                        generating = false
-                    }
-                },
-                enabled = !generating && !from.isAfter(to),
-            ) {
-                Text(if (generating) "Generating…" else "Generate")
-            }
+    Column(modifier = Modifier.fillMaxSize()) {
+        // --- top: date filters side by side --------------------------------
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            DateFieldButton(
+                label = "From",
+                date = from,
+                onClick = { pickerFor = DateField.FROM },
+                modifier = Modifier.weight(1f),
+            )
+            DateFieldButton(
+                label = "To",
+                date = to,
+                onClick = { pickerFor = DateField.TO },
+                modifier = Modifier.weight(1f),
+            )
+        }
+        error?.let {
+            Text(
+                it,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
         }
 
+        // --- middle: always-visible trip list ------------------------------
+        val current = data
         if (current != null) {
-            item {
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = String.format(
-                        Locale.US, "%d %s · %.1f km",
-                        current.trips.size,
-                        if (current.trips.size == 1) "trip" else "trips",
-                        current.totalKm,
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+            Text(
+                text = String.format(
+                    Locale.US, "%d %s · %.1f km",
+                    current.trips.size,
+                    if (current.trips.size == 1) "trip" else "trips",
+                    current.totalKm,
+                ),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
 
-                if (current.trips.isEmpty()) {
-                    Text(
-                        "No trips in this period",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp),
-                    )
-                }
+        if (current == null || current.trips.isEmpty()) {
+            Text(
+                "No trips in this period",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 48.dp),
+            )
+        } else {
+            val rowById = remember(current) {
+                viewModel.toRows(current).associateBy { it.id }
             }
-
-            if (current.trips.isNotEmpty()) {
-                // Chronological preview (DAO order); expanding shows the same
-                // detail as Home. No delete here: this view mirrors the data.
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            ) {
                 items(current.trips, key = { it.id }) { trip ->
-                    val row = rowById?.get(trip.id) ?: return@items
+                    val row = rowById[trip.id] ?: return@items
                     TripRowCard(
                         row = row,
                         expanded = trip.id in expandedIds,
@@ -148,29 +157,83 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                         },
                     )
                 }
+            }
+        }
 
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                error = null
-                                val file = viewModel.exportCsv(from, to)
-                                if (file != null) {
-                                    shareCsv(context, file)
-                                } else {
-                                    error = "Export failed"
-                                }
-                            }
-                        },
-                    ) {
-                        Text("Export spreadsheet")
+        // --- bottom-right footer: export -----------------------------------
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            // Trash on the far left, export on the far right (user request).
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Cleanup of ALL trips shown for the current filter dates.
+            val displayedCount = current?.trips?.size ?: 0
+            IconButton(
+                onClick = { deletePending = true },
+                enabled = displayedCount > 0,
+            ) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Delete all trips in this period",
+                )
+            }
+            Button(
+                onClick = {
+                    scope.launch {
+                        error = null
+                        val file = viewModel.exportCsv(from, to)
+                        if (file != null) {
+                            shareCsv(context, file)
+                        } else {
+                            error = "Export failed"
+                        }
                     }
-                }
+                },
+            ) {
+                Text("Export spreadsheet")
             }
         }
     }
 
+    // Bulk-delete confirmation (user request): several trips may be affected,
+    // and deletion is permanent.
+    if (deletePending) {
+        val count = data?.trips?.size ?: 0
+        AlertDialog(
+            onDismissRequest = { deletePending = false },
+            title = { Text(if (count == 1) "Delete 1 trip?" else "Delete $count trips?") },
+            text = {
+                Text(
+                    "Every trip from $from to $to will be permanently removed " +
+                        "from your records and reports.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        deletePending = false
+                        scope.launch {
+                            val ok = viewModel.deleteRange(from, to)
+                            if (ok) {
+                                data = viewModel.load(from, to)
+                                expandedIds = emptySet()
+                            } else {
+                                error = "Deletion failed"
+                            }
+                        }
+                    },
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { deletePending = false }) { Text("Cancel") }
+            },
+        )
+    }
+
+    // --- date picker dialog (shared by both fields) ------------------------
     pickerFor?.let { field ->
         DatePickerDialog(
             onDismissRequest = { pickerFor = null },
@@ -179,8 +242,15 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                     onClick = {
                         val millis = datePickerState.selectedDateMillis
                         if (millis != null) {
-                            val date = Instant.ofEpochMilli(millis).atZone(zone).toLocalDate()
-                            if (field == DateField.FROM) from = date else to = date
+                            val picked = Instant.ofEpochMilli(millis).atZone(zone).toLocalDate()
+                            if (field == DateField.FROM) {
+                                from = picked
+                                // Keep the range valid: From after To clamps To.
+                                if (picked.isAfter(to)) to = picked
+                            } else {
+                                to = picked
+                                if (picked.isBefore(from)) from = picked
+                            }
                         }
                         pickerFor = null
                     },
@@ -191,6 +261,22 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
             },
         ) {
             DatePicker(state = datePickerState)
+        }
+    }
+}
+
+/** One half of the side-by-side range filter. */
+@Composable
+private fun DateFieldButton(
+    label: String,
+    date: LocalDate,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedButton(onClick = onClick, modifier = modifier) {
+        Column(modifier = Modifier.padding(vertical = 2.dp)) {
+            Text(label, style = MaterialTheme.typography.labelSmall)
+            Text(date.toString(), style = MaterialTheme.typography.bodyLarge)
         }
     }
 }

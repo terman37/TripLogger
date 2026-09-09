@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,7 +21,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,17 +28,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
- * Devices tab (UI.md): master switch, grace-period slider, registered device
- * list (remove with X) and paired devices (add with +). No in-app pairing —
- * pairing happens in Android settings; refreshPairedDevices re-reads the list
- * on resume so newly paired devices appear.
+ * Devices tab (UI.md): registered device list (remove with X), paired devices
+ * (add with +), reconnect grace slider. The master "Monitor trips" switch now
+ * lives at the top of Home (user request). No in-app pairing — pairing happens
+ * in Android settings; refreshPairedDevices re-reads on resume.
  */
 @Composable
 fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
@@ -58,18 +55,7 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Runtime permissions are requested together, once, when the user tries to
-    // enable monitoring without them. BLUETOOTH_CONNECT + FINE_LOCATION are
-    // needed by the service, POST_NOTIFICATIONS for its notification.
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions(),
-    ) { results ->
-        viewModel.onPermissionsResult(results.values.all { it })
-    }
-
-    // Standalone Bluetooth access request: listing paired devices needs only
-    // BLUETOOTH_CONNECT, so the user can grant it BEFORE registering any
-    // device (no monitoring enable required — avoids a UX deadlock).
+    // Listing paired devices needs only BLUETOOTH_CONNECT — granted on demand.
     val bluetoothAccessLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
@@ -82,30 +68,6 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
-        MasterSwitchRow(
-            state = uiState,
-            onToggle = { enable ->
-                if (enable) {
-                    if (uiState.permissionsGranted) {
-                        viewModel.setMonitoringEnabled(true)
-                    } else {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.BLUETOOTH_CONNECT,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.POST_NOTIFICATIONS,
-                            ),
-                        )
-                    }
-                } else {
-                    viewModel.setMonitoringEnabled(false)
-                }
-            },
-        )
-
-        Spacer(Modifier.height(16.dp))
-        HorizontalDivider()
-
         // --- registered devices ------------------------------------------
         SectionTitle("Registered")
         Text(
@@ -131,6 +93,9 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
                 },
             )
         }
+
+        Spacer(Modifier.height(8.dp))
+        HorizontalDivider()
 
         // --- available paired devices ------------------------------------
         SectionTitle("Available")
@@ -196,44 +161,11 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
 }
 
 @Composable
-private fun MasterSwitchRow(state: DevicesUiState, onToggle: (Boolean) -> Unit) {
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Monitor trips", style = MaterialTheme.typography.titleLarge)
-                Text(
-                    "Record a trip whenever a registered device connects.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Switch(
-                checked = state.monitoringEnabled,
-                onCheckedChange = onToggle,
-                // UI.md: can only be ON with at least one registered device.
-                enabled = state.canEnableMonitoring || state.monitoringEnabled,
-            )
-        }
-        if (state.monitoringEnabled && !state.permissionsGranted) {
-            Text(
-                "Some permissions were revoked — monitoring is paused.",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        } else if (!state.canEnableMonitoring) {
-            Text(
-                "Register a device below to enable monitoring.",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Composable
 private fun SectionTitle(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
     )
 }
 

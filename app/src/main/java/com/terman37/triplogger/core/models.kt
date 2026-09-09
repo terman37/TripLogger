@@ -33,6 +33,13 @@ object TrackingPolicy {
 
     /** Mean Earth radius used by the Haversine distance. */
     const val EARTH_RADIUS_KM = 6371.0
+
+    /**
+     * Trips shorter than this are discarded on finish (plan.md Step 12, user
+     * feedback): parked-engine sessions produce ~0 km rows that only pollute
+     * reports. 50 m because rows display "0.0 km" up to ~49 m anyway.
+     */
+    const val MIN_TRIP_DISTANCE_KM = 0.05
 }
 
 /**

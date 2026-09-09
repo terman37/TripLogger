@@ -208,9 +208,12 @@ class TripMonitorService : Service() {
     private fun scheduleGraceTimer() {
         if (graceTimerJob != null) return // one timer at a time
         val graceMinutes = container.settings.gracePeriodMinutes.value
+        Log.i(TAG, "grace timer scheduled: ${graceMinutes} min")
         graceTimerJob = scope.launch {
             delay(graceMinutes * 60_000L)
+            Log.i(TAG, "grace timer fired, snapshot=" + recorder.snapshot().phase)
             recorder.onGraceTimerExpired() // recorder ignores early/late calls
+            Log.i(TAG, "after expiry, snapshot=" + recorder.snapshot().phase)
             persistFinishedTrips()
             evaluate()
         }

@@ -11,6 +11,10 @@ data class HomeUiState(
     val card: CardUiState,
     val recentTrips: List<TripRowUi>,
     val hasTrips: Boolean,
+    /** Master "Monitor trips" switch state (moved to Home, user request). */
+    val monitoringEnabled: Boolean,
+    /** False until at least one device is registered (switch stays disabled). */
+    val canEnableMonitoring: Boolean,
 )
 
 /**
@@ -61,4 +65,14 @@ data class TripRowUi(
     val durationText: String,
     val startAddressText: String,
     val endAddressText: String,
+    // Raw location data for the Google Maps directions button (fall back to
+    // coordinates when an address is missing). Null on both → no button.
+    val startStreet: String?,
+    val startCity: String?,
+    val startLat: Double?,
+    val startLng: Double?,
+    val endStreet: String?,
+    val endCity: String?,
+    val endLat: Double?,
+    val endLng: Double?,
 )
