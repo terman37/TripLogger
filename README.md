@@ -1,156 +1,124 @@
 # Trip Logger
 
-Android application to log car trips automatically and export expense reports.
+An Android app that **logs your car trips automatically** and lets you export
+them as a spreadsheet for your expense report.
 
-Trips are detected by **Bluetooth connection**: when a configured Bluetooth device
-(the car) connects, a trip starts; when it disconnects, the trip ends. Each trip is
-recorded with start/end timestamps, positions, reverse-geocoded addresses, and
-distance in kilometers. Trips can be exported as a spreadsheet between two dates
-for expense reports.
+You do not need to press anything before driving: when your car's Bluetooth
+connects, the trip starts; when it disconnects, the trip ends. Distance,
+start/end addresses and times are recorded. Later you pick a date range and
+export a spreadsheet you can send to your employer or accountant.
 
-> Status: early development. The Gradle project skeleton exists; no feature code
-> has been written yet. See [todo.md](todo.md) for the full feature list and
-> [plan.md](plan.md) for the step-by-step implementation plan.
+Everything stays **on your phone**. There is no account, no server and nothing
+is uploaded by the app.
 
-## Features
+---
 
-**Core (planned)**
+## Installing the app
 
-- Background monitoring of Bluetooth connections for a configured device (the car)
-- Auto start/stop of trip recording on connect/disconnect
-- GPS position capture with reverse geocoding to get street addresses
-- Distance calculation in kilometers
-- Trip records stored in a local database:
-  - start timestamp, start position, start address
-  - end timestamp, end position, end address
-  - number of kilometers
-- Report generation between two dates
-- Share/export of the report as a spreadsheet (CSV)
+The app is installed manually (it is not published on the Play Store). The
+build/install steps are in [BUILD.md](BUILD.md); if someone already gave you an
+`.apk` file, just open it on your phone and allow installing apps from that
+source.
 
-**Later / ideas (see todo.md)**
+Requirement: Android 14 or newer.
 
-- Photos of tickets attached to trips (parking, tolls, fuel)
-- Extraction of date / amount / debit account from ticket photos
+---
 
-## Architecture overview
+## First-time setup (2 minutes)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      Android OS                         │
-│   BluetoothAdapter / BluetoothDevice callbacks          │
-│   LocationManager / GPS                                 │
-└──────────────┬──────────────────────────┬───────────────┘
-               │ connect/disconnect events │ location updates
-┌──────────────▼──────────────────────────▼───────────────┐
-│              Foreground Service (trip monitor)          │
-│  - watches the configured Bluetooth device              │
-│  - runs trip state machine: Idle → Recording → Ended    │
-│  - samples location while recording                     │
-└───────┬──────────────────────────────┬──────────────────┘
-        │ trip start / end events      │ position samples
-┌───────▼──────────┐        ┌──────────▼───────────┐
-│  Trip Repository │        │ Geocoder (reverse)   │
-│  (Room database) │        │  address lookup       │
-└───────┬──────────┘        └──────────┬───────────┘
-        │                              │
-┌───────▼──────────────────────────────▼───────────────────┐
-│  UI (single activity, Compose, bottom nav)               │
-│  - trip list / current trip status                       │
-│  - device selection                                      │
-│  - report screen: pick date range → export spreadsheet   │
-│  - share via Android Sharesheet / ACTION_SEND            │
-└──────────────────────────────────────────────────────────┘
-```
+1. **Pair your car in Android settings** (the app never does the pairing
+   itself): Settings → Bluetooth → pair your car/head unit or your usual car
+   adapter.
+2. Open **Trip Logger** and go to the **Devices** tab.
+3. Tap **Allow Bluetooth access**, then tap **+** next to your car in the
+   *Available* list. Your car now appears under *Registered*.
+4. Go back to **Home** (first tab) and turn on the **Monitor trips** switch.
+   Android asks for permissions (Bluetooth, Location, Notifications): accept
+   all three — they are required.
+5. A small "Monitoring active" notification appears. Setup is done.
 
-Key modules (planned):
+You can log several cars/devices: add each one with **+**. Remove one with the
+**X** next to it.
 
-| Module | Responsibility |
-| --- | --- |
-| `TripMonitorService` | Foreground service; listens for Bluetooth device connect/disconnect; starts/stops recordings |
-| `TripRecorder` | State machine for a trip session; accumulates distance |
-| `LocationTracker` | Requests GPS fixes at intervals; computes distances between fixes |
-| `DistanceCalculator` | Haversine (or similar) formula for km between two coordinates |
-| `GeocodingService` | Reverse geocodes coordinates into street addresses |
-| `TripDao` / `TripDatabase` | Room entities and queries for trip rows |
-| `ReportExporter` | Builds CSV/spreadsheet rows for a date range |
-| `ReportViewModel` / UI | Date range picker, preview, export + share |
+### The reconnect grace period (Devices tab)
 
-Design decisions and rationale:
+Bluetooth sometimes drops for a few seconds (phone in a pocket, tunnel…). The
+**Reconnect grace period** (1–15 minutes, default 3) means a disconnect only
+ends the trip after that delay: if the car reconnects in time, the trip
+continues as a single trip.
 
-- **Bluetooth as trip trigger** — no manual "start/stop" button needed; the car
-  connection is the signal. Requires a background service because Bluetooth events
-  must be observed even when the app is not in the foreground.
-- **Foreground service with notification** — Android requires a foreground service
-  (with visible notification) for long-running background work; also makes the
-  active recording visible to the user.
-- **Distance sampled while driving** — locations are sampled at intervals while
-  the trip is active and small distances summed (see todo.md "Ideas"). Exact
-  distance is not required for reporting, so sampling frequency is a tunable
-  trade-off between battery life and precision.
-- **Local Room database** — trips are personal data; no server, no account. Room
-  gives typed queries and easy migration.
-- **CSV export + Android Sharesheet** — the app generates a spreadsheet file and
-  hands it to the system share sheet (`ACTION_SEND`), so the user can send it to
-  any app (mail, drive, spreadsheet editor). This matches the open question in
-  todo.md.
+---
 
-### How a trip is recorded
+## Daily use
 
-1. User pairs the car's Bluetooth device in the app (stores its MAC/name).
-2. User starts the app's monitoring service (persistent notification).
-3. Car connects → service wakes → trip starts:
-   - record start timestamp and GPS position
-   - reverse-geocode position → start address
-4. While connected, positions are sampled; distance accumulates.
-5. Car disconnects → trip ends:
-   - record end timestamp, position, address, total km
-   - insert one row in the database
-6. Later, the user picks two dates → app lists trips in range → export CSV →
-   share.
+**Driving**
 
-### Permissions (planned, subject to Android version rules)
+Just drive. When the car connects, the Home screen switches to a colored
+"Recording" card showing the live distance and elapsed time. When the car
+disconnects, the trip is saved after the grace period.
 
-| Permission | Purpose |
-| --- | --- |
-| `BLUETOOTH_CONNECT` (runtime) | Observe connection state of the car device |
-| `ACCESS_FINE_LOCATION` (runtime) | GPS fixes for start/end position and distance |
-| `FOREGROUND_SERVICE` + location/connected-device types | Run monitoring service |
-| `POST_NOTIFICATIONS` (runtime) | Foreground service notification |
+**If automatic detection misses a trip** (rare), tap **Start manually** on
+Home; tap **Stop** when you arrive. Manual trips ignore Bluetooth entirely.
 
-No storage permission is needed: the database and export files live in
-app-internal / app-specific storage and are shared through the system share sheet.
+**Trip list (Home)** — shows today's and yesterday's trips, newest first.
 
-## Project structure
+- Tap a trip to see details: times, duration, addresses, distance.
+- The little map icon on the row opens the whole route in Google Maps; in the
+  details, each address has its own pin icon that opens just that place.
+- The red trash icon removes a trip (always asks for confirmation).
 
-```
-app/src/main/java/com/terman37/triplogger/
-├── MainActivity.kt              # entry point
-├── data/                        # Room entities, DAO, database
-├── monitor/                     # Bluetooth monitor, trip recorder, state machine
-├── location/                    # location sampling, distance, reverse geocoding
-├── report/                      # report query + CSV export
-└── ui/                          # screens: trips, device setup, report
-```
+A trip shorter than 50 meters is ignored — for example when the engine runs
+while the car stays parked and Bluetooth connects.
 
-Code targets **Kotlin**, minSdk 34 (Android 14), targetSdk 37. See
-[BUILD.md](BUILD.md) for building an installable APK.
+---
 
-## Testing
+## Reports and spreadsheets
 
-Unit tests (`app/src/test/...`) cover pure logic: distance calculation, trip
-state machine, CSV formatting, report date-range queries (Room in-memory). Where
-Android APIs are involved, logic is isolated behind interfaces so tests run on
-the JVM without an emulator.
+Open the **Report** tab:
 
-Instrumented DAO tests live in `app/src/androidTest` (run on a device:
-`./gradlew :app:connectedDebugAndroidTest`). Manual end-to-end validation is
-described in [DeviceTest.md](DeviceTest.md).
+1. Pick a **From** and **To** date (side by side). By default the last 7 days
+   are shown; the list updates as soon as you change a date.
+2. A summary line shows how many trips and total kilometers are in the range.
+3. Tap the **export button** (bottom right) to create the spreadsheet: Android's
+   share sheet opens, so you can send it by mail, save it to Drive, or open it
+   in Google Sheets/Excel.
+4. The **trash icon** (bottom left) deletes **all** trips in the shown period —
+   it always asks for confirmation first.
 
-## Documentation
+The spreadsheet contains one row per trip: start date/time/month, end
+date/time, start city and address, end city and address, kilometers, and a
+Google Maps link for each address, plus a total row. Every trip row can also be
+deleted from the report with its red trash icon.
 
-- [todo.md](todo.md) — user feature list and open questions
-- [plan.md](plan.md) — step-by-step implementation plan (checkboxes)
-- [DeviceTest.md](DeviceTest.md) — manual on-device validation checklist
-- [UI.md](UI.md) — precise visual specification of the app
-- [AGENTS.md](AGENTS.md) — conventions for AI agents / contributors working in this repo
-- [BUILD.md](BUILD.md) — how to produce an installable file
+> If a trip ended while you had no network, its addresses appear as
+> "Address pending". They fill in by themselves the next time you open the
+> Report tab or export, as soon as you have network again.
+
+---
+
+## Good to know
+
+- **The notification is monitoring.** If you swipe the "Trip Logger"
+  notification away, the app stops monitoring (that is intentional: it never
+  tracks silently). Turn the switch on Home back on if that was a mistake.
+- **Closing the app is fine.** Monitoring continues in the background while the
+  switch is on.
+- **Force-stopping the app** (or rebooting the phone) during a trip loses that
+  in-progress trip; the app never saves half trips.
+- **Battery**: the app asks for GPS only while a trip is recording (one fix
+  every 30 seconds), so it is light on battery. Some phone brands additionally
+  restrict background apps; if recording stops unexpectedly, allow Trip Logger
+  to run in the background / disable battery optimization for it.
+- **Permissions**: Bluetooth is used only to notice your car connecting;
+  location is used for distance and addresses. Nothing leaves the phone.
+
+---
+
+## More info
+
+- **[DETAILS.md](DETAILS.md)** — technical documentation: architecture, how a
+  trip is recorded, decisions, package layout, tests (for the curious or
+  developers).
+- **[BUILD.md](BUILD.md)** — how to build and install the app yourself.
+- **[UI.md](UI.md)** — detailed interface specification.
+- **[todo.md](todo.md)** — planned features (e.g. ticket photos).

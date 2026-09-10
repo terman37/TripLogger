@@ -21,11 +21,17 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -46,6 +52,9 @@ fun TripRowCard(
     onToggle: () -> Unit,
     onDelete: (() -> Unit)? = null,
 ) {
+    // Delete needs confirmation (user request): the trash only opens a dialog,
+    // the actual [onDelete] runs on confirm.
+    var confirmDelete by remember { mutableStateOf(false) }
     val mapsUrl = remember(row.id) {
         MapsUrl.directions(
             originStreet = row.startStreet,
@@ -124,7 +133,7 @@ fun TripRowCard(
                     trailing = {
                         if (onDelete != null) {
                             IconButton(
-                                onClick = onDelete,
+                                onClick = { confirmDelete = true },
                                 colors = IconButtonDefaults.iconButtonColors(
                                     contentColor = DestructiveRed,
                                 ),
@@ -136,6 +145,30 @@ fun TripRowCard(
                 )
             }
         }
+    }
+
+    if (confirmDelete && onDelete != null) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text("Delete this trip?") },
+            text = {
+                Text("This trip will be permanently removed from your records and reports.")
+            },
+            confirmButton = {
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = DestructiveRed,
+                    ),
+                    onClick = {
+                        confirmDelete = false
+                        onDelete()
+                    },
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
+            },
+        )
     }
 }
 

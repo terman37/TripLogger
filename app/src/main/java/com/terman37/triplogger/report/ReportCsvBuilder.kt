@@ -44,10 +44,16 @@ object ReportCsvBuilder {
             add(HEADERS.joinToString(",") { escape(it) })
             trips.forEach { trip -> add(row(trip, zone).joinToString(",") { escape(it) }) }
             add(
-                // Totals row: blank cells except the km total (last two columns
-                // are URLs, so HEADERS.size - 2 blanks after "Total").
-                (listOf("Total") + List(HEADERS.size - 2) { "" } + kmText(totalKm))
-                    .joinToString(",") { escape(it) },
+                // Totals row: "Total" in the first column and the km sum UNDER
+                // the km header (look the column up by name so reordering the
+                // headers can never silently shift the total).
+                HEADERS.indices.map { index ->
+                    when {
+                        index == 0 -> "Total"
+                        HEADERS[index] == "km" -> kmText(totalKm)
+                        else -> ""
+                    }
+                }.joinToString(",") { escape(it) },
             )
         }.joinToString("\n") + "\n"
     }

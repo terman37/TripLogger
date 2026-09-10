@@ -54,8 +54,9 @@ class ReportCsvBuilderTest {
         // trimEnd: builder ends with a trailing newline (RFC wants it).
         val lines = csv.trimEnd().lineSequence().toList()
         assertEquals(2, lines.size)
-        assertTrue(lines[1].endsWith(",0.0"))
         assertTrue(lines[1].startsWith("Total"))
+        // km total sits under the km header (index 9), maps links empty.
+        assertEquals("0.0", lines[1].split(",")[9])
     }
 
     @Test
@@ -85,7 +86,9 @@ class ReportCsvBuilderTest {
                 "https://www.google.com/maps/search/?api=1&query=Parking+A",
             lines[2],
         )
-        assertEquals("Total,,,,,,,,,,,47.4", lines[3])
+        // km sum must sit under the "km" header (9th column), with the two
+        // maps-link columns empty.
+        assertEquals("Total,,,,,,,,,47.4,,", lines[3])
     }
 
     @Test

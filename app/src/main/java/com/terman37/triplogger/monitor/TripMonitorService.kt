@@ -79,6 +79,7 @@ class TripMonitorService : Service() {
         when (intent?.action) {
             ACTION_MANUAL_START -> recorder.onManualStart()
             ACTION_MANUAL_STOP -> recorder.onManualStop()
+            ACTION_NOTIFICATION_DISMISSED -> onNotificationDismissed()
             // ACTION_START/ACTION_STOP only wake the service; evaluate() reads
             // the real state (settings + recorder) and acts on it.
         }
@@ -252,6 +253,19 @@ class TripMonitorService : Service() {
         getSharedPreferences("debug", MODE_PRIVATE)
     }
 
+    /**
+     * The user swiped the monitoring notification away. Treat it as "stop
+     * monitoring": finish and save any running trip, turn the switch off and
+     * let evaluate() tear the service down (notification gone = no silent
+     * monitoring, plan.md Step 12).
+     */
+    private fun onNotificationDismissed() {
+        Log.i(TAG, "notification dismissed → stopping monitoring")
+        recorder.onManualStop() // finishes a running trip (discarded if < 50 m)
+        container.settings.setMonitoringEnabled(false)
+        persistFinishedTrips()
+    }
+
     private fun persistFinishedTrips() {
         // Save drafts in the background; failures must not crash the service.
         val drafts = recorder.takeFinishedTrips()
@@ -337,12 +351,21 @@ class TripMonitorService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE,
         )
+        val dismissIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            Intent(this, NotificationDismissReceiver::class.java),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_stat_triplogger) // TODO step 13: real icon
-            .setOngoing(true) // cannot be swiped away (monitoring must stay)
+            .setOngoing(true)
             .setContentIntent(openApp)
+            // If the OS still lets the user dismiss it (Android 14+), stop
+            // monitoring instead of running invisibly.
+            .setDeleteIntent(dismissIntent)
             .build()
     }
 
@@ -355,6 +378,8 @@ class TripMonitorService : Service() {
         const val ACTION_STOP = "com.terman37.triplogger.action.STOP"
         const val ACTION_MANUAL_START = "com.terman37.triplogger.action.MANUAL_START"
         const val ACTION_MANUAL_STOP = "com.terman37.triplogger.action.MANUAL_STOP"
+        const val ACTION_NOTIFICATION_DISMISSED =
+            "com.terman37.triplogger.action.NOTIFICATION_DISMISSED"
 
         /** Starts the service with a command. UI helpers call these. */
         fun startWithAction(context: Context, action: String) {

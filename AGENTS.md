@@ -14,13 +14,16 @@ understandable, generously commented, and behavior must be testable.
 
 1. The owner reviews and commits **each step separately**. Split work into small,
    reviewable steps and stop after each step for review.
-2. Maintain the plan in `plan.md` with checkbox items, updated after every step.
+2. For multi-step work, keep a short checklist in the task/PR description (there
+   is no plan file: the original plan.md was completed and removed).
 3. Do not implement a step the owner has not approved.
 4. If a new issue changes scope or exposes an unresolved requirement, stop and ask.
 
 ## Current status
 
-- Gradle skeleton only (`:app` module, no application code yet).
+- Working app: trip logging, Report/CSV export, Devices setup, dark Compose UI
+  (validated on a real device). See README.md for the user guide and
+  DETAILS.md for the technical documentation.
 - Package: `com.terman37.triplogger`. minSdk 34, targetSdk 37.
 - Version catalog: `gradle/libs.versions.toml` (single source of dependency
   versions). Add new libraries there, never hardcode versions in build files.
@@ -40,14 +43,15 @@ understandable, generously commented, and behavior must be testable.
   Add tests for changed behavior. Run the narrowest relevant checks first.
 - **Dependencies:** declare in `gradle/libs.versions.toml`; update README if
   architecture or setup changes.
-- **Files:** README.md, plan.md, todo.md are source-of-truth docs. Keep in sync
+- **Files:** README.md (user guide), DETAILS.md (technical), UI.md (interface),
+  BUILD.md (builds), todo.md (backlog) are source-of-truth docs. Keep in sync
   with code behavior.
 
 ## Validation
 
 - `./gradlew :app:testDebugUnitTest` — JVM unit tests
 - `./gradlew :app:assembleDebug` — build APK (see BUILD.md)
-- Lint/compile errors must be fixed before marking a plan step done.
+- Lint/compile errors must be fixed before marking any change done.
 
 ## Pitfalls to respect
 

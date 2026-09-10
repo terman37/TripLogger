@@ -63,8 +63,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     // Live "now" for the elapsed-time display; ticks every second while the
     // screen is visible.
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
-    // Trip awaiting the delete confirmation dialog.
-    var pendingDeleteId by remember { mutableStateOf<Long?>(null) }
     LaunchedEffect(Unit) {
         while (true) {
             now = System.currentTimeMillis()
@@ -129,34 +127,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                                 expandedIds + row.id
                             }
                         },
-                        onDelete = { pendingDeleteId = row.id },
+                        onDelete = { viewModel.deleteTrip(row.id) },
                     )
                 }
             }
         }
     }
 
-    // Delete confirmation (user request): deleting is irreversible.
-    pendingDeleteId?.let { id ->
-        AlertDialog(
-            onDismissRequest = { pendingDeleteId = null },
-            title = { Text("Delete trip?") },
-            text = {
-                Text("This removes the trip from your records and future reports.")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteTrip(id)
-                        pendingDeleteId = null
-                    },
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDeleteId = null }) { Text("Cancel") }
-            },
-        )
-    }
 }
 
 // --- status card ---------------------------------------------------------

@@ -205,6 +205,9 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                         error = null
                         val file = viewModel.exportCsv(from, to)
                         if (file != null) {
+                            // Export triggers the lazy address retry: refresh
+                            // the preview so newly geocoded addresses show up.
+                            data = viewModel.load(from, to)
                             shareCsv(context, file)
                         } else {
                             error = "Export failed"

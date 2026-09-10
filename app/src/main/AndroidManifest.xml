@@ -46,6 +46,12 @@
             service type must be declared here AND granted at runtime before
             startForeground is called.
         -->
+        <!-- Forwarded when the user swipes the monitoring notification away:
+             monitoring must not stay on without a visible notification. -->
+        <receiver
+            android:name=".monitor.NotificationDismissReceiver"
+            android:exported="false" />
+
         <service
             android:name=".monitor.TripMonitorService"
             android:exported="false"
