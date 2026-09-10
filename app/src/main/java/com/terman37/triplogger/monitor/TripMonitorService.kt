@@ -334,8 +334,9 @@ class TripMonitorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
-                       // White-on-transparent car glyph (notification icons must not be
-            // full-color).
+            // White-on-transparent car glyph (notification icons must be
+            // monochrome; a full-color icon would be rejected by the system).
+            .setSmallIcon(R.drawable.ic_stat_triplogger)
             .setOngoing(true)
             .setContentIntent(openApp)
             // If the OS still lets the user dismiss it (Android 14+), stop
