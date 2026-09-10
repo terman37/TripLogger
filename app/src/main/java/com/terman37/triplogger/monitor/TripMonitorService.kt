@@ -206,17 +206,50 @@ class TripMonitorService : Service() {
     }
 
     private fun scheduleGraceTimer() {
-        if (graceTimerJob != null) return // one timer at a time
+        // Only one ACTIVE timer at a time. Checking isActive (not just null)
+        // matters: a completed job would otherwise block rescheduling and the
+        // grace period could hang forever (bug seen on device, plan.md Step 12).
+        if (graceTimerJob?.isActive == true) return
+
         val graceMinutes = container.settings.gracePeriodMinutes.value
-        Log.i(TAG, "grace timer scheduled: ${graceMinutes} min")
+        // Fire at the recorder's deadline, not "full period from now": if this
+        // is a re-schedule after an early/duplicate evaluation, the remaining
+        // time is shorter than the whole period.
+        val startedAt = recorder.snapshot().graceStartedAtEpochMillis
+        val deadline = (startedAt ?: System.currentTimeMillis()) + graceMinutes * 60_000L
+        val remainingMillis = (deadline - System.currentTimeMillis()).coerceAtLeast(0L)
+
+        Log.i(TAG, "grace timer scheduled: ${graceMinutes} min, in ${remainingMillis} ms")
+        debugPrefs.edit()
+            .putLong("grace_scheduled_at", System.currentTimeMillis())
+            .putLong("grace_delay_ms", remainingMillis)
+            .putInt("grace_minutes", graceMinutes)
+            .apply()
+
         graceTimerJob = scope.launch {
-            delay(graceMinutes * 60_000L)
-            Log.i(TAG, "grace timer fired, snapshot=" + recorder.snapshot().phase)
-            recorder.onGraceTimerExpired() // recorder ignores early/late calls
-            Log.i(TAG, "after expiry, snapshot=" + recorder.snapshot().phase)
-            persistFinishedTrips()
-            evaluate()
+            try {
+                delay(remainingMillis)
+                Log.i(TAG, "grace timer fired, snapshot=" + recorder.snapshot().phase)
+                recorder.onGraceTimerExpired() // recorder ignores early/late calls
+                val after = recorder.snapshot().phase
+                Log.i(TAG, "after expiry, snapshot=$after")
+                debugPrefs.edit()
+                    .putLong("grace_fired_at", System.currentTimeMillis())
+                    .putString("grace_phase_after", after.name)
+                    .apply()
+                persistFinishedTrips()
+                evaluate()
+            } finally {
+                // Always release the slot so the next grace can be scheduled.
+                graceTimerJob = null
+            }
         }
+    }
+
+    // Tiny persistent diagnostics (read via `adb shell run-as <pkg> cat
+    // shared_prefs/debug.xml`): logcat buffers roll over, these survive.
+    private val debugPrefs by lazy {
+        getSharedPreferences("debug", MODE_PRIVATE)
     }
 
     private fun persistFinishedTrips() {
