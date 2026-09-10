@@ -2,6 +2,7 @@ package com.terman37.triplogger.ui.home
 
 import com.terman37.triplogger.core.TripOrigin
 
+
 /**
  * Immutable UI state for the Home screen, produced by [HomeStateMapper] from
  * recorder snapshot + settings + trips. The screen renders exactly this —
@@ -11,7 +12,7 @@ data class HomeUiState(
     val card: CardUiState,
     val recentTrips: List<TripRowUi>,
     val hasTrips: Boolean,
-    /** Master "Monitor trips" switch state (moved to Home, user request). */
+    /** Master "Monitor trips" switch state (moved to Home). */
     val monitoringEnabled: Boolean,
     /** False until at least one device is registered (switch stays disabled). */
     val canEnableMonitoring: Boolean,
@@ -59,7 +60,6 @@ data class TripRowUi(
     /** "Home → Office" */
     val summary: String,
     val distanceText: String,
-    val origin: TripOrigin,
     // --- expanded fields ---
     val timeRangeText: String, // "14:32 – 15:15"
     val durationText: String,

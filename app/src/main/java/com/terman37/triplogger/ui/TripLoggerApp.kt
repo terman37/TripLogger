@@ -12,7 +12,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,7 +33,7 @@ enum class TopLevelDestination(
     val label: String,
     val icon: ImageVector,
 ) {
-    // Tab order (user request): Home, Report, Devices.
+    // Tab order: Home, Report, Devices.
     HOME("home", "Home", Icons.Filled.Home),
     REPORT("report", "Report", Icons.Filled.Assessment),
     DEVICES("devices", "Devices", Icons.Filled.Bluetooth),
@@ -60,9 +59,8 @@ fun TripLoggerApp() {
     // Tab switching without save/restore flags: every tab is a flat sibling of
     // the start destination. (Earlier saveState/restoreState + a pushed
     // destination left the back stack in a state where the Home tab could no
-    // longer be selected — fixed, plan.md Step 12.)
+    // longer be selected.)
     fun switchTo(route: String) {
-        android.util.Log.i("TripNav", "switchTo $route (current=$currentRoute)")
         navController.navigate(route) {
             // Pop everything above the start destination, then go to the tab:
             // no tab ever stacks on another.
@@ -100,15 +98,12 @@ fun TripLoggerApp() {
                 .padding(innerPadding),
         ) {
             composable(TopLevelDestination.HOME.route) {
-                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered HOME") }
                 HomeScreen()
             }
             composable(TopLevelDestination.DEVICES.route) {
-                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered DEVICES") }
                 DevicesScreen()
             }
             composable(TopLevelDestination.REPORT.route) {
-                LaunchedEffect(Unit) { android.util.Log.i("TripNav", "entered REPORT") }
                 ReportScreen()
             }
         }

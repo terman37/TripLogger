@@ -13,10 +13,10 @@ enum class TripOrigin {
 
 /**
  * Tuning constants for trip tracking. Kept in ONE place on purpose: they are
- * decisions from todo.md/plan.md and may change without touching logic.
+ * product decisions and may change without touching logic.
  */
 object TrackingPolicy {
-    /** Time between two GPS fix requests, milliseconds (plan: fixed, 30 s). */
+    /** Time between two GPS fix requests, milliseconds (fixed at 30 s). */
     const val LOCATION_INTERVAL_MS = 30_000L
 
     /** A fix closer than this to the previous kept fix is noise (parked car,
@@ -35,7 +35,7 @@ object TrackingPolicy {
     const val EARTH_RADIUS_KM = 6371.0
 
     /**
-     * Trips shorter than this are discarded on finish (plan.md Step 12, user
+     * Trips shorter than this are discarded on finish (earlier decisions, user
      * feedback): parked-engine sessions produce ~0 km rows that only pollute
      * reports. 50 m because rows display "0.0 km" up to ~49 m anyway.
      */

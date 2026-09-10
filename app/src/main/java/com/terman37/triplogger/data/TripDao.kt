@@ -1,7 +1,6 @@
 package com.terman37.triplogger.data
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -36,19 +35,9 @@ interface TripDao {
     suspend fun tripsBetween(fromInclusive: Long, untilExclusive: Long): List<Trip>
 
     /**
-     * Newest-first list of trips that started at or after [sinceEpochMillis].
-     * Used by the Home screen to show today's and yesterday's trips.
-     */
-    @Query(
-        "SELECT * FROM trips WHERE startEpochMillis >= :sinceEpochMillis " +
-            "ORDER BY startEpochMillis DESC",
-    )
-    suspend fun tripsSince(sinceEpochMillis: Long): List<Trip>
-
-    /**
-     * Same as [tripsSince] but as a reactive Flow: Room re-emits whenever the
-     * table changes, so the Home list refreshes itself after insert/delete
-     * (no manual reloads).
+     * Newest-first trips since a time as a reactive Flow: Room re-emits
+     * whenever the table changes, so the Home list refreshes itself after
+     * insert/delete (no manual reloads).
      */
     @Query(
         "SELECT * FROM trips WHERE startEpochMillis >= :sinceEpochMillis " +
@@ -62,12 +51,6 @@ interface TripDao {
      */
     @Query("SELECT * FROM trips ORDER BY startEpochMillis ASC")
     suspend fun allTrips(): List<Trip>
-
-    /**
-     * Removes one trip (UI.md: delete from the expanded row on Home).
-     */
-    @Delete
-    suspend fun delete(trip: Trip)
 
     /** Removes a trip by id (UI calls this with the row id). */
     @Query("DELETE FROM trips WHERE id = :id")

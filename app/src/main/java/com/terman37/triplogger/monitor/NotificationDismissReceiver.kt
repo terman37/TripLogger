@@ -9,7 +9,7 @@ import android.content.Intent
  * notification away (Android allows dismissing FGS notifications).
  *
  * The notification IS the monitoring indicator: once it is gone, monitoring
- * must not stay silently "on" (bug found on device, plan.md Step 12). The
+ * must not stay silently "on" (bug found on device). The
  * receiver forwards the event to the service, which finishes any running trip
  * (saving it), turns the master switch off and stops.
  *

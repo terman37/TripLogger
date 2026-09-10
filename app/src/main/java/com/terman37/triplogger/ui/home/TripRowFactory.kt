@@ -23,7 +23,6 @@ fun tripToRowUi(trip: Trip, zone: java.time.ZoneId): TripRowUi {
         title = TripText.dateTimeText(trip.startEpochMillis, zone),
         summary = summary,
         distanceText = TripText.kmText(trip.distanceKm),
-        origin = trip.origin,
         timeRangeText = "${TripText.timeText(trip.startEpochMillis, zone)} – " +
             TripText.timeText(trip.endEpochMillis, zone),
         durationText = TripText.durationText(trip.startEpochMillis, trip.endEpochMillis),

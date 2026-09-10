@@ -8,7 +8,7 @@ import org.json.JSONArray
 
 /**
  * [SettingsRepository] persisted with SharedPreferences (the simplest Android
- * key-value store — fine for a handful of settings; plan.md Step 7 decision).
+ * key-value store — fine for a handful of settings; product decision).
  *
  * The registered-device list is stored as one JSON array string. JSON is used
  * instead of a delimiter join because device names may contain any character.

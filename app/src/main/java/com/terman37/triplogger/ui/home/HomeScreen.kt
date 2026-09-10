@@ -49,7 +49,7 @@ import kotlinx.coroutines.delay
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Master switch on Home (user request): enabling needs all monitoring
+    // Master switch on Home: enabling needs all monitoring
     // permissions; request them together if missing.
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -229,7 +229,7 @@ private fun StatusCard(
     }
 }
 
-/** Master "Monitor trips" switch pinned to the top of Home (user request). */
+/** Master "Monitor trips" switch pinned to the top of Home. */
 @Composable
 private fun MonitorSwitchRow(
     state: HomeUiState,

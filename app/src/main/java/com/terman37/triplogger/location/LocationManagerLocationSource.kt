@@ -17,7 +17,7 @@ import com.terman37.triplogger.core.TrackingPolicy
  *
  * Why plain LocationManager and not Google's FusedLocationProvider: fused needs
  * Play Services and adds a dependency; for one fix every 30 seconds the plain
- * provider is enough and works everywhere (decision, plan.md Step 5).
+ * provider is enough and works everywhere.
  *
  * MINIMUM SDK NOTE: this class only works when the caller already holds the
  * ACCESS_FINE_LOCATION runtime permission (requested by the UI before the trip

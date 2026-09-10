@@ -15,7 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Manual dependency injection container (plan.md: no Hilt in v1 — the app is
+ * Manual dependency injection container (no Hilt in v1 — the app is
  * small, one object wiring everything is easier to follow for a first app).
  *
  * One AppContainer per app process, created lazily by [TripLoggerApplication].
@@ -36,7 +36,7 @@ class AppContainer(context: Context) {
     val geocoder: GeocoderClient =
         AndroidGeocoderClient(appContext)
 
-    val database: TripDatabase = TripDatabase.getInstance(appContext)
+    private val database: TripDatabase = TripDatabase.getInstance(appContext)
 
     val tripRepository: TripRepository =
         TripRepository(database.tripDao(), geocoder)

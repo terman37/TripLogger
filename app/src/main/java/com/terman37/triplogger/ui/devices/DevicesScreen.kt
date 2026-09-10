@@ -44,10 +44,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 /**
  * Devices tab (UI.md): registered device list (remove with X), paired devices
  * (add with +), reconnect grace slider. The master "Monitor trips" switch now
- * lives at the top of Home (user request). No in-app pairing — pairing happens
+ * lives at the top of Home. No in-app pairing — pairing happens
  * in Android settings; refreshPairedDevices re-reads on resume.
  *
- * The two lists are collapsible (user request): their headers stay visible with
+ * The two lists are collapsible: their headers stay visible with
  * the device count, the bodies hide. Registered starts expanded; Available
  * starts collapsed so the page stays short.
  */

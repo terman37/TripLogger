@@ -85,18 +85,9 @@ class TripRepository(
     suspend fun tripsBetween(fromInclusive: Long, untilExclusive: Long): List<Trip> =
         dao.tripsBetween(fromInclusive, untilExclusive)
 
-    /** Newest-first trips since a time (Home screen recent list). */
-    suspend fun tripsSince(sinceEpochMillis: Long): List<Trip> =
-        dao.tripsSince(sinceEpochMillis)
-
     /** Reactive version of [tripsSince]; the UI collects this. */
     fun tripsSinceFlow(sinceEpochMillis: Long): kotlinx.coroutines.flow.Flow<List<Trip>> =
         dao.tripsSinceFlow(sinceEpochMillis)
-
-    /** Deletes one trip (Home expand → Delete). */
-    suspend fun deleteTrip(trip: Trip) {
-        dao.delete(trip)
-    }
 
     /** Deletes a trip by its id (Home expand → Delete). */
     suspend fun deleteTripById(id: Long) {

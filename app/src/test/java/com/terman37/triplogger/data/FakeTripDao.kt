@@ -29,12 +29,6 @@ class FakeTripDao : TripDao {
                 .sortedBy { it.startEpochMillis }
         }
 
-    override suspend fun tripsSince(sinceEpochMillis: Long): List<Trip> =
-        synchronized(lock) {
-            trips.filter { it.startEpochMillis >= sinceEpochMillis }
-                .sortedByDescending { it.startEpochMillis }
-        }
-
     override fun tripsSinceFlow(sinceEpochMillis: Long): kotlinx.coroutines.flow.Flow<List<Trip>> =
         flowMirror.map { list ->
             list.filter { it.startEpochMillis >= sinceEpochMillis }
@@ -56,13 +50,6 @@ class FakeTripDao : TripDao {
             trips.removeAll {
                 it.startEpochMillis in fromInclusive until untilExclusive
             }
-            mirror()
-        }
-    }
-
-    override suspend fun delete(trip: Trip) {
-        synchronized(lock) {
-            trips.removeAll { it.id == trip.id }
             mirror()
         }
     }

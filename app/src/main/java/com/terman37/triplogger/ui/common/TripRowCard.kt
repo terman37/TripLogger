@@ -52,7 +52,7 @@ fun TripRowCard(
     onToggle: () -> Unit,
     onDelete: (() -> Unit)? = null,
 ) {
-    // Delete needs confirmation (user request): the trash only opens a dialog,
+    // Delete needs confirmation: the trash only opens a dialog,
     // the actual [onDelete] runs on confirm.
     var confirmDelete by remember { mutableStateOf(false) }
     val mapsUrl = remember(row.id) {
@@ -87,7 +87,7 @@ fun TripRowCard(
                     Text(row.title, style = MaterialTheme.typography.titleMedium)
                     Text(row.summary, style = MaterialTheme.typography.bodyMedium)
                 }
-                // Directions shortcut on the recap row (user request): the icon
+                // Directions shortcut on the recap row: the icon
                 // opens Google Maps between start and end; hidden when neither
                 // side has any location data. Its own click does not expand.
                 if (mapsUrl != null) {
@@ -202,7 +202,7 @@ private fun AddressLine(
             Text(address, style = MaterialTheme.typography.bodyMedium)
         }
         // Trailing action (delete trash) sits at the bottom of the two-line row
-        // instead of being vertically centered (user request).
+        // instead of being vertically centered.
         Box(modifier = Modifier.align(Alignment.Bottom)) { trailing() }
     }
 }

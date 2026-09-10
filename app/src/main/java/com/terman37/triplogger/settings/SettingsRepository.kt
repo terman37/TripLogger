@@ -4,7 +4,7 @@ import com.terman37.triplogger.data.RegisteredDevice
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * All user-adjustable settings (UI.md Devices screen + plan.md Step 7).
+ * All user-adjustable settings (UI.md Devices screen ).
  * Implementations persist values (SharedPreferences) and expose them as
  * StateFlows so the UI updates automatically when settings change.
  *

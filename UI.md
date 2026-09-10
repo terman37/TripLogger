@@ -68,6 +68,10 @@ list).
 
 ## Screen 3 — Devices
 
+Both device sections are **collapsible** (tap the header): the header shows the
+section name and the current device count. Registered starts expanded;
+Available starts collapsed so the page stays short.
+
 1. **Registered** — devices that trigger a trip on connect. Each row: name +
    MAC, **X** to remove. Empty: "No device registered".
 2. **Available** — devices paired in Android settings, **+** to register.

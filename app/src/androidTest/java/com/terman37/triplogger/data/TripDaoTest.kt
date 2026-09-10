@@ -89,18 +89,6 @@ class TripDaoTest {
         }
     }
 
-    @Test
-    fun tripsSince_returnsNewestFirst() {
-        runBlockingTest {
-            dao.insert(tripAt(1_000L))
-            dao.insert(tripAt(3_000L))
-            dao.insert(tripAt(2_000L))
-
-            val result = dao.tripsSince(sinceEpochMillis = 1_500L)
-
-            assertEquals(listOf(3_000L, 2_000L), result.map { it.startEpochMillis })
-        }
-    }
 
     @Test
     fun delete_removesOnlyGivenTrip() {
@@ -108,7 +96,7 @@ class TripDaoTest {
             val keepId = dao.insert(tripAt(1_000L))
             val deleteId = dao.insert(tripAt(2_000L))
 
-            dao.delete(dao.tripsBetween(0L, 100_000L).first { it.id == deleteId })
+            dao.deleteById(deleteId)
 
             val remaining = dao.tripsBetween(0L, 100_000L)
             assertEquals(listOf(keepId), remaining.map { it.id })

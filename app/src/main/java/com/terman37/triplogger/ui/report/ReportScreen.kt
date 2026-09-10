@@ -54,7 +54,7 @@ import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
- * Report tab (user rework, plan.md Step 12):
+ * Report tab:
  * - From/To date filters side by side on top (default: last 7 days),
  * - the trip list below, ALWAYS shown for the selected range (no Generate —
  *   it reloads when the dates change),
@@ -178,14 +178,14 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            // Trash on the far left, export on the far right (user request).
+            // Trash on the far left, export on the far right.
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Cleanup of ALL trips shown for the current filter dates.
             val displayedCount = current?.trips?.size ?: 0
             // Bulk delete: filled red button with a white trash icon, sized like
-            // the export button (user request).
+            // the export button.
             Button(
                 onClick = { deletePending = true },
                 enabled = displayedCount > 0,
@@ -220,7 +220,7 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
         }
     }
 
-    // Bulk-delete confirmation (user request): several trips may be affected,
+    // Bulk-delete confirmation: several trips may be affected,
     // and deletion is permanent.
     if (deletePending) {
         val count = data?.trips?.size ?: 0

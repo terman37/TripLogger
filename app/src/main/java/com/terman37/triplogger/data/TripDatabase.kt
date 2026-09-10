@@ -17,7 +17,7 @@ import androidx.room.TypeConverters
     entities = [Trip::class],
     version = 1,
     // Schema export files are used to write migration tests later, when the
-    // schema changes (v2+). v1 has no migrations (plan.md question 4).
+    // schema changes (v2+). v1 has no migrations (initial decision).
     exportSchema = false,
 )
 @TypeConverters(TripOriginConverter::class)

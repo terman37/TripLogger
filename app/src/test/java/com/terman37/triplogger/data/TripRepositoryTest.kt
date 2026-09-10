@@ -139,7 +139,7 @@ class TripRepositoryTest {
     }
 
     @Test
-    fun deleteTrip_removesOnlyThatTrip() = runBlocking {
+    fun deleteTripById_removesOnlyThatTrip() = runBlocking {
         val dao = FakeTripDao()
         dao.insert(
             Trip(
@@ -157,13 +157,13 @@ class TripRepositoryTest {
         )
         val repo = TripRepository(dao, FakeGeocoder(emptyMap()))
 
-        repo.deleteTrip(dao.snapshot().first { it.id != kept })
+        repo.deleteTripById(dao.snapshot().first { it.id != kept }.id)
 
         assertEquals(listOf(kept), dao.snapshot().map { it.id })
     }
 
     @Test
-    fun tripsBetween_and_tripsSince_delegateToDao() = runBlocking {
+    fun tripsBetween_delegatesToDao() = runBlocking {
         val dao = FakeTripDao()
         dao.insert(tripRow(start = 100L))
         dao.insert(tripRow(start = 200L))
@@ -171,7 +171,6 @@ class TripRepositoryTest {
         val repo = TripRepository(dao, FakeGeocoder(emptyMap()))
 
         assertEquals(listOf(200L, 300L), repo.tripsBetween(150L, 350L).map { it.startEpochMillis })
-        assertEquals(listOf(300L, 200L), repo.tripsSince(150L).map { it.startEpochMillis })
     }
 
     private fun tripRow(start: Long) = Trip(

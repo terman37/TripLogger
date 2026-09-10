@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 // App colors. Decision from UI.md: dark theme ONLY — the app never switches to
 // a light scheme, so the color scheme is a fixed Material 3 dark palette.
 //
-// Accent (user request, plan.md Step 12): pop green/blue instead of the
+// Accent ( request, earlier decisions): pop green/blue instead of the
 // default lilac. Palette logic: primary = mint green (buttons, active UI),
 // secondary = sky blue (selection/support), tertiary = warm amber container
 // (the "Disconnected" grace card keeps a distinct warm look). Dark

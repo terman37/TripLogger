@@ -45,7 +45,7 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Default range = the last 7 days including today (user request). */
+    /** Default range = the last 7 days including today. */
     fun defaultFrom(): LocalDate = LocalDate.now(zone).minusDays(6)
 
     fun defaultTo(): LocalDate = LocalDate.now(zone)

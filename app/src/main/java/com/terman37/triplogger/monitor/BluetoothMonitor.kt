@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 /**
  * Watches Bluetooth connections of the registered devices.
  *
- * IMPLEMENTATION NOTE (found on device, Android 17, plan.md Step 12): the
+ * IMPLEMENTATION NOTE (found on device, Android 17): the
  * classic ACTION_ACL_CONNECTED/DISCONNECTED broadcasts are NOT delivered to
  * this app anymore. There is also no per-device "connection state" API. So
  * this monitor keeps PROFILE PROXIES (A2DP + HEADSET + sink variants — covers
@@ -62,12 +62,10 @@ class BluetoothMonitor(
     @SuppressLint("MissingPermission") // guarded in pollOnce
     private val serviceListener = object : BluetoothProfile.ServiceListener {
         override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
-            Log.i(TAG, "profile proxy connected: $profile")
             synchronized(proxies) { proxies[profile] = proxy }
         }
 
         override fun onServiceDisconnected(profile: Int) {
-            Log.i(TAG, "profile proxy disconnected: $profile")
             synchronized(proxies) { proxies.remove(profile) }
         }
     }
@@ -76,7 +74,6 @@ class BluetoothMonitor(
     fun register() {
         if (registered) return
         registered = true
-        Log.i(TAG, "register() — polling every ${pollIntervalMillis / 1000} s")
         pollJob = scope.launch {
             while (isActive) {
                 pollOnce()
@@ -100,7 +97,6 @@ class BluetoothMonitor(
             }
         }
         synchronized(proxyRequested) { proxyRequested.clear() }
-        Log.i(TAG, "unregister()")
     }
 
     private fun pollOnce() {
@@ -146,12 +142,10 @@ class BluetoothMonitor(
         for (address in now - lastConnected) {
             val device = connected[address]
             if (device != null) {
-                Log.i(TAG, "connected: $address (${device.name})")
                 onDeviceConnected(device)
             }
         }
         for (address in lastConnected - now) {
-            Log.i(TAG, "disconnected: $address")
             onDeviceDisconnected(bt.getRemoteDevice(address))
         }
         lastConnected = now

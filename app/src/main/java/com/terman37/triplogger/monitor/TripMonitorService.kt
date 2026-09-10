@@ -60,11 +60,9 @@ class TripMonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.i(TAG, "onCreate")
         container = (application as TripLoggerApplication).container
         recorder = container.tripRecorder
         createNotificationChannel()
-        Log.i(TAG, "onCreate done")
     }
 
     // --- Android service callbacks ----------------------------------------
@@ -112,7 +110,6 @@ class TripMonitorService : Service() {
         val monitoringEnabled = container.settings.monitoringEnabled.value
         val phase = recorder.snapshot().phase
         val wantsToRun = monitoringEnabled || phase != TripRecorder.Phase.IDLE
-        Log.i(TAG, "evaluate: monitoring=$monitoringEnabled phase=$phase wantsToRun=$wantsToRun")
 
         if (!wantsToRun) {
             locationSource?.stop()
@@ -153,7 +150,6 @@ class TripMonitorService : Service() {
 
     private fun handleDeviceConnected(device: BluetoothDevice) {
         val registered = isRegistered(device.address)
-        Log.i(TAG, "deviceConnected ${device.address} registered=$registered")
         if (!registered) return // not a trigger device: ignore
         recorder.onDeviceConnected(deviceName(device))
         persistFinishedTrips()
@@ -162,7 +158,6 @@ class TripMonitorService : Service() {
 
     private fun handleDeviceDisconnected(device: BluetoothDevice) {
         val registered = isRegistered(device.address)
-        Log.i(TAG, "deviceDisconnected ${device.address} registered=$registered")
         if (!registered) return
         recorder.onDeviceDisconnected()
         persistFinishedTrips()
@@ -209,7 +204,7 @@ class TripMonitorService : Service() {
     private fun scheduleGraceTimer() {
         // Only one ACTIVE timer at a time. Checking isActive (not just null)
         // matters: a completed job would otherwise block rescheduling and the
-        // grace period could hang forever (bug seen on device, plan.md Step 12).
+        // grace period could hang forever (bug seen on device).
         if (graceTimerJob?.isActive == true) return
 
         val graceMinutes = container.settings.gracePeriodMinutes.value
@@ -220,24 +215,10 @@ class TripMonitorService : Service() {
         val deadline = (startedAt ?: System.currentTimeMillis()) + graceMinutes * 60_000L
         val remainingMillis = (deadline - System.currentTimeMillis()).coerceAtLeast(0L)
 
-        Log.i(TAG, "grace timer scheduled: ${graceMinutes} min, in ${remainingMillis} ms")
-        debugPrefs.edit()
-            .putLong("grace_scheduled_at", System.currentTimeMillis())
-            .putLong("grace_delay_ms", remainingMillis)
-            .putInt("grace_minutes", graceMinutes)
-            .apply()
-
         graceTimerJob = scope.launch {
             try {
                 delay(remainingMillis)
-                Log.i(TAG, "grace timer fired, snapshot=" + recorder.snapshot().phase)
                 recorder.onGraceTimerExpired() // recorder ignores early/late calls
-                val after = recorder.snapshot().phase
-                Log.i(TAG, "after expiry, snapshot=$after")
-                debugPrefs.edit()
-                    .putLong("grace_fired_at", System.currentTimeMillis())
-                    .putString("grace_phase_after", after.name)
-                    .apply()
                 persistFinishedTrips()
                 evaluate()
             } finally {
@@ -247,20 +228,13 @@ class TripMonitorService : Service() {
         }
     }
 
-    // Tiny persistent diagnostics (read via `adb shell run-as <pkg> cat
-    // shared_prefs/debug.xml`): logcat buffers roll over, these survive.
-    private val debugPrefs by lazy {
-        getSharedPreferences("debug", MODE_PRIVATE)
-    }
-
     /**
      * The user swiped the monitoring notification away. Treat it as "stop
      * monitoring": finish and save any running trip, turn the switch off and
      * let evaluate() tear the service down (notification gone = no silent
-     * monitoring, plan.md Step 12).
+     * monitoring).
      */
     private fun onNotificationDismissed() {
-        Log.i(TAG, "notification dismissed → stopping monitoring")
         recorder.onManualStop() // finishes a running trip (discarded if < 50 m)
         container.settings.setMonitoringEnabled(false)
         persistFinishedTrips()
@@ -328,7 +302,7 @@ class TripMonitorService : Service() {
 
     private fun buildNotification(monitoringEnabled: Boolean): Notification {
         val snap = recorder.snapshot()
-        // Text per user request (plan.md Step 12): the notification always
+        // Text: the notification always
         // leads with "Monitoring active" and appends what is happening.
         // Content stays minimal: no actions, tap opens the app.
         val text = when (snap.phase) {
@@ -360,7 +334,8 @@ class TripMonitorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
-            .setSmallIcon(R.drawable.ic_stat_triplogger) // TODO step 13: real icon
+                       // White-on-transparent car glyph (notification icons must not be
+            // full-color).
             .setOngoing(true)
             .setContentIntent(openApp)
             // If the OS still lets the user dismiss it (Android 14+), stop

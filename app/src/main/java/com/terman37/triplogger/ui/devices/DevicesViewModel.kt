@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 /**
  * Devices screen logic: grace period + registered devices + the system's
  * paired devices, mapped to [DevicesUiState]. The master monitoring switch
- * lives on Home (user request).
+ * lives on Home.
  *
  * Bluetooth listing permission is requested by the UI; [onBluetoothPermissionResult]
  * only refreshes the list after a grant.
