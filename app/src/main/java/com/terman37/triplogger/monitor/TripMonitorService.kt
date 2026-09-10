@@ -62,7 +62,7 @@ class TripMonitorService : Service() {
         super.onCreate()
         container = (application as TripLoggerApplication).container
         recorder = container.tripRecorder
-        createNotificationChannel()
+        NotificationFactory.ensureChannel(this)
     }
 
     // --- Android service callbacks ----------------------------------------
@@ -78,8 +78,11 @@ class TripMonitorService : Service() {
             ACTION_MANUAL_START -> recorder.onManualStart()
             ACTION_MANUAL_STOP -> recorder.onManualStop()
             ACTION_NOTIFICATION_DISMISSED -> onNotificationDismissed()
-            // ACTION_START/ACTION_STOP only wake the service; evaluate() reads
-            // the real state (settings + recorder) and acts on it.
+            // Explicit stop: turn the master switch off here too, so any caller
+            // (UI, tests, external intent) gets the same consistent state.
+            ACTION_STOP -> container.settings.setMonitoringEnabled(false)
+            // ACTION_START only wakes the service; evaluate() reads the real
+            // state (settings + recorder) and acts on it.
         }
         persistFinishedTrips()
         evaluate()
@@ -121,7 +124,7 @@ class TripMonitorService : Service() {
 
         // Foreground with a notification (required while the service runs).
         startForegroundCompat()
-        updateNotification(monitoringEnabled)
+        updateNotification()
 
         // Bluetooth monitoring only matters when it is enabled. Registering
         // requires the BLUETOOTH_CONNECT runtime permission (UI grants it
@@ -181,7 +184,7 @@ class TripMonitorService : Service() {
         val started = source.start { sample ->
             // Callback arrives on the main looper (see LocationManager source).
             recorder.onLocationSample(sample)
-            updateNotification(container.settings.monitoringEnabled.value)
+            updateNotification()
         }
         if (started) {
             locationSource = source
@@ -255,7 +258,7 @@ class TripMonitorService : Service() {
     // --- notification -----------------------------------------------------
 
     private fun startForegroundCompat() {
-        val notification = buildNotification(container.settings.monitoringEnabled.value)
+        val notification = buildNotification()
         val type = computeForegroundType()
         try {
             if (type == 0) {
@@ -286,69 +289,26 @@ class TripMonitorService : Service() {
     private fun hasPermission(permission: String): Boolean =
         ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.notification_channel_name),
-            NotificationManager.IMPORTANCE_LOW, // silent, no sound/badge noise
-        )
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-    }
 
-    private fun updateNotification(monitoringEnabled: Boolean) {
+    private fun updateNotification() {
         val manager = getSystemService(NotificationManager::class.java)
-        manager.notify(NOTIFICATION_ID, buildNotification(monitoringEnabled))
+        manager.notify(NOTIFICATION_ID, buildNotification())
     }
 
-    private fun buildNotification(monitoringEnabled: Boolean): Notification {
-        val snap = recorder.snapshot()
-        // Text: the notification always
-        // leads with "Monitoring active" and appends what is happening.
-        // Content stays minimal: no actions, tap opens the app.
-        val text = when (snap.phase) {
-            TripRecorder.Phase.RECORDING -> String.format(
-                Locale.US, "%s — %s %.1f km",
-                getString(R.string.notification_monitoring_text),
-                getString(R.string.notification_recording_label),
-                snap.distanceKm,
-            )
-            TripRecorder.Phase.GRACE -> String.format(
-                Locale.US, "%s — %s",
-                getString(R.string.notification_monitoring_text),
-                getString(R.string.notification_disconnected_label),
-            )
-            TripRecorder.Phase.IDLE -> getString(R.string.notification_monitoring_text)
-        }
-        val openApp = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE,
+    private fun buildNotification(): Notification {
+        val snapshot = recorder.snapshot()
+        return NotificationFactory.create(
+            context = this,
+            phase = snapshot.phase,
+            distanceKm = snapshot.distanceKm,
         )
-        val dismissIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            Intent(this, NotificationDismissReceiver::class.java),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(text)
-            // White-on-transparent car glyph (notification icons must be
-            // monochrome; a full-color icon would be rejected by the system).
-            .setSmallIcon(R.drawable.ic_stat_triplogger)
-            .setOngoing(true)
-            .setContentIntent(openApp)
-            // If the OS still lets the user dismiss it (Android 14+), stop
-            // monitoring instead of running invisibly.
-            .setDeleteIntent(dismissIntent)
-            .build()
     }
+
 
     companion object {
         private const val TAG = "TripMonitorService"
-        private const val CHANNEL_ID = "trip_monitor"
-        private const val NOTIFICATION_ID = 1
+        // Notification constants live in NotificationFactory (shared with its test).
+        private const val NOTIFICATION_ID = NotificationFactory.NOTIFICATION_ID
 
         const val ACTION_START = "com.terman37.triplogger.action.START"
         const val ACTION_STOP = "com.terman37.triplogger.action.STOP"

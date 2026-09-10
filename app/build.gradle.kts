@@ -66,6 +66,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    // GrantPermissionRule for the service/notification instrumented tests.
+    androidTestImplementation(libs.androidx.test.rules)
     // Room helper to open an in-memory database inside instrumented tests.
     androidTestImplementation(libs.room.testing)
 }

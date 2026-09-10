@@ -163,7 +163,7 @@ No storage permission: the database and exports live in app-private storage.
 
 ## Testing
 
-- JVM unit tests (`app/src/test`, 107 tests):
+- JVM unit tests (`app/src/test`, 106 tests):
   - geo/math: Haversine, `LocationFilter` (displacement/accuracy/speed), address
     parsing, `PendingAddresses`, `MapsUrl` encoding + fallbacks;
   - state machine: `TripRecorder` full lifecycles (grace, reconnect, manual,
@@ -176,7 +176,11 @@ No storage permission: the database and exports live in app-private storage.
   - integration (`TripRecordingFlowTest`): recorder → repository → Room (fake)
     → geocoded addresses → CSV, including offline-pending + lazy retry, grace
     reconnect keeping one trip, manual origin and the <50 m discard.
-- Instrumented Room DAO tests in `app/src/androidTest`.
+- Instrumented tests (`app/src/androidTest`, run on a device):
+  - Room DAO CRUD/query round-trips;
+  - `NotificationFactoryTest`: every monitoring state produces a valid,
+    postable notification (catches the "Invalid notification (no valid small
+    icon)" crash class) and the text always leads with "Monitoring active".
 
 ```bash
 ./gradlew :app:testDebugUnitTest
