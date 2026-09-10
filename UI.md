@@ -10,6 +10,7 @@ the plan and implementation follow this document.
 | UI toolkit | Jetpack Compose |
 | Design system | Material 3, default color palette |
 | Theme | Dark only (no light mode, no toggle) |
+| Accents | Google Maps link buttons in tertiary; destructive Delete actions in vivid red (`DestructiveRed`, #FF5252) |
 | Language | English only |
 | App structure | Single screen container with bottom navigation bar, 3 tabs |
 | App icon | Custom icon (design + assets to be defined; default icon until then) |
@@ -52,15 +53,19 @@ Each collapsed row shows:
 - start → end address summary (e.g. *"Home → Office"*; if address missing,
   fall back to "Start → End")
 - distance (e.g. *"12.4 km"*)
+- directions icon button (opens a Google Maps route start → end); hidden when
+  neither endpoint has address or coordinates
 
 Tap a row → expands in place (no separate screen), showing:
 
 - start time and end time (e.g. *"14:32 – 15:15"*)
 - trip duration
-- start address (full line)
-- end address (full line)
+- start address (full line), preceded by an icon button that opens that place
+  in Google Maps
+- end address (full line), preceded by the same icon button
 - distance
-- **Delete** button (removes the trip from the database)
+- red trash **Delete** icon on the right of the "To" row (removes the trip from
+  the database; shares the row, no extra line)
 
 No edit of trip data in the UI (v1).
 
@@ -70,7 +75,7 @@ again when a report is generated.
 
 ## Screen 2 — Devices
 
-Top to bottom:
+Below the page title **"Bluetooth devices"**:
 
 1. **Master switch row** — label "Monitor trips", switch. Description line under
    it: explains it records a trip whenever a registered device connects.
@@ -78,12 +83,15 @@ Top to bottom:
    (minutes, 1–15, default 3). Description: a Bluetooth disconnect only ends a
    trip after this many minutes; reconnecting within the period resumes the same
    trip. Guards against flaky car connections.
-3. **Registered devices** section — header "Registered" (devices that trigger
-   recording). Each row: device name + **X** remove button. If empty:
-   "No device registered".
-4. **Paired devices** section — header "Available". Rows: all devices paired in
-   Android settings, each with a **+** add button. Devices already registered are
-   not listed here (no duplicates).
+3. **Registered devices** section — collapsible header "Registered (N)" with an
+   expand/collapse chevron; starts expanded. Helper line "Devices that trigger a
+   trip when they connect." stays visible when collapsed. Each row: device name
+   + **X** remove button. If empty: "No device registered".
+4. **Paired devices** section — collapsible header "Available (N)"; starts
+   collapsed to keep the page short. Helper line "Devices paired in Android
+   settings." stays visible when collapsed. Rows: all devices paired in Android
+   settings, each with a **+** add button. Devices already registered are not
+   listed here (no duplicates).
 
 Behavior:
 - **+** on an available device moves it into Registered.
@@ -99,16 +107,17 @@ Behavior:
 
 Top to bottom:
 
-1. **Date range row** — two fields, "From" and "To", default = **last month**
-   (e.g. Aug 6 → Sep 6 shows Jul 6 … Aug 6). Tap a field opens a Material date
-   picker dialog.
-2. **Generate button** — builds the preview.
-3. **Summary line** — e.g. *"12 trips · 386.4 km"*.
-4. **Preview list** — one row per trip in range (oldest first): date, start → end
-   address, km. Tap row → expand (same detail as Home). Empty range →
-   *"No trips in this period"*.
-5. **Export button** — "Export spreadsheet". Generates the CSV file for the
-   current date range, then opens the Android share sheet with the file attached.
+1. **Date range row** — two fields, "From" and "To", default = **last 7 days
+   incl. today**. Tap a field opens a Material date picker dialog. The list
+   reloads live on every change (no Generate button).
+2. **Summary line** — e.g. *"12 trips · 386.4 km"*.
+3. **Preview list** — one row per trip in range (oldest first): date, start → end
+   address, km. Tap row → expand (same detail as Home, including the red trash
+   delete). Empty range → *"No trips in this period"*.
+4. **Footer actions** — a filled red button with a white trash icon (same
+   footprint as Export) deletes ALL trips shown for the current range (after a
+   confirmation dialog); "Export spreadsheet" on the right generates the CSV
+   and opens the share sheet with the file attached.
 
 ## Background notification
 

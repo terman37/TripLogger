@@ -13,6 +13,11 @@ import androidx.compose.ui.graphics.Color
 // secondary = sky blue (selection/support), tertiary = warm amber container
 // (the "Disconnected" grace card keeps a distinct warm look). Dark
 // backgrounds stay near-neutral; on* colors guarantee contrast.
+// Vivid red for destructive actions (Delete). The Material 3 dark "error"
+// color is a pale pink; user asked for something redder, so this fixed accent
+// is used explicitly instead of colorScheme.error.
+val DestructiveRed = Color(0xFFFF5252)
+
 private val DarkColors = darkColorScheme(
     primary = Color(0xFF41D8B7),          // pop mint green
     onPrimary = Color(0xFF00382C),

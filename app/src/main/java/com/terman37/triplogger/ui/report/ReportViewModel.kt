@@ -109,6 +109,17 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
         }
 
     /** [from, to+1day) in epoch millis — shared by all range operations. */
+    /** Deletes one trip shown in the report preview (row trash icon). */
+    suspend fun deleteTrip(id: Long): Boolean = withContext(Dispatchers.IO) {
+        try {
+            container.tripRepository.deleteTripById(id)
+            true
+        } catch (e: Exception) {
+            Log.e(tag, "deleteTrip failed", e)
+            false
+        }
+    }
+
     private fun rangeMillis(from: LocalDate, to: LocalDate): Pair<Long, Long> {
         val fromMillis = from.atStartOfDay(zone).toInstant().toEpochMilli()
         // +1 day: the DAO range is [from, until) — end of "to" must be included.

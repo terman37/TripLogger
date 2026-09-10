@@ -45,8 +45,8 @@ bug → we fix it as its own small step before moving on.
    disabled with the hint "Register a device below…". OK
 2. Pair a Bluetooth device in Android settings first if none is paired.
    (No in-app pairing by design.) Not OK, bluetooth access needed to list devices but there should be a invite at first launch to grant needed authorizations
-3. Back in the app, the paired device must appear under "Available" (the list
-   refreshes when the screen resumes).
+3. Back in the app, expand the collapsed "Available" section: the paired
+   device must appear there (the list refreshes when the screen resumes).
 4. Tap **+** → device moves to "Registered".
 5. Now toggle "Monitor trips" ON → Android permission dialog(s) appear:
    Bluetooth, Location, Notifications. Grant all.
@@ -64,8 +64,8 @@ bug → we fix it as its own small step before moving on.
 4. Tap Stop.
 5. Expected: card back to "Waiting/off"; a trip row appears on Home
    (today) with date, summary, km.
-6. Tap the row → expands (times, duration, addresses, Delete). Delete it →
-   row disappears.
+6. Tap the row → expands (times, duration, addresses each with a map icon,
+   red trash icon). Delete it → row disappears.
 
 ### B4. Auto trip with grace period (needs real device pair)
 
@@ -103,18 +103,20 @@ phone in the car.
 
 ### B7. Report + export
 
-1. Report tab: From/To default to the previous calendar month — adjust to
-   cover the trips you recorded.
-2. Tap Generate.
-3. Expected: summary "N trips · X km"; list ordered oldest first; rows expand
-   to the same detail as Home.
-4. Tap "Export spreadsheet" → system share sheet appears with the CSV.
-5. Send it to a spreadsheet app (Sheets/Excel) or a file app and open it.
+1. Report tab: From/To default to the last 7 days (incl. today) — adjust to
+   cover the trips you recorded. The list and summary refresh live on every
+   date change (there is no Generate button).
+2. Expected: summary "N trips · X km"; list ordered oldest first; rows expand
+   to the same detail as Home, including the red trash delete (single trip).
+3. Tap "Export spreadsheet" → system share sheet appears with the CSV.
+4. Send it to a spreadsheet app (Sheets/Excel) or a file app and open it.
    Expected columns (todo.md): start date, start time, start month, end date,
-   end time, start city, start address, end city, end address, km — plus a
-   Total row. Decimal separator must be a dot; accented characters intact;
-   addresses containing commas are quoted.
-6. Empty range (e.g. next year): Generate → "No trips in this period", Export
+   end time, start city, start address, end city, end address, km,
+   start maps link, end maps link — plus a Total row. Decimal separator must
+   be a dot; accented characters intact; addresses containing commas are
+   quoted. The two maps columns hold a Google Maps URL (empty when the trip
+   has neither address nor coordinates).
+5. Empty range (e.g. next year): list shows "No trips in this period", Export
    still produces a file with header + Total 0.0 (allowed).
 
 ### B8. GPS edge cases

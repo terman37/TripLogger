@@ -40,7 +40,8 @@
   - GPS gaps mid-trip accepted: distance slightly under, OK for reporting
   - CSV columns: start date (ISO) / start time (HH:mm) / start month (YYYY-MM) /
     end date (ISO) / end time / start city / start address / end city /
-    end address / km (1 decimal, dot); chronological; totals row; UTF-8
+    end address / km (1 decimal, dot) / start maps link / end maps link
+    (Google Maps search URLs); chronological; totals row; UTF-8
   - Address stored as street + city separately (reverse geocoder returns
     structured data)
   - Reports contain trip rows only; no cost fields in v1

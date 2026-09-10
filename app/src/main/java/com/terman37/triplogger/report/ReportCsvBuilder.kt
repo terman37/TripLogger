@@ -1,5 +1,6 @@
 package com.terman37.triplogger.report
 
+import com.terman37.triplogger.core.MapsUrl
 import com.terman37.triplogger.data.Trip
 import java.time.Instant
 import java.time.ZoneId
@@ -11,7 +12,8 @@ import java.util.Locale
  *
  *   start date (ISO yyyy-MM-dd) | start time (HH:mm) | start month (yyyy-MM) |
  *   end date (ISO) | end time (HH:mm) | start city | start address |
- *   end city | end address | km (1 decimal, dot)
+ *   end city | end address | km (1 decimal, dot) |
+ *   start maps link | end maps link
  *
  * Rows come in chronological order (the caller passes the DAO result which is
  * sorted ascending); a final totals row sums the km. UTF-8 text, RFC-4180
@@ -32,6 +34,7 @@ object ReportCsvBuilder {
         "start city", "start address",
         "end city", "end address",
         "km",
+        "start maps link", "end maps link",
     )
 
     /** @param trips ascending by start time (as the DAO returns them). */
@@ -41,7 +44,9 @@ object ReportCsvBuilder {
             add(HEADERS.joinToString(",") { escape(it) })
             trips.forEach { trip -> add(row(trip, zone).joinToString(",") { escape(it) }) }
             add(
-                listOf("Total", "", "", "", "", "", "", "", "", kmText(totalKm))
+                // Totals row: blank cells except the km total (last two columns
+                // are URLs, so HEADERS.size - 2 blanks after "Total").
+                (listOf("Total") + List(HEADERS.size - 2) { "" } + kmText(totalKm))
                     .joinToString(",") { escape(it) },
             )
         }.joinToString("\n") + "\n"
@@ -61,6 +66,8 @@ object ReportCsvBuilder {
             trip.endCity.orEmpty(),
             trip.endStreet.orEmpty(),
             kmText(trip.distanceKm),
+            MapsUrl.place(trip.startStreet, trip.startCity, trip.startLat, trip.startLng).orEmpty(),
+            MapsUrl.place(trip.endStreet, trip.endCity, trip.endLat, trip.endLng).orEmpty(),
         )
     }
 

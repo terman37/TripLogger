@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,12 +38,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.terman37.triplogger.ui.common.TripRowCard
+import com.terman37.triplogger.ui.theme.DestructiveRed
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
@@ -148,6 +150,17 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                     TripRowCard(
                         row = row,
                         expanded = trip.id in expandedIds,
+                        onDelete = {
+                            scope.launch {
+                                val ok = viewModel.deleteTrip(trip.id)
+                                if (ok) {
+                                    data = viewModel.load(from, to)
+                                    expandedIds = expandedIds - trip.id
+                                } else {
+                                    error = "Deletion failed"
+                                }
+                            }
+                        },
                         onToggle = {
                             expandedIds = if (trip.id in expandedIds) {
                                 expandedIds - trip.id
@@ -171,9 +184,15 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
         ) {
             // Cleanup of ALL trips shown for the current filter dates.
             val displayedCount = current?.trips?.size ?: 0
-            IconButton(
+            // Bulk delete: filled red button with a white trash icon, sized like
+            // the export button (user request).
+            Button(
                 onClick = { deletePending = true },
                 enabled = displayedCount > 0,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DestructiveRed,
+                    contentColor = Color.White,
+                ),
             ) {
                 Icon(
                     Icons.Filled.Delete,
@@ -213,6 +232,9 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
             },
             confirmButton = {
                 TextButton(
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = DestructiveRed,
+                    ),
                     onClick = {
                         deletePending = false
                         scope.launch {

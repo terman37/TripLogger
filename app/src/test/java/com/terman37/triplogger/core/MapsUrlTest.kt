@@ -1,15 +1,17 @@
-package com.terman37.triplogger.ui.common
+package com.terman37.triplogger.core
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class DirectionsUrlTest {
+class MapsUrlTest {
+
+    // --- directions (UI button) ---
 
     @Test
-    fun usesAddresses_whenAvailable() {
-        val url = DirectionsUrl.build(
+    fun directions_usesAddresses_whenAvailable() {
+        val url = MapsUrl.directions(
             originStreet = "12 Rue de Rivoli", originCity = "Paris",
             originLat = null, originLng = null,
             destinationStreet = "1 Rue de la République", destinationCity = "Lyon",
@@ -22,8 +24,8 @@ class DirectionsUrlTest {
     }
 
     @Test
-    fun fallsBackToCoordinates_whenAddressMissing() {
-        val url = DirectionsUrl.build(
+    fun directions_fallsBackToCoordinates_whenAddressMissing() {
+        val url = MapsUrl.directions(
             originStreet = null, originCity = null,
             originLat = 48.8566, originLng = 2.3522,
             destinationStreet = null, destinationCity = null,
@@ -34,8 +36,8 @@ class DirectionsUrlTest {
     }
 
     @Test
-    fun addressWinsOverCoordinates() {
-        val url = DirectionsUrl.build(
+    fun directions_addressWinsOverCoordinates() {
+        val url = MapsUrl.directions(
             originStreet = "1 Main St", originCity = null,
             originLat = 48.8566, originLng = 2.3522,
             destinationStreet = "2 Oak Rd", destinationCity = "Town",
@@ -46,8 +48,8 @@ class DirectionsUrlTest {
     }
 
     @Test
-    fun neitherAddressNorCoordinates_returnsNull() {
-        val url = DirectionsUrl.build(
+    fun directions_neitherAddressNorCoordinates_returnsNull() {
+        val url = MapsUrl.directions(
             originStreet = null, originCity = null,
             originLat = null, originLng = null,
             destinationStreet = "2 Oak Rd", destinationCity = null,
@@ -57,8 +59,8 @@ class DirectionsUrlTest {
     }
 
     @Test
-    fun specialCharacters_areEncoded() {
-        val url = DirectionsUrl.build(
+    fun directions_specialCharacters_areEncoded() {
+        val url = MapsUrl.directions(
             originStreet = "Rue de l'Église & Mairie", originCity = "Ville-sur-Yvette",
             originLat = null, originLng = null,
             destinationStreet = "Chemin des Dames", destinationCity = null,
@@ -69,8 +71,8 @@ class DirectionsUrlTest {
     }
 
     @Test
-    fun decimalSeparator_isDot_always() {
-        val url = DirectionsUrl.build(
+    fun directions_decimalSeparator_isDot_always() {
+        val url = MapsUrl.directions(
             originStreet = null, originCity = null,
             originLat = 48.8566, originLng = 2.3522,
             destinationStreet = null, destinationCity = null,
@@ -78,5 +80,39 @@ class DirectionsUrlTest {
         )
         // Locale.US formatting: even on comma-locale machines the URL keeps dots.
         assertEquals(48.8566, url!!.substringAfter("origin=").substringBefore("%2C").toDouble(), 1e-9)
+    }
+
+    // --- place (CSV columns) ---
+
+    @Test
+    fun place_usesAddress_whenAvailable() {
+        val url = MapsUrl.place(
+            street = "12 Rue de Rivoli", city = "Paris",
+            lat = 48.8566, lng = 2.3522,
+        )
+        assertTrue(url!!.startsWith("https://www.google.com/maps/search/?api=1&query="))
+        assertTrue(url.contains("query=12+Rue+de+Rivoli%2C+Paris"))
+        assertTrue(!url.contains("48.856600"))
+    }
+
+    @Test
+    fun place_fallsBackToCoordinates() {
+        val url = MapsUrl.place(street = null, city = null, lat = 48.8566, lng = 2.3522)
+        assertTrue(url!!.contains("query=48.856600%2C2.352200"))
+    }
+
+    @Test
+    fun place_withoutAddressOrCoordinates_returnsNull() {
+        assertNull(MapsUrl.place(street = null, city = null, lat = null, lng = null))
+    }
+
+    @Test
+    fun place_specialCharacters_areEncoded() {
+        val url = MapsUrl.place(
+            street = "Rue de l'Église & Mairie", city = "Ville-sur-Yvette",
+            lat = null, lng = null,
+        )
+        assertTrue(url != null)
+        assertTrue(url!!.contains("l%27%C3%89glise+%26+Mairie"))
     }
 }

@@ -2,11 +2,13 @@ package com.terman37.triplogger.ui.common
 
 import android.content.Intent
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.platform.LocalContext
 import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,18 +18,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.terman37.triplogger.core.MapsUrl
 import com.terman37.triplogger.ui.home.TripRowUi
+import com.terman37.triplogger.ui.theme.DestructiveRed
 
 /**
  * One trip row, shared by Home (recent list) and Report (preview, UI.md):
@@ -43,7 +47,7 @@ fun TripRowCard(
     onDelete: (() -> Unit)? = null,
 ) {
     val mapsUrl = remember(row.id) {
-        DirectionsUrl.build(
+        MapsUrl.directions(
             originStreet = row.startStreet,
             originCity = row.startCity,
             originLat = row.startLat,
@@ -53,6 +57,13 @@ fun TripRowCard(
             destinationLat = row.endLat,
             destinationLng = row.endLng,
         )
+    }
+
+    val startMapsUrl = remember(row.id) {
+        MapsUrl.place(row.startStreet, row.startCity, row.startLat, row.startLng)
+    }
+    val endMapsUrl = remember(row.id) {
+        MapsUrl.place(row.endStreet, row.endCity, row.endLat, row.endLng)
     }
 
     Card(
@@ -78,6 +89,7 @@ fun TripRowCard(
                         Icon(
                             imageVector = Icons.Filled.Map,
                             contentDescription = "Open directions in Google Maps",
+                            tint = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                 }
@@ -99,21 +111,65 @@ fun TripRowCard(
                 Text(row.timeRangeText, style = MaterialTheme.typography.bodyMedium)
                 Text("Duration: ${row.durationText}", style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
-                Text("From", style = MaterialTheme.typography.labelLarge)
-                Text(row.startAddressText, style = MaterialTheme.typography.bodyMedium)
+                AddressLine(
+                    label = "From",
+                    address = row.startAddressText,
+                    mapsUrl = startMapsUrl,
+                )
                 Spacer(Modifier.height(4.dp))
-                Text("To", style = MaterialTheme.typography.labelLarge)
-                Text(row.endAddressText, style = MaterialTheme.typography.bodyMedium)
-                if (onDelete != null) {
-                    Spacer(Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        TextButton(onClick = onDelete) { Text("Delete") }
-                    }
-                }
+                AddressLine(
+                    label = "To",
+                    address = row.endAddressText,
+                    mapsUrl = endMapsUrl,
+                    trailing = {
+                        if (onDelete != null) {
+                            IconButton(
+                                onClick = onDelete,
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = DestructiveRed,
+                                ),
+                            ) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete trip")
+                            }
+                        }
+                    },
+                )
             }
         }
+    }
+}
+
+/**
+ * "From"/"To" label + address, preceded by an icon-only button that opens
+ * that single place in Google Maps. The button is hidden when the endpoint has
+ * neither address nor coordinates.
+ */
+@Composable
+private fun AddressLine(
+    label: String,
+    address: String,
+    mapsUrl: String?,
+    trailing: @Composable () -> Unit = {},
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (mapsUrl != null) {
+            val context = LocalContext.current
+            IconButton(onClick = {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl)))
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Place,
+                    contentDescription = "Open $label in Google Maps",
+                    tint = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.labelLarge)
+            Text(address, style = MaterialTheme.typography.bodyMedium)
+        }
+        // Trailing action (delete trash) sits at the bottom of the two-line row
+        // instead of being vertically centered (user request).
+        Box(modifier = Modifier.align(Alignment.Bottom)) { trailing() }
     }
 }

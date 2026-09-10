@@ -1,24 +1,29 @@
-package com.terman37.triplogger.ui.common
+package com.terman37.triplogger.core
 
 import java.net.URLEncoder
 import java.util.Locale
 
 /**
- * Builds the Google Maps driving-directions URL shown on the expanded trip
- * detail (user request, plan.md Step 12):
+ * Builds Google Maps URLs from a trip endpoint (start or end). Used by the UI
+ * (directions button, TripRowCard) and by the CSV export (one link per
+ * address), so the encoding rules live here once and are unit-tested.
  *
- *   https://www.google.com/maps/dir/?api=1&origin=…&destination=…&travelmode=driving
+ * Two link kinds exist:
+ * - [directions] — route between two endpoints:
+ *   `https://www.google.com/maps/dir/?api=1&origin=…&destination=…&travelmode=driving`
+ * - [place] — show a single endpoint on the map:
+ *   `https://www.google.com/maps/search/?api=1&query=…`
  *
- * Each endpoint prefers the street address when geocoded, else falls back to
- * the raw "lat,lng" coordinates (also accepted by the Maps API). When a side
- * has neither address nor coordinates the whole link is unusable → null, and
- * the UI hides the button.
+ * Each endpoint prefers the reverse-geocoded street+city, else falls back to
+ * the raw "lat,lng" coordinates (also accepted by the Maps API). When an
+ * endpoint has neither, its link is unusable → null (the UI hides the button,
+ * the CSV writes an empty cell).
  *
- * Pure JVM (java.net only) so the encoding rules are unit-tested.
+ * Pure JVM (java.net only) so the encoding rules can be tested without Android.
  */
-object DirectionsUrl {
+object MapsUrl {
 
-    fun build(
+    fun directions(
         originStreet: String?,
         originCity: String?,
         originLat: Double?,
@@ -36,6 +41,17 @@ object DirectionsUrl {
             "&origin=${encode(origin)}&destination=${encode(destination)}&travelmode=driving"
     }
 
+    fun place(
+        street: String?,
+        city: String?,
+        lat: Double?,
+        lng: Double?,
+    ): String? {
+        val endpoint = endpointParam(street, city, lat, lng) ?: return null
+        return "https://www.google.com/maps/search/?api=1&query=${encode(endpoint)}"
+    }
+
+    /** Address when available, else "lat,lng", else null (nothing to link to). */
     private fun endpointParam(
         street: String?,
         city: String?,

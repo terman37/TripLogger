@@ -157,6 +157,43 @@ not approved. Every step must leave the project compiling:
 - Validation: all checklist items pass; fix defects found as separate small
   steps.
 
+### [x] Step 12a: Report CSV — Google Maps link columns (B7 feedback)
+- Goal: two extra CSV columns linking each trip endpoint to Google Maps.
+- Key files: `core/MapsUrl.kt` (moved map-URL logic out of `ui/common`,
+  added `place()` search link), `report/ReportCsvBuilder.kt` (columns
+  `start maps link` / `end maps link` appended after `km`),
+  `ui/common/TripRowCard.kt` (uses `MapsUrl.directions`), tests
+  `MapsUrlTest.kt`, `ReportCsvBuilderTest.kt`, docs (`todo.md`,
+  `DeviceTest.md` B7).
+- Notes: address preferred, else `lat,lng`; empty cell when neither. Totals row
+  leaves both cells empty. Expanded trip detail (Home + Report) also got an
+  icon-only Google Maps button left of "From" and "To" (same `MapsUrl.place`).
+- Validation: `:app:testDebugUnitTest`, `:app:assembleDebug` pass.
+
+### [x] Step 12b: Collapsible device sections (Devices page)
+- Goal: cleaner Devices page — Registered/Available lists collapse.
+- Key files: `ui/devices/DevicesScreen.kt` (page title "Bluetooth devices";
+  `CollapsibleSection`: header "Title (N)" + chevron, helper subtitle always
+  visible; Registered expanded, Available collapsed by default, state kept
+  across rotation via rememberSaveable).
+- Validation: `:app:assembleDebug`, `:app:testDebugUnitTest` pass.
+
+### [x] Step 12c: Destructive/action colors
+- Goal: Google Maps link buttons in tertiary; Delete actions in a vivid red.
+- Key files: `ui/theme/Theme.kt` (`DestructiveRed = #FF5252`, M3 dark "error" is
+  too pale), `ui/common/TripRowCard.kt` (Home Delete is now a red trash icon
+  instead of a text button), `ui/report/ReportScreen.kt` (row trash + dialog
+  confirm; footer bulk delete is a filled red button with a white trash icon,
+  Export-sized).
+- Validation: `:app:assembleDebug`, `:app:testDebugUnitTest` pass.
+
+### [x] Step 12d: Single-trip delete on Report preview
+- Goal: report rows behave exactly like Home rows; footer keeps group delete.
+- Key files: `ui/report/ReportViewModel.kt` (`deleteTrip(id)` via existing
+  `TripRepository.deleteTripById`), `ui/report/ReportScreen.kt` (passes
+  `onDelete` to the shared `TripRowCard`, reloads + collapses the row).
+- Validation: `:app:assembleDebug`, `:app:testDebugUnitTest` pass.
+
 ### [ ] Step 13: App icon + BUILD.md + doc sync
 - Goal: custom launcher icon (design chosen by owner), BUILD.md with installable
   APK instructions (debug + release signing), README/UI.md/todo.md updated to
