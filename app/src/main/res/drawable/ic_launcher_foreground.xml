@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Adaptive-icon foreground (custom icon, Step 13): a mint road with dashed
-    centre line and a white car seen from above. Kept inside the centre 66dp
-    safe zone so launcher masks (circle/squircle) never clip it.
+    Adaptive-icon foreground (user tuning): wider single S-shaped mint road with
+    a dark centre stripe, and a large warm amber car seen from above. Kept
+    inside the centre safe zone so every launcher mask clips nothing.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- road -->
+    <!-- single S road -->
     <path
-        android:fillColor="#41D8B7"
-        android:pathData="M44,0h20q8,0 8,8v92q0,8 -8,8h-20q-8,0 -8,-8v-92q0,-8 8,-8z" />
-    <!-- dashed centre line -->
+        android:fillColor="#00000000"
+        android:strokeColor="#41D8B7"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,24 C82,40 26,68 54,84" />
+    <!-- road centre stripe -->
     <path
-        android:fillColor="#101418"
-        android:pathData="M52.5,8h3v8h-3z M52.5,24h3v8h-3z M52.5,40h3v8h-3z M52.5,56h3v8h-3z M52.5,72h3v8h-3z M52.5,88h3v8h-3z" />
-    <!-- car body -->
+        android:fillColor="#00000000"
+        android:strokeColor="#101418"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,24 C82,40 26,68 54,84" />
+    <!-- car body (amber, thin dark outline) -->
     <path
-        android:fillColor="#F5FFFC"
-        android:pathData="M42,38q0,-6 6,-6h12q6,0 6,6v34q0,6 -6,6h-12q-6,0 -6,-6z" />
+        android:fillColor="#FFD166"
+        android:strokeColor="#101418"
+        android:strokeWidth="2"
+        android:pathData="M41,41q0,-5 5,-5h16q5,0 5,5v26q0,5 -5,5h-16q-5,0 -5,-5z" />
     <!-- windshield + rear window -->
     <path
         android:fillColor="#101418"
-        android:pathData="M46,42h16v7h-16z M46,62h16v7h-16z" />
+        android:pathData="M45,45h18v9h-18z M45,58h18v9h-18z" />
 </vector>

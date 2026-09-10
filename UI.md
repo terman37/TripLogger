@@ -13,7 +13,7 @@ implementation (the validated implementation); keep in sync with the code.
 | Language | English only |
 | App structure | Single activity, bottom navigation, 3 tabs |
 | Tab order | **Home / Report / Devices** |
-| Icon | Adaptive: dark background, mint road + white car (car silhouette as themed-icon layer) |
+| Icon | Adaptive: dark background, S-shaped mint road with dark centre stripe + warm amber car; S road + car silhouette as themed-icon layer |
 
 ## Screen 1 — Home
 
