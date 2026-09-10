@@ -38,5 +38,22 @@ interface SettingsRepository {
         const val MIN_GRACE_MINUTES = 1
         const val MAX_GRACE_MINUTES = 15
         const val DEFAULT_GRACE_MINUTES = 3
+
+        /** Legal grace-period value for any input (pure, unit-tested). */
+        fun clampGraceMinutes(minutes: Int): Int =
+            minutes.coerceIn(MIN_GRACE_MINUTES, MAX_GRACE_MINUTES)
+
+        /** Adds a device unless its address is already registered (pure). */
+        fun withDeviceAdded(
+            devices: List<RegisteredDevice>,
+            device: RegisteredDevice,
+        ): List<RegisteredDevice> =
+            if (devices.any { it.address == device.address }) devices else devices + device
+
+        /** Removes the device with [address], if present (pure). */
+        fun withDeviceRemoved(
+            devices: List<RegisteredDevice>,
+            address: String,
+        ): List<RegisteredDevice> = devices.filterNot { it.address == address }
     }
 }

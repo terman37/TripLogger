@@ -137,18 +137,19 @@ class BluetoothMonitor(
         }
         if (connected.isEmpty() && proxies.isEmpty()) return // proxies still coming up
 
-        val now = connected.keys
-
-        for (address in now - lastConnected) {
+        // Detection rule is pure (ConnectionDiff) and unit-tested; this class
+        // only maps addresses back to devices.
+        val events = ConnectionDiff.diff(previous = lastConnected, current = connected.keys)
+        for (address in events.connected) {
             val device = connected[address]
             if (device != null) {
                 onDeviceConnected(device)
             }
         }
-        for (address in lastConnected - now) {
+        for (address in events.disconnected) {
             onDeviceDisconnected(bt.getRemoteDevice(address))
         }
-        lastConnected = now
+        lastConnected = connected.keys
     }
 
     private companion object {

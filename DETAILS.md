@@ -163,10 +163,19 @@ No storage permission: the database and exports live in app-private storage.
 
 ## Testing
 
-- JVM unit tests (`app/src/test`, ~88 tests): Haversine, location filters,
-  recorder state machine (incl. grace/edge cases), address parsing, pending
-  address logic, CSV output and totals, Maps URL encoding/fallbacks, UI state
-  mappers.
+- JVM unit tests (`app/src/test`, 107 tests):
+  - geo/math: Haversine, `LocationFilter` (displacement/accuracy/speed), address
+    parsing, `PendingAddresses`, `MapsUrl` encoding + fallbacks;
+  - state machine: `TripRecorder` full lifecycles (grace, reconnect, manual,
+    discard threshold, no-GPS, wrong-state events);
+  - detection rules: `ConnectionDiff` (first poll, connect, disconnect, swap);
+  - settings rules: grace clamping, device add/remove/dedupe;
+  - report: `ReportDates` defaults/range/zone, `ReportCsvBuilder` columns,
+    escaping, totals under the km header, timezone;
+  - UI mapping: Home and Devices state mappers;
+  - integration (`TripRecordingFlowTest`): recorder → repository → Room (fake)
+    → geocoded addresses → CSV, including offline-pending + lazy retry, grace
+    reconnect keeping one trip, manual origin and the <50 m discard.
 - Instrumented Room DAO tests in `app/src/androidTest`.
 
 ```bash

@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.terman37.triplogger.TripLoggerApplication
 import com.terman37.triplogger.data.Trip
 import com.terman37.triplogger.report.ReportCsvBuilder
+import com.terman37.triplogger.report.ReportDates
+import com.terman37.triplogger.ui.home.TripRowUi
 import com.terman37.triplogger.ui.home.tripToRowUi
 import java.io.File
 import java.time.LocalDate
@@ -16,8 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * One generated report: the trips in the range (chronological) plus their
- * display rows and the total km for the summary line ("12 trips · 386.4 km").
+ * One report dataset: the trips in the range (chronological) and the total km
+ * for the summary line ("12 trips · 386.4 km").
  */
 data class ReportData(
     val trips: List<Trip>,
@@ -25,10 +27,9 @@ data class ReportData(
 )
 
 /**
- * Report screen logic (UI.md): date range → generate (also retries pending
- * addresses, todo.md) → export CSV + share. Pure suspend helpers called from
- * the composable's coroutine scope; no state kept here, the screen owns the
- * two chosen dates.
+ * Report screen logic: date range → live trip list → export CSV → delete.
+ * Pure date rules live in [ReportDates]; this class only touches Android for
+ * the cache file and the database.
  */
 class ReportViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -37,23 +38,20 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
     private val tag = "ReportViewModel"
 
     init {
-        // Lazy address retry (todo.md): the old "Generate" button used to
-        // trigger it; without Generate it runs once when the screen opens.
+        // Lazy address retry (offline trips fill in as soon as possible). The
+        // export runs it again before building the file.
         viewModelScope.launch {
             runCatching { container.tripRepository.retryPendingAddresses() }
                 .onFailure { Log.e(tag, "initial address retry failed", it) }
         }
     }
 
-    /** Default range = the last 7 days including today. */
-    fun defaultFrom(): LocalDate = LocalDate.now(zone).minusDays(6)
+    /** Default range: the last 7 days including today. */
+    fun defaultFrom(): LocalDate = ReportDates.defaultFrom(LocalDate.now(zone))
 
-    fun defaultTo(): LocalDate = LocalDate.now(zone)
+    fun defaultTo(): LocalDate = ReportDates.defaultTo(LocalDate.now(zone))
 
-    /**
-     * Loads the trips for [from]..[to] (both inclusive). Pure local query —
-     * the list refreshes whenever the dates change, no Generate button.
-     */
+    /** Loads the trips for [from]..[to] (both inclusive). */
     suspend fun load(from: LocalDate, to: LocalDate): ReportData? = withContext(Dispatchers.IO) {
         try {
             val trips = queryRange(from, to)
@@ -64,17 +62,44 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Rows for the on-screen preview (same expandable row as Home). */
-    fun toRows(data: ReportData): List<com.terman37.triplogger.ui.home.TripRowUi> =
+    /** Display rows for the preview (same card as Home). */
+    fun toRows(data: ReportData): List<TripRowUi> =
         data.trips.map { tripToRowUi(it, zone) }
 
+    /** Deletes one trip (per-row trash in the report list). */
+    suspend fun deleteTrip(id: Long): Boolean = withContext(Dispatchers.IO) {
+        try {
+            container.tripRepository.deleteTripById(id)
+            true
+        } catch (e: Exception) {
+            Log.e(tag, "deleteTrip failed", e)
+            false
+        }
+    }
+
     /**
-     * Writes the CSV file for the range into the app cache and returns it
-     * (the screen shares it through a FileProvider). Returns null on failure.
+     * Deletes every trip whose start is in the range (footer trash). Returns
+     * false on failure.
+     */
+    suspend fun deleteRange(from: LocalDate, to: LocalDate): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val (fromMillis, untilMillis) = ReportDates.rangeMillis(from, to, zone)
+                container.tripRepository.deleteTripsBetween(fromMillis, untilMillis)
+                true
+            } catch (e: Exception) {
+                Log.e(tag, "deleteRange failed", e)
+                false
+            }
+        }
+
+    /**
+     * Writes the CSV file for the range into the app cache and returns it (the
+     * screen shares it through a FileProvider). Returns null on failure.
      */
     suspend fun exportCsv(from: LocalDate, to: LocalDate): File? = withContext(Dispatchers.IO) {
         try {
-            container.tripRepository.retryPendingAddresses() // freshest addresses in the file
+            container.tripRepository.retryPendingAddresses() // freshest addresses
             val trips = queryRange(from, to)
             val csv = ReportCsvBuilder.build(trips, zone)
             val dir = File(getApplication<Application>().cacheDir, "exports").apply { mkdirs() }
@@ -88,42 +113,7 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private suspend fun queryRange(from: LocalDate, to: LocalDate): List<Trip> {
-        val (fromMillis, untilMillis) = rangeMillis(from, to)
+        val (fromMillis, untilMillis) = ReportDates.rangeMillis(from, to, zone)
         return container.tripRepository.tripsBetween(fromMillis, untilMillis)
-    }
-
-    /**
-     * Permanently deletes every trip whose start is in the range (Report
-     * footer trash action). Returns false on failure.
-     */
-    suspend fun deleteRange(from: LocalDate, to: LocalDate): Boolean =
-        withContext(Dispatchers.IO) {
-            try {
-                val (fromMillis, untilMillis) = rangeMillis(from, to)
-                container.tripRepository.deleteTripsBetween(fromMillis, untilMillis)
-                true
-            } catch (e: Exception) {
-                Log.e(tag, "deleteRange failed", e)
-                false
-            }
-        }
-
-    /** [from, to+1day) in epoch millis — shared by all range operations. */
-    /** Deletes one trip shown in the report preview (row trash icon). */
-    suspend fun deleteTrip(id: Long): Boolean = withContext(Dispatchers.IO) {
-        try {
-            container.tripRepository.deleteTripById(id)
-            true
-        } catch (e: Exception) {
-            Log.e(tag, "deleteTrip failed", e)
-            false
-        }
-    }
-
-    private fun rangeMillis(from: LocalDate, to: LocalDate): Pair<Long, Long> {
-        val fromMillis = from.atStartOfDay(zone).toInstant().toEpochMilli()
-        // +1 day: the DAO range is [from, until) — end of "to" must be included.
-        val untilMillis = to.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        return fromMillis to untilMillis
     }
 }

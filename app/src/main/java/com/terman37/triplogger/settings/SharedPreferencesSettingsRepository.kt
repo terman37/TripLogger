@@ -40,24 +40,19 @@ class SharedPreferencesSettingsRepository(context: Context) : SettingsRepository
     override fun setGracePeriodMinutes(minutes: Int) {
         // Clamp to the legal range instead of rejecting: the UI only offers
         // legal values, this guards against anything else.
-        val clamped = minutes.coerceIn(
-            SettingsRepository.MIN_GRACE_MINUTES,
-            SettingsRepository.MAX_GRACE_MINUTES,
-        )
+        val clamped = SettingsRepository.clampGraceMinutes(minutes)
         prefs.edit().putInt(KEY_GRACE_MINUTES, clamped).apply()
         _gracePeriodMinutes.value = clamped
     }
 
     override fun addRegisteredDevice(device: RegisteredDevice) {
-        val current = _registeredDevices.value
-        if (current.any { it.address == device.address }) return // no duplicates
-        val updated = current + device
+        val updated = SettingsRepository.withDeviceAdded(_registeredDevices.value, device)
         saveDevices(updated)
         _registeredDevices.value = updated
     }
 
     override fun removeRegisteredDevice(address: String) {
-        val updated = _registeredDevices.value.filterNot { it.address == address }
+        val updated = SettingsRepository.withDeviceRemoved(_registeredDevices.value, address)
         saveDevices(updated)
         _registeredDevices.value = updated
     }

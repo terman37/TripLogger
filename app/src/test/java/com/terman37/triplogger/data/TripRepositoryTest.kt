@@ -10,18 +10,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlinx.coroutines.runBlocking
 
-/** Scriptable geocoder: map coordinate pairs to fixed results. */
-class FakeGeocoder(
-    private val results: Map<Pair<Double, Double>, ReverseGeocodeResult>,
-) : GeocoderClient {
-    var calls = 0
-        private set
-
-    override fun reverse(latitude: Double, longitude: Double): ReverseGeocodeResult? {
-        calls++
-        return results[latitude to longitude]
-    }
-}
 
 class TripRepositoryTest {
 
