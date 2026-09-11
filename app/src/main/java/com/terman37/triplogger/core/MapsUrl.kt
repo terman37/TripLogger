@@ -5,7 +5,7 @@ import java.util.Locale
 
 /**
  * Builds Google Maps URLs from a trip endpoint (start or end). Used by the UI
- * (directions button, TripRowCard) and by the CSV export (one link per
+ * (directions button, TripRowCard) and by the Excel export (one link per
  * address), so the encoding rules live here once and are unit-tested.
  *
  * Two link kinds exist:
@@ -14,10 +14,10 @@ import java.util.Locale
  * - [place] — show a single endpoint on the map:
  *   `https://www.google.com/maps/search/?api=1&query=…`
  *
- * Each endpoint prefers the reverse-geocoded street+city, else falls back to
- * the raw "lat,lng" coordinates (also accepted by the Maps API). When an
- * endpoint has neither, its link is unusable → null (the UI hides the button,
- * the CSV writes an empty cell).
+ * Each endpoint prefers the reverse-geocoded street (+ city) when a street is
+ * known, otherwise the raw "lat,lng" coordinates (a city-only query would only
+ * zoom to the city). With neither it falls back to the bare city, else null
+ * (the UI hides the button, the export writes plain text without a link).
  *
  * Pure JVM (java.net only) so the encoding rules can be tested without Android.
  */
@@ -51,24 +51,27 @@ object MapsUrl {
         return "https://www.google.com/maps/search/?api=1&query=${encode(endpoint)}"
     }
 
-    /** Address when available, else "lat,lng", else null (nothing to link to). */
+    /**
+     * "street, city" when a street is known, else "lat,lng", else the city
+     * alone, else null (nothing to link to). A city-only address is a poor Maps
+     * query (it zooms to the whole city), so coordinates take priority over it.
+     */
     private fun endpointParam(
         street: String?,
         city: String?,
         lat: Double?,
         lng: Double?,
     ): String? {
-        val address = listOfNotNull(street?.trim(), city?.trim())
-            .joinToString(", ")
-            .takeIf { it.isNotEmpty() }
-        return if (address != null) {
-            address
-        } else if (lat != null && lng != null) {
-            // Maps accepts "lat,lng" as a place; keep the dot decimal separator.
-            String.format(Locale.US, "%.6f,%.6f", lat, lng)
-        } else {
-            null
+        val streetLine = street?.trim()?.takeIf { it.isNotEmpty() }
+        if (streetLine != null) {
+            return listOfNotNull(streetLine, city?.trim()?.takeIf { it.isNotEmpty() })
+                .joinToString(", ")
         }
+        if (lat != null && lng != null) {
+            // Maps accepts "lat,lng" as a place; keep the dot decimal separator.
+            return String.format(Locale.US, "%.6f,%.6f", lat, lng)
+        }
+        return city?.trim()?.takeIf { it.isNotEmpty() }
     }
 
     private fun encode(value: String): String =

@@ -16,7 +16,7 @@ import com.terman37.triplogger.core.TripOrigin
  * - [startLat]/[startLng]/[endLat]/[endLng]: GPS coordinates (degrees). Null
  *   when no fix was available (trip with no GPS signal at all).
  * - [startStreet]/[startCity]/[endStreet]/[endCity]: reverse-geocoded address,
- *   stored split into street and city (CSV needs them separately, todo.md).
+ *   stored split into street and city (the Excel export joins them again).
  *   Null when geocoding failed or is still pending — the UI shows "Address
  *   pending" and retries later.
  * - [distanceKm]: total distance in kilometers, one decimal is enough for

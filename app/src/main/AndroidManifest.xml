@@ -58,7 +58,7 @@
             android:foregroundServiceType="connectedDevice|location" />
 
         <!--
-            Shares exported CSV files with other apps via the system share
+            Shares exported Excel files with other apps via the system share
             sheet. Only files under cache/exports are exposed (file_paths.xml).
         -->
         <provider

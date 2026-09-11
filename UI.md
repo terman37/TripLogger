@@ -59,7 +59,7 @@ then removes the trip (destructive buttons styled `DestructiveRed`).
    - Red trash button: deletes **all trips in the current range** after a
      confirmation dialog naming the count and date range; disabled when the
      range is empty; the list reloads afterwards.
-   - Export: retries pending addresses, builds the CSV, opens the Android share
+   - Export: retries pending addresses, builds the Excel file, opens the Android share
      sheet; the preview refreshes so newly geocoded addresses appear.
 
 Preview rows use the same collapsed/expandable card as Home, **including the
@@ -106,13 +106,16 @@ Available starts collapsed so the page stays short.
 - Addresses: resolved at trip end when online; failures show "Address pending"
   and are retried when the Report screen opens and before export.
 
-## CSV export columns
+## Excel export columns
 
-`start date (ISO) | start time (HH:mm) | start month (YYYY-MM) | end date |
-end time | start city | start address | end city | end address | km (1 decimal,
-dot) | start maps link | end maps link` — chronological, UTF-8, RFC-4180
-escaping. Final `Total` row: "Total" in the first column and the km sum **under
-the km column** (maps-link columns empty).
+`start date | end date | start address | end address | km | trip` —
+chronological. Dates are true Excel dates displayed as `dddd d mmmm, hh:mm` (no
+year), so they sort and compare and can be reformatted in Excel; Excel shows the
+names in its own language. Each address and the "trip" cell is a Google Maps hyperlink, so
+there are no separate link columns; a missing address shows
+`Address not found`. The header row is frozen and light gray, every cell has a
+solid black border, and the final `Total` row (a `=SUM(...)` over the km column) is
+highlighted light yellow.
 
 ## Empty / first-run states
 

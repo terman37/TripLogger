@@ -6,8 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.terman37.triplogger.TripLoggerApplication
 import com.terman37.triplogger.data.Trip
-import com.terman37.triplogger.report.ReportCsvBuilder
 import com.terman37.triplogger.report.ReportDates
+import com.terman37.triplogger.report.ReportXlsxBuilder
 import com.terman37.triplogger.ui.home.TripRowUi
 import com.terman37.triplogger.ui.home.tripToRowUi
 import java.io.File
@@ -27,7 +27,7 @@ data class ReportData(
 )
 
 /**
- * Report screen logic: date range → live trip list → export CSV → delete.
+ * Report screen logic: date range → live trip list → export Excel → delete.
  * Pure date rules live in [ReportDates]; this class only touches Android for
  * the cache file and the database.
  */
@@ -94,17 +94,17 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
         }
 
     /**
-     * Writes the CSV file for the range into the app cache and returns it (the
-     * screen shares it through a FileProvider). Returns null on failure.
+     * Writes the Excel (.xlsx) file for the range into the app cache and returns
+     * it (the screen shares it through a FileProvider). Returns null on failure.
      */
-    suspend fun exportCsv(from: LocalDate, to: LocalDate): File? = withContext(Dispatchers.IO) {
+    suspend fun exportXlsx(from: LocalDate, to: LocalDate): File? = withContext(Dispatchers.IO) {
         try {
             container.tripRepository.retryPendingAddresses() // freshest addresses
             val trips = queryRange(from, to)
-            val csv = ReportCsvBuilder.build(trips, zone)
+            val bytes = ReportXlsxBuilder.build(trips, zone)
             val dir = File(getApplication<Application>().cacheDir, "exports").apply { mkdirs() }
-            val file = File(dir, "trips_${from}_${to}.csv")
-            file.writeText(csv, Charsets.UTF_8)
+            val file = File(dir, "trips_${from}_${to}.xlsx")
+            file.writeBytes(bytes)
             file
         } catch (e: Exception) {
             Log.e(tag, "export failed", e)

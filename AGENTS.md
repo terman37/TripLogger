@@ -21,7 +21,7 @@ understandable, generously commented, and behavior must be testable.
 
 ## Current status
 
-- Working app: trip logging, Report/CSV export, Devices setup, dark Compose UI
+- Working app: trip logging, Report/Excel export, Devices setup, dark Compose UI
   (validated on a real device). See README.md for the user guide and
   DETAILS.md for the technical documentation.
 - Package: `com.terman37.triplogger`. minSdk 34, targetSdk 37.
@@ -35,7 +35,7 @@ understandable, generously commented, and behavior must be testable.
   non-obvious Android concepts (lifecycle, services, permissions, intents) when
   touched.
 - **Architecture:** keep Android-specific code thin and behind interfaces so core
-  logic (trip state machine, distance, CSV, queries) is unit-testable on the JVM.
+  logic (trip state machine, distance, Excel, queries) is unit-testable on the JVM.
   Suggested split in README "Architecture overview".
 - **Names/types:** strict useful types. No `Any`, `unknown`, or unstructured maps
   where a precise type is practical.

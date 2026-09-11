@@ -54,7 +54,7 @@ class PendingAddressesTest {
 
     @Test
     fun missingOnlyCity_stillPending() {
-        // Street alone is not enough for the CSV (city column) → retry.
+        // Street alone is not enough for the export (address includes the city) → retry.
         // End side is complete so only START is pending.
         val trips = listOf(
             trip(

@@ -9,7 +9,7 @@ import com.terman37.triplogger.data.FakeGeocoder
 import com.terman37.triplogger.data.FakeTripDao
 import com.terman37.triplogger.data.PendingAddresses
 import com.terman37.triplogger.data.TripRepository
-import com.terman37.triplogger.report.ReportCsvBuilder
+import com.terman37.triplogger.report.ReportXlsxBuilder
 import java.time.ZoneId
 import java.util.Locale
 import kotlinx.coroutines.runBlocking
@@ -21,7 +21,7 @@ import org.junit.Test
 /**
  * End-to-end (minus Android) flow of the main use cases: the recorder state
  * machine feeds the repository through the same drafts the service passes, and
- * the CSV builder consumes the stored rows. Catches integration mistakes that
+ * the Excel builder consumes the stored rows. Catches integration mistakes that
  * isolated unit tests miss (field mapping, distance/address/total coherence).
  */
 class TripRecordingFlowTest {
@@ -83,16 +83,37 @@ class TripRecordingFlowTest {
         assertEquals("5 Rue de Belleville", stored.endStreet)
         assertEquals("Paris", stored.endCity)
 
-        val csv = ReportCsvBuilder.build(dao.snapshot(), zone)
-        val lines = csv.trimEnd().lineSequence().toList()
-        assertEquals(3, lines.size) // header + trip + total
-        assertTrue(lines[1].contains("Rue de Rivoli"))
-        assertTrue(lines[1].contains("https://www.google.com/maps/search"))
-        // Total row: km sum under the km header (index 9).
-        assertEquals(
-            String.format(Locale.US, "%.1f", stored.distanceKm),
-            lines[2].split(",")[9],
-        )
+        val workbook = ReportXlsxBuilder.build(dao.snapshot(), zone)
+        val sheet = zipText(workbook, "xl/worksheets/sheet1.xml")
+        val rels = zipText(workbook, "xl/worksheets/_rels/sheet1.xml.rels")
+        assertTrue(sheet.contains("Rue de Rivoli"))
+        // Hyperlink targets live in the worksheet relationships, not the sheet.
+        assertTrue(rels.contains("https://www.google.com/maps/search"))
+        // Total row (header + trip + total) with the km sum under the km column.
+        val km = String.format(Locale.US, "%.1f", stored.distanceKm)
+        assertTrue(sheet.contains("<c r=\"E3\" s=\"6\"><f>SUM(E2:E2)</f><v>$km</v></c>"))
+    }
+
+    /** Reads one entry back out of the generated .xlsx ZIP as UTF-8 text. */
+    private fun zipText(bytes: ByteArray, name: String): String {
+        java.util.zip.ZipInputStream(java.io.ByteArrayInputStream(bytes)).use { zip ->
+            var entry = zip.nextEntry
+            while (entry != null) {
+                if (entry.name == name) {
+                    val out = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (true) {
+                        val read = zip.read(buffer)
+                        if (read < 0) break
+                        out.write(buffer, 0, read)
+                    }
+                    return out.toString(Charsets.UTF_8.name())
+                }
+                zip.closeEntry()
+                entry = zip.nextEntry
+            }
+        }
+        error("$name missing from the generated workbook")
     }
 
     @Test

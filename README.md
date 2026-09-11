@@ -85,10 +85,11 @@ Open the **Report** tab:
 4. The **trash icon** (bottom left) deletes **all** trips in the shown period —
    it always asks for confirmation first.
 
-The spreadsheet contains one row per trip: start date/time/month, end
-date/time, start city and address, end city and address, kilometers, and a
-Google Maps link for each address, plus a total row. Every trip row can also be
-deleted from the report with its red trash icon.
+The spreadsheet contains one row per trip: start and end date/time as real Excel dates (Excel
+shows them in your language; use Format Cells to change), the start and end address (each opens the place in Google
+Maps), the kilometers, and a "trip" link opening the whole route. The header
+row is frozen and light gray and the total row is highlighted. Every trip row
+can also be deleted from the report with its red trash icon.
 
 > If a trip ended while you had no network, its addresses appear as
 > "Address pending". They fill in by themselves the next time you open the

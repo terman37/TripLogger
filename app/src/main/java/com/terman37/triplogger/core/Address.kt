@@ -2,7 +2,7 @@ package com.terman37.triplogger.core
 
 /**
  * A reverse-geocoded place, kept minimal: only the parts the app stores and
- * exports (todo.md CSV: start/end city + address = street line). Null street
+ * exports (Excel export: address = street, city). Null street
  * means the geocoder found no street (e.g. a forest road); null city means
  * none found either — but the trip may still have coordinates.
  */

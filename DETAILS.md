@@ -7,7 +7,7 @@ Technical documentation for developers and the curious. User guide:
 ## What the app does
 
 Android app (Kotlin, Jetpack Compose) that logs car trips automatically on
-Bluetooth connection and exports them as a CSV spreadsheet. Local only: no
+Bluetooth connection and exports them as an Excel spreadsheet. Local only: no
 server, no account, no data leaves the phone.
 
 Validated on a real device (Pixel 9a, Android 17).
@@ -44,7 +44,7 @@ Package layout (`app/src/main/java/com/terman37/triplogger/`):
 | `geocoding/` | `GeocoderClient` interface + Android `Geocoder` implementation |
 | `location/` | `LocationSource` interface + `LocationManager` implementation |
 | `monitor/` | `TripMonitorService` (foreground service), `BluetoothMonitor` (polling), `PairedDevicesSource` impl, `NotificationDismissReceiver` |
-| `report/` | `ReportCsvBuilder` (pure) |
+| `report/` | `ReportXlsxBuilder` (pure, .xlsx) |
 | `ui/` | `MainActivity`, `TripLoggerApp` (nav), `home/`, `report/`, `devices/`, `common/` (TripRowCard, MapsUrl usage), `theme/` |
 
 `AppContainer` is a manual DI singleton created by `TripLoggerApplication`; it
@@ -109,39 +109,40 @@ it fills street/city; offline it leaves them null ("Address pending" in the
 UI). `TripRepository.retryPendingAddresses()` fills missing sides later, and is
 called when the Report screen opens and again before an export.
 
-## CSV export
+## Excel export
 
-`ReportCsvBuilder` (pure, unit-tested) writes UTF-8, RFC-4180-escaped CSV,
-chronological, with columns:
+`ReportXlsxBuilder` (pure, unit-tested) writes a minimal Excel `.xlsx` workbook
+(Office Open XML: a ZIP of hand-written XML parts; Apache POI is too large and
+not Android friendly). Columns:
 
 | # | Column |
 | --- | --- |
-| 1 | start date (ISO `yyyy-MM-dd`) |
-| 2 | start time (`HH:mm`) |
-| 3 | start month (`yyyy-MM`) |
-| 4 | end date |
-| 5 | end time |
-| 6 | start city |
-| 7 | start address |
-| 8 | end city |
-| 9 | end address |
-| 10 | km (1 decimal, dot separator) |
-| 11 | start maps link (Google Maps search URL for the start address) |
-| 12 | end maps link |
+| 1 | start date (real Excel date/time, displayed `dddd d mmmm, hh:mm`) |
+| 2 | end date (same) |
+| 3 | start address (`street, city`, hyperlink to Google Maps) |
+| 4 | end address (same) |
+| 5 | km (numeric, 1 decimal) |
+| 6 | trip (hyperlink to Google Maps directions start → end) |
 
-Last row `Total` with the km sum **under the km header** (the column is looked
-up by name so reordering cannot shift it). Files are written to
-`cacheDir/exports/` and shared through a `FileProvider` URI + `ACTION_SEND`
-(the Android share sheet).
+Dates are true Excel date/time values (numeric serials), so they sort, compare
+and can be reformatted with Format Cells; Excel renders the weekday and month
+names in its own language. The header row is light gray, bold and frozen; all
+cells have 0.75 pt solid black borders. A
+missing address shows `Address not found`, still linked when the endpoint has
+coordinates. The last row `Total` holds `=SUM(...)` over the km column (so
+deleting a row in Excel keeps the total correct) on a light-yellow background. Files are written to `cacheDir/exports/` as
+`trips_<from>_<to>.xlsx` and shared through a `FileProvider` URI +
+`ACTION_SEND` (the Android share sheet).
 
 ## Google Maps links (`core.MapsUrl`)
 
-Pure URL builder with two link kinds, each preferring address over `lat,lng`:
+Pure URL builder with two link kinds, each preferring a street address over
+the raw coordinates (a city-only address would only zoom to the city):
 `directions` (route between both endpoints; used by the map icon on the
 collapsed trip row) and `place` (single endpoint; used by the pin icons next to
-the From/To addresses in the expanded detail and by the CSV link columns).
+the From/To addresses in the expanded detail and by the export hyperlinks).
 Null when an endpoint has neither address nor coordinates → UI hides the icon,
-CSV writes an empty cell.
+the export writes plain text without a link.
 
 ## UI and theme
 
@@ -163,18 +164,18 @@ No storage permission: the database and exports live in app-private storage.
 
 ## Testing
 
-- JVM unit tests (`app/src/test`, 106 tests):
+- JVM unit tests (`app/src/test`, 111 tests):
   - geo/math: Haversine, `LocationFilter` (displacement/accuracy/speed), address
     parsing, `PendingAddresses`, `MapsUrl` encoding + fallbacks;
   - state machine: `TripRecorder` full lifecycles (grace, reconnect, manual,
     discard threshold, no-GPS, wrong-state events);
   - detection rules: `ConnectionDiff` (first poll, connect, disconnect, swap);
   - settings rules: grace clamping, device add/remove/dedupe;
-  - report: `ReportDates` defaults/range/zone, `ReportCsvBuilder` columns,
-    escaping, totals under the km header, timezone;
+  - report: `ReportDates` defaults/range/zone, `ReportXlsxBuilder` columns,
+    hyperlinks, styles, totals under the km column, true Excel dates, timezone;
   - UI mapping: Home and Devices state mappers;
   - integration (`TripRecordingFlowTest`): recorder → repository → Room (fake)
-    → geocoded addresses → CSV, including offline-pending + lazy retry, grace
+    → geocoded addresses → Excel, including offline-pending + lazy retry, grace
     reconnect keeping one trip, manual origin and the <50 m discard.
 - Instrumented tests (`app/src/androidTest`, run on a device):
   - Room DAO CRUD/query round-trips;

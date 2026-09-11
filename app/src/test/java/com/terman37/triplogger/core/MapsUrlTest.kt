@@ -59,6 +59,18 @@ class MapsUrlTest {
     }
 
     @Test
+    fun directions_cityOnly_prefersCoordinatesOverCity() {
+        val url = MapsUrl.directions(
+            originStreet = null, originCity = "Lyon",
+            originLat = 45.7640, originLng = 4.8357,
+            destinationStreet = "2 Oak Rd", destinationCity = "Town",
+            destinationLat = null, destinationLng = null,
+        )
+        assertTrue(url!!.contains("origin=45.764000%2C4.835700"))
+        assertTrue(!url.contains("origin=Lyon"))
+    }
+
+    @Test
     fun directions_specialCharacters_areEncoded() {
         val url = MapsUrl.directions(
             originStreet = "Rue de l'Église & Mairie", originCity = "Ville-sur-Yvette",
@@ -82,7 +94,7 @@ class MapsUrlTest {
         assertEquals(48.8566, url!!.substringAfter("origin=").substringBefore("%2C").toDouble(), 1e-9)
     }
 
-    // --- place (CSV columns) ---
+    // --- place (export address/trip links) ---
 
     @Test
     fun place_usesAddress_whenAvailable() {
@@ -99,6 +111,21 @@ class MapsUrlTest {
     fun place_fallsBackToCoordinates() {
         val url = MapsUrl.place(street = null, city = null, lat = 48.8566, lng = 2.3522)
         assertTrue(url!!.contains("query=48.856600%2C2.352200"))
+    }
+
+    @Test
+    fun place_cityOnly_prefersCoordinatesOverCity() {
+        // Regression: a city-only address made the link zoom to the whole city
+        // instead of the exact trip point, even though coordinates existed.
+        val url = MapsUrl.place(street = null, city = "Lyon", lat = 45.7640, lng = 4.8357)
+        assertTrue(url!!.contains("query=45.764000%2C4.835700"))
+        assertTrue(!url.contains("Lyon"))
+    }
+
+    @Test
+    fun place_cityOnlyWithoutCoordinates_usesCity() {
+        val url = MapsUrl.place(street = null, city = "Lyon", lat = null, lng = null)
+        assertTrue(url!!.contains("query=Lyon"))
     }
 
     @Test

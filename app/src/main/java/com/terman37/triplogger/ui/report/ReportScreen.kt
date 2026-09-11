@@ -203,12 +203,12 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                 onClick = {
                     scope.launch {
                         error = null
-                        val file = viewModel.exportCsv(from, to)
+                        val file = viewModel.exportXlsx(from, to)
                         if (file != null) {
                             // Export triggers the lazy address retry: refresh
                             // the preview so newly geocoded addresses show up.
                             data = viewModel.load(from, to)
-                            shareCsv(context, file)
+                            shareReport(context, file)
                         } else {
                             error = "Export failed"
                         }
@@ -309,15 +309,16 @@ private fun DateFieldButton(
 /** The two date fields of the range picker. */
 private enum class DateField { FROM, TO }
 
-/** Sends the CSV via the system share sheet (decision, todo.md). */
-private fun shareCsv(context: Context, file: File) {
+/** Sends the Excel report via the system share sheet (decision, todo.md). */
+private fun shareReport(context: Context, file: File) {
     val uri: android.net.Uri = FileProvider.getUriForFile(
         context,
         "${context.packageName}.fileprovider",
         file,
     )
     val send = Intent(Intent.ACTION_SEND).apply {
-        type = "text/csv"
+        // MIME type of an .xlsx workbook, so mail clients/sheets offer to open it.
+        type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
