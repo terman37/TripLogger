@@ -7,6 +7,9 @@ import com.terman37.triplogger.data.TripDatabase
 import com.terman37.triplogger.data.TripRepository
 import com.terman37.triplogger.geocoding.AndroidGeocoderClient
 import com.terman37.triplogger.geocoding.GeocoderClient
+import com.terman37.triplogger.session.SharedPreferencesTripSessionStore
+import com.terman37.triplogger.session.TripRecovery
+import com.terman37.triplogger.session.TripSessionStore
 import com.terman37.triplogger.settings.SettingsRepository
 import com.terman37.triplogger.settings.SharedPreferencesSettingsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +44,13 @@ class AppContainer(context: Context) {
     val tripRepository: TripRepository =
         TripRepository(database.tripDao(), geocoder)
 
+    /** Persists the trip currently being recorded so a process death can finish
+     * it at the last known position (see DETAILS.md). */
+    val tripSessionStore: TripSessionStore =
+        SharedPreferencesTripSessionStore(appContext)
+
+    private val tripRecovery = TripRecovery(tripSessionStore, tripRepository)
+
     init {
         // Keep the recorder's grace period in sync with the setting: the user
         // can change it on the Devices screen while the recorder exists.
@@ -49,5 +59,25 @@ class AppContainer(context: Context) {
                 tripRecorder.updateGracePeriodMillis(minutes * 60_000L)
             }
         }
+
+        // Finish a trip that was being recorded when the process died (reboot,
+        // force-stop, crash). takePending() clears the store synchronously so
+        // the service cannot overwrite it before it is saved; the save runs in
+        // the background.
+        val pending = tripRecovery.takePending()
+        if (pending != null) {
+            CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+                runCatching { tripRecovery.finish(pending) }
+                    .onFailure { error ->
+                        // Not saved yet: restore it so the next start retries.
+                        tripSessionStore.save(pending)
+                        android.util.Log.e(TAG, "trip recovery failed", error)
+                    }
+            }
+        }
+    }
+
+    private companion object {
+        const val TAG = "AppContainer"
     }
 }

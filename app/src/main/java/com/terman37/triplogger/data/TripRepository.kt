@@ -81,6 +81,14 @@ class TripRepository(
         updatedCount
     }
 
+    /**
+     * True when a trip starting at this instant is already stored. The recovery
+     * path uses it to avoid inserting a trip twice (crash between insert and
+     * clearing the active-trip store).
+     */
+    suspend fun hasTripStartingAt(startEpochMillis: Long): Boolean =
+        dao.countWithStart(startEpochMillis) > 0
+
     /** Trips whose start falls in the range, oldest first (Report screen). */
     suspend fun tripsBetween(fromInclusive: Long, untilExclusive: Long): List<Trip> =
         dao.tripsBetween(fromInclusive, untilExclusive)

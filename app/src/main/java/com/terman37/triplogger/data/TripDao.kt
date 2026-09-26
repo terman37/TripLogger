@@ -73,4 +73,12 @@ interface TripDao {
      */
     @Update
     suspend fun update(trip: Trip)
+
+    /**
+     * Number of trips starting at exactly this instant. Read-only dedupe key for
+     * the recovery path: a trip that was already inserted must not be stored a
+     * second time if the app crashed before clearing the active-trip store.
+     */
+    @Query("SELECT COUNT(*) FROM trips WHERE startEpochMillis = :startEpochMillis")
+    suspend fun countWithStart(startEpochMillis: Long): Int
 }

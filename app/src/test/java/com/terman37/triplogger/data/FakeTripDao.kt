@@ -62,6 +62,9 @@ class FakeTripDao : TripDao {
         }
     }
 
+    override suspend fun countWithStart(startEpochMillis: Long): Int =
+        synchronized(lock) { trips.count { it.startEpochMillis == startEpochMillis } }
+
     /** Test helper: current contents. */
     fun snapshot(): List<Trip> = synchronized(lock) { trips.toList() }
 

@@ -323,4 +323,48 @@ class TripRecorderTest {
         assertEquals(TripRecorder.Phase.IDLE, recorder.snapshot().phase)
         assertTrue(recorder.takeFinishedTrips().isEmpty())
     }
+
+    // --- active trip persistence -----------------------------------------
+
+    @Test
+    fun activeTrip_isNullWhenIdle() {
+        val recorder = TripRecorder(FakeClock(base), graceMs)
+        assertNull(recorder.activeTrip())
+    }
+
+    @Test
+    fun activeTrip_carriesStartDistanceAndLastPosition() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+
+        recorder.onDeviceConnected("Car")
+        assertEquals(base, recorder.activeTrip()?.startEpochMillis)
+        assertEquals(TripOrigin.AUTO, recorder.activeTrip()?.origin)
+        // No fix yet: the end time falls back to "now".
+        clock.now = base + 15_000
+        assertEquals(base + 15_000, recorder.activeTrip()?.lastEpochMillis)
+
+        recorder.onLocationSample(sampleAt(base + 30_000, step500m))       // anchor
+        recorder.onLocationSample(sampleAt(base + 60_000, 2 * step500m))   // +0.5 km
+
+        val active = recorder.activeTrip()
+        assertEquals(0.5, active?.distanceKm ?: -1.0, 0.01)
+        assertEquals(48.8566 + 2 * step500m, active?.lastLat ?: -1.0, 1e-9)
+        assertEquals(2.3522, active?.lastLng ?: -1.0, 1e-9)
+        assertEquals(base + 60_000, active?.lastEpochMillis)
+    }
+
+    @Test
+    fun activeTrip_isNullAfterFinish() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+
+        recorder.onManualStart()
+        recorder.onLocationSample(sampleAt(base + 30_000, step500m))
+        recorder.onLocationSample(sampleAt(base + 60_000, 2 * step500m))
+        assertTrue(recorder.activeTrip() != null)
+
+        recorder.onManualStop()
+        assertNull(recorder.activeTrip())
+    }
 }

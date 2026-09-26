@@ -104,15 +104,17 @@ can also be deleted from the report with its red trash icon.
   tracks silently). Turn the switch on Home back on if that was a mistake.
 - **Closing the app is fine.** Monitoring continues in the background while the
   switch is on.
-- **Force-stopping the app** during a trip loses that in-progress trip; the app
-  never saves half trips.
-- **Rebooting the phone** also loses an in-progress trip, but monitoring starts
-  again by itself once the phone has booted (the notification comes back), as
-  long as the switch is on and a device is registered. This is why the app asks
-  for location "Allow all the time" when you enable monitoring: Android does not
-  let a background app restart location tracking otherwise. Some phone brands
-  block apps from starting at boot: if the switch shows on but there is no
-  notification, turn monitoring off and on again.
+- **Force-stopping the app** or **rebooting the phone** during a trip does not
+  lose it: the next time the app starts, that trip is saved, ending at the last
+  position the phone recorded. (A trip that had not moved 50 m is still dropped
+  as noise.)
+- **Rebooting the phone** also restarts monitoring by itself once the phone has
+  booted (the notification comes back), as long as the switch is on and a device
+  is registered. This is why the app asks for location "Allow all the time" when
+  you enable monitoring: Android does not let a background app restart location
+  tracking otherwise. Some phone brands block apps from starting at boot: if the
+  switch shows on but there is no notification, turn monitoring off and on
+  again.
 - **Battery**: the app asks for GPS only while a trip is recording (one fix
   every 30 seconds), so it is light on battery. Some phone brands additionally
   restrict background apps; if recording stops unexpectedly, allow Trip Logger

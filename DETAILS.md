@@ -87,11 +87,15 @@ startCity` (nullable = address pending), the same four for the end,
    sessions are noise.
 6. **Manual fallback** — Home "Start manually" starts a trip without a device;
    it ignores Bluetooth events and ends on "Stop".
-7. **Process death** — force-stop during a trip discards the partial trip (no
-   persistence of in-progress state; deliberate KISS decision). A reboot
-   discards it too, but `BootCompletedReceiver` restarts the monitoring service
-   afterwards (see "Notification = monitoring indicator"), so monitoring
-   resumes without opening the app.
+7. **Process death** — the in-progress trip is saved to a small store on every
+   event (start, GPS fix, entering grace). If the process dies (force-stop,
+   crash) or the phone reboots, the next start loads that session and *finishes*
+   the trip at the last recorded position and time — the trip is kept, not
+   resumed; the next drive becomes a new trip. Trips below the 50 m minimum are
+   dropped as usual, and a trip that was already inserted is not stored twice.
+   After a reboot, `BootCompletedReceiver` also restarts the monitoring service
+   so recording resumes without opening the app (see
+   "Notification = monitoring indicator").
 
 ### Notification = monitoring indicator
 

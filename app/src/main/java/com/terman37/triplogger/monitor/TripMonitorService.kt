@@ -143,6 +143,7 @@ class TripMonitorService : Service() {
             return
         }
         updateNotification()
+        persistSession()
 
         // Bluetooth monitoring only matters when it is enabled. Registering
         // requires the BLUETOOTH_CONNECT runtime permission (UI grants it
@@ -214,6 +215,7 @@ class TripMonitorService : Service() {
             // Callback arrives on the main looper (see LocationManager source).
             recorder.onLocationSample(sample)
             updateNotification()
+            persistSession()
         }
         if (started) {
             locationSource = source
@@ -272,14 +274,35 @@ class TripMonitorService : Service() {
         persistFinishedTrips()
     }
 
+    /**
+     * Mirrors the in-progress trip to the store so a reboot / force-stop can
+     * finish it at the last recorded position. No-op when idle.
+     */
+    private fun persistSession() {
+        val active = recorder.activeTrip() ?: return
+        container.tripSessionStore.save(active)
+    }
+
     private fun persistFinishedTrips() {
         // Save drafts in the background; failures must not crash the service.
         val drafts = recorder.takeFinishedTrips()
         if (drafts.isEmpty()) return
+        val finishedStart = drafts.first().startEpochMillis
         scope.launch {
+            var allSaved = true
             for (draft in drafts) {
                 runCatching { container.tripRepository.saveTrip(draft) }
-                    .onFailure { android.util.Log.e(TAG, "saveTrip failed", it) }
+                    .onFailure {
+                        allSaved = false
+                        android.util.Log.e(TAG, "saveTrip failed", it)
+                    }
+            }
+            // Drop the persisted session once the trip is stored; keep it when a
+            // save failed so the next start can still recover it. Clear only
+            // when the store still holds THIS trip (never wipe a newer one).
+            val stored = container.tripSessionStore.load()
+            if (allSaved && stored?.startEpochMillis == finishedStart) {
+                container.tripSessionStore.clear()
             }
         }
     }

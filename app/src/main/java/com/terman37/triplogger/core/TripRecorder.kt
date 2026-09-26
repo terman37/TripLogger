@@ -89,6 +89,22 @@ class TripRecorder(
         val graceStartedAtEpochMillis: Long? = null,
     )
 
+    /**
+     * Plain data for an in-progress trip, safe to persist (no Android types, no
+     * filter state). The service stores it so a restart can finish the trip at
+     * the last recorded position (see DETAILS.md).
+     */
+    data class ActiveTrip(
+        val startEpochMillis: Long,
+        val origin: TripOrigin,
+        val startLat: Double?,
+        val startLng: Double?,
+        val distanceKm: Double,
+        val lastLat: Double?,
+        val lastLng: Double?,
+        val lastEpochMillis: Long,
+    )
+
     enum class Phase { IDLE, RECORDING, GRACE }
 
     fun snapshot(): Snapshot {
@@ -111,6 +127,26 @@ class TripRecorder(
      * persist them). */
     fun takeFinishedTrips(): List<TripDraft> =
         finishedTrips.toList().also { finishedTrips.clear() }
+
+    /**
+     * The active trip as plain data, or null when idle. [ActiveTrip.lastEpochMillis]
+     * is the last kept fix's time, falling back to "now" before the first fix
+     * (such a trip is below the minimum distance and discarded on finish).
+     */
+    fun activeTrip(): ActiveTrip? {
+        val s = session ?: return null
+        val last = s.lastKeptSample
+        return ActiveTrip(
+            startEpochMillis = s.startEpochMillis,
+            origin = s.origin,
+            startLat = s.startLat,
+            startLng = s.startLng,
+            distanceKm = s.distanceKm,
+            lastLat = last?.latitude,
+            lastLng = last?.longitude,
+            lastEpochMillis = last?.timestampEpochMillis ?: clock.nowMillis(),
+        )
+    }
 
     /** Called when the user changes the grace period (Devices screen). */
     fun updateGracePeriodMillis(millis: Long) {
