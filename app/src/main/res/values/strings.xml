@@ -8,4 +8,12 @@
     <string name="notification_monitoring_text">Monitoring active</string>
     <string name="notification_recording_label">Recording</string>
     <string name="notification_disconnected_label">Disconnected, finishing trip…</string>
+
+    <!-- Explains why location must be set to "Allow all the time": without it
+         Android 14+ refuses to restart the location foreground service after a
+         reboot (see DETAILS.md). Android 11+ cannot ask for this in the
+         runtime dialog, so the user is sent to the app's system settings. -->
+    <string name="background_location_dialog_title">Allow location all the time</string>
+    <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, Trip Logger needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
+    <string name="background_location_open_settings">Open settings</string>
 </resources>

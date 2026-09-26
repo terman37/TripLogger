@@ -22,7 +22,10 @@ Top to bottom:
 1. **Monitor trips switch** — master switch with explainer. Disabled (with
    hint "Register a device…") until at least one device is registered. Turning
    it ON requests the three runtime permissions (Bluetooth, location,
-   notifications) the first time; grants enable monitoring immediately.
+   notifications) the first time; grants enable monitoring immediately. Location
+   must also be set to "Allow all the time" (system settings, the app opens the
+   page): Android otherwise refuses to restart monitoring after a phone reboot;
+   the app shows a dialog explaining this.
 2. **Status card** — one of:
 
 | Condition | Card |

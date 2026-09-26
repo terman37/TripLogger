@@ -106,10 +106,14 @@ The service is started/stopped by the Home master switch; `START_STICKY` and
 `evaluate()` (state → foreground/BT/GPS/grace/stop) make restarts idempotent.
 A reboot or an app update kills the service without touching the persisted
 switch, so `BootCompletedReceiver` starts it again when monitoring is ON and at
-least one device is registered. If that start cannot run (OEM autostart block,
-background-start restriction, revoked type permission), the receiver and the
-service switch monitoring OFF instead of leaving the UI showing "on" while
-nothing runs — the same never-silent rule as the notification dismissal.
+least one device is registered. Android 14+ refuses to start a location
+foreground service from the background unless the app holds
+`ACCESS_BACKGROUND_LOCATION`, so monitoring requires location "Allow all the
+time" (the Home dialog links to the system settings page). If that start cannot
+run (OEM autostart block, revoked type permission, background location denied),
+the receiver and the service switch monitoring OFF instead of leaving the UI
+showing "on" while nothing runs — the same never-silent rule as the notification
+dismissal.
 
 ## Addresses and lazy retry
 

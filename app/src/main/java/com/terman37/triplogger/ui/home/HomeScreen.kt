@@ -1,6 +1,9 @@
 package com.terman37.triplogger.ui.home
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,8 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.terman37.triplogger.R
 import com.terman37.triplogger.core.TripOrigin
 import com.terman37.triplogger.ui.common.TripRowCard
 import java.time.ZoneId
@@ -51,10 +61,53 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
     // Master switch on Home: enabling needs all monitoring
     // permissions; request them together if missing.
+    val context = LocalContext.current
+    // Set when the user is sent to system settings for "Allow all the time";
+    // ON_RESUME then finishes enabling monitoring once it is granted.
+    var pendingEnable by remember { mutableStateOf(false) }
+    var showBackgroundLocationDialog by remember { mutableStateOf(false) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
-    ) { results ->
-        viewModel.onPermissionsResult(results.values.all { it })
+    ) { _ ->
+        when (viewModel.permissionStep()) {
+            MonitoringPermissionFlow.Step.READY -> viewModel.setMonitoringEnabled(true)
+            MonitoringPermissionFlow.Step.OPEN_BACKGROUND_SETTINGS ->
+                showBackgroundLocationDialog = true
+            MonitoringPermissionFlow.Step.REQUEST_FOREGROUND -> Unit
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && pendingEnable &&
+                viewModel.permissionStep() == MonitoringPermissionFlow.Step.READY
+            ) {
+                viewModel.setMonitoringEnabled(true)
+                pendingEnable = false
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (showBackgroundLocationDialog) {
+        BackgroundLocationDialog(
+            onOpenSettings = {
+                pendingEnable = true
+                showBackgroundLocationDialog = false
+                // Android 11+ cannot ask for background location in the runtime
+                // dialog, so send the user to the app's system settings page.
+                context.startActivity(
+                    Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", context.packageName, null),
+                    ),
+                )
+            },
+            onDismiss = { showBackgroundLocationDialog = false },
+        )
     }
 
     // Which expanded trip rows the user opened (remembered across tab
@@ -75,16 +128,19 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             state = uiState,
             onToggle = { enable ->
                 if (enable) {
-                    if (viewModel.monitoringPermissionsGranted()) {
-                        viewModel.setMonitoringEnabled(true)
-                    } else {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.BLUETOOTH_CONNECT,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.POST_NOTIFICATIONS,
-                            ),
-                        )
+                    when (viewModel.permissionStep()) {
+                        MonitoringPermissionFlow.Step.READY ->
+                            viewModel.setMonitoringEnabled(true)
+                        MonitoringPermissionFlow.Step.REQUEST_FOREGROUND ->
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.BLUETOOTH_CONNECT,
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.POST_NOTIFICATIONS,
+                                ),
+                            )
+                        MonitoringPermissionFlow.Step.OPEN_BACKGROUND_SETTINGS ->
+                            showBackgroundLocationDialog = true
                     }
                 } else {
                     viewModel.setMonitoringEnabled(false)
@@ -259,4 +315,29 @@ private fun MonitorSwitchRow(
             enabled = state.canEnableMonitoring || state.monitoringEnabled,
         )
     }
+}
+
+/**
+ * Explains why monitoring needs location "Allow all the time" and sends the
+ * user to the app's system settings to change it (Android 11+ cannot ask for
+ * background location in the runtime dialog).
+ */
+@Composable
+private fun BackgroundLocationDialog(
+    onOpenSettings: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.background_location_dialog_title)) },
+        text = { Text(stringResource(R.string.background_location_dialog_text)) },
+        confirmButton = {
+            TextButton(onClick = onOpenSettings) {
+                Text(stringResource(R.string.background_location_open_settings))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
 }

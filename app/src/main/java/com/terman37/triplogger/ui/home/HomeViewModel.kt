@@ -73,17 +73,29 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         return container.tripRepository.tripsSinceFlow(startOfYesterday)
     }
 
-    /** True when all runtime permissions that monitoring needs are granted. */
-    fun monitoringPermissionsGranted(): Boolean = listOf(
+    /** Bluetooth, fine location and notifications — asked in one dialog. */
+    fun foregroundPermissionsGranted(): Boolean = listOf(
         Manifest.permission.BLUETOOTH_CONNECT,
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.POST_NOTIFICATIONS,
     ).all { ContextCompat.checkSelfPermission(getApplication(), it) == PackageManager.PERMISSION_GRANTED }
 
-    /** Called after the runtime-permission dialog result (switch on Home). */
-    fun onPermissionsResult(granted: Boolean) {
-        if (granted) setMonitoringEnabled(true)
-    }
+    /**
+     * Location "Allow all the time". Needed so the boot receiver can restart a
+     * location foreground service after a reboot or an app update (Android 14+
+     * blocks while-in-use services started from the background).
+     */
+    fun backgroundLocationGranted(): Boolean =
+        ContextCompat.checkSelfPermission(
+            getApplication(),
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+
+    /** Which permission step the Home switch must take before enabling. */
+    fun permissionStep(): MonitoringPermissionFlow.Step = MonitoringPermissionFlow.nextStep(
+        foregroundGranted = foregroundPermissionsGranted(),
+        backgroundGranted = backgroundLocationGranted(),
+    )
 
     /** Master switch: starts/stops the trip service accordingly. */
     fun setMonitoringEnabled(enabled: Boolean) {

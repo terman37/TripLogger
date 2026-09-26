@@ -108,15 +108,18 @@ can also be deleted from the report with its red trash icon.
   never saves half trips.
 - **Rebooting the phone** also loses an in-progress trip, but monitoring starts
   again by itself once the phone has booted (the notification comes back), as
-  long as the switch is on and a device is registered. Some phone brands block
-  apps from starting at boot: if the switch shows on but there is no
+  long as the switch is on and a device is registered. This is why the app asks
+  for location "Allow all the time" when you enable monitoring: Android does not
+  let a background app restart location tracking otherwise. Some phone brands
+  block apps from starting at boot: if the switch shows on but there is no
   notification, turn monitoring off and on again.
 - **Battery**: the app asks for GPS only while a trip is recording (one fix
   every 30 seconds), so it is light on battery. Some phone brands additionally
   restrict background apps; if recording stops unexpectedly, allow Trip Logger
   to run in the background / disable battery optimization for it.
 - **Permissions**: Bluetooth is used only to notice your car connecting;
-  location is used for distance and addresses. Nothing leaves the phone.
+  location is used for distance and addresses, and "Allow all the time" so
+  monitoring can resume after a reboot. Nothing leaves the phone.
 
 ---
 
