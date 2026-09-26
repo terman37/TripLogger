@@ -72,7 +72,16 @@ class TripMonitorService : Service() {
         // call startForeground() quickly — even when we will then decide to
         // stop. Doing it here first prevents the process being killed with
         // ForegroundServiceDidNotStartInTimeException (seen on device, B4).
-        startForegroundCompat()
+        if (!startForegroundCompat()) {
+            // Cannot run as a foreground service: background-start restriction,
+            // OEM autostart block or a missing foreground-service-type
+            // permission. The app must never claim monitoring is on while
+            // nothing runs, so turn the switch off instead of leaving a silent
+            // state behind. START_NOT_STICKY: do not loop on a failing start.
+            container.settings.setMonitoringEnabled(false)
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         when (intent?.action) {
             ACTION_MANUAL_START -> recorder.onManualStart()
@@ -123,7 +132,16 @@ class TripMonitorService : Service() {
         }
 
         // Foreground with a notification (required while the service runs).
-        startForegroundCompat()
+        if (!startForegroundCompat()) {
+            // No foreground service and no visible indicator: tear down instead
+            // of registering Bluetooth/GPS silently (same rule as onStartCommand).
+            container.settings.setMonitoringEnabled(false)
+            locationSource?.stop()
+            monitor?.unregister()
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return
+        }
         updateNotification()
 
         // Bluetooth monitoring only matters when it is enabled. Registering
@@ -172,8 +190,19 @@ class TripMonitorService : Service() {
 
     /** Bluetooth device names are cached by the OS; ask it, fall back to the
      * address (which every device has). */
-    private fun deviceName(device: BluetoothDevice): String =
-        runCatching { device.name }.getOrNull() ?: device.address
+    private fun deviceName(device: BluetoothDevice): String {
+        // Reading .name needs BLUETOOTH_CONNECT. Monitoring is only registered
+        // when it is granted, but check anyway: the permission can be revoked
+        // while we run, and that must not crash the service. The check is
+        // written inline (not via hasPermission) because lint's MissingPermission
+        // analysis only recognises a direct checkSelfPermission call.
+        val connectGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!connectGranted) return device.address
+        return runCatching { device.name }.getOrNull() ?: device.address
+    }
 
     // --- location + grace timer ------------------------------------------
 
@@ -257,20 +286,22 @@ class TripMonitorService : Service() {
 
     // --- notification -----------------------------------------------------
 
-    private fun startForegroundCompat() {
+    private fun startForegroundCompat(): Boolean {
         val notification = buildNotification()
         val type = computeForegroundType()
-        try {
+        return try {
             if (type == 0) {
                 startForeground(NOTIFICATION_ID, notification)
             } else {
                 startForeground(NOTIFICATION_ID, notification, type)
             }
+            true
         } catch (e: Exception) {
-            // ForegroundServiceStartNotAllowedException etc.: cannot run, stop
-            // cleanly instead of crashing.
+            // ForegroundServiceStartNotAllowedException etc.: cannot run. The
+            // caller decides how to react; false means the foreground service
+            // did not come up.
             android.util.Log.e(TAG, "startForeground failed", e)
-            stopSelf()
+            false
         }
     }
 

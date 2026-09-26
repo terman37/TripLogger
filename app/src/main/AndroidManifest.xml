@@ -14,11 +14,17 @@
           types must match the <service> declaration below.
     -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Coarse is declared together with fine: on Android 12+ the user may
+         grant only approximate location, and lint requires both declarations. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Wakes the app after a reboot so monitoring can resume: Android never
+         restarts a foreground service by itself after the phone restarts. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".TripLoggerApplication"
@@ -51,6 +57,19 @@
         <receiver
             android:name=".monitor.NotificationDismissReceiver"
             android:exported="false" />
+
+        <!-- Restarts monitoring after a reboot or an app update. Without it the
+             persisted switch would stay ON while the service is dead: no
+             notification, no recording (silent monitoring). exported=false:
+             only the system sends these protected broadcasts. -->
+        <receiver
+            android:name=".monitor.BootCompletedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".monitor.TripMonitorService"

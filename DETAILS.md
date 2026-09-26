@@ -87,8 +87,11 @@ startCity` (nullable = address pending), the same four for the end,
    sessions are noise.
 6. **Manual fallback** — Home "Start manually" starts a trip without a device;
    it ignores Bluetooth events and ends on "Stop".
-7. **Process death** — force-stop / reboot during a trip discards the partial
-   trip (no persistence of in-progress state; deliberate KISS decision).
+7. **Process death** — force-stop during a trip discards the partial trip (no
+   persistence of in-progress state; deliberate KISS decision). A reboot
+   discards it too, but `BootCompletedReceiver` restarts the monitoring service
+   afterwards (see "Notification = monitoring indicator"), so monitoring
+   resumes without opening the app.
 
 ### Notification = monitoring indicator
 
@@ -101,6 +104,12 @@ service — the app never records silently. Tap opens the app.
 
 The service is started/stopped by the Home master switch; `START_STICKY` and
 `evaluate()` (state → foreground/BT/GPS/grace/stop) make restarts idempotent.
+A reboot or an app update kills the service without touching the persisted
+switch, so `BootCompletedReceiver` starts it again when monitoring is ON and at
+least one device is registered. If that start cannot run (OEM autostart block,
+background-start restriction, revoked type permission), the receiver and the
+service switch monitoring OFF instead of leaving the UI showing "on" while
+nothing runs — the same never-silent rule as the notification dismissal.
 
 ## Addresses and lazy retry
 
