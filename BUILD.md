@@ -1,7 +1,6 @@
 # Building Trip Logger
 
-How to produce an installable APK. For development use the debug build; a
-signed release build is optional (personal use).
+How to produce an installable APK or the signed bundle for Google Play.
 
 ## Prerequisites
 
@@ -50,50 +49,63 @@ Notes:
 ./gradlew :app:connectedDebugAndroidTest   # Room DAO tests on a device
 ```
 
-## Optional: signed release build
+## Signed release build
 
-A release APK is smaller/faster and can be shared, but needs a signing key you
-keep forever (losing it means future updates cannot install over the old app).
+Debug builds are fine for personal use; the published build on Google Play must
+be a **signed AAB**. The upload key is what Play uses to accept updates: keep the
+`.jks` file and its passwords forever (Play App Signing can reset a lost *upload*
+key, but not the app signing key).
 
-1. Create a keystore (once, keep the file + passwords safe):
+`app/build.gradle.kts` already contains the signing configuration. It reads the
+credentials from `keystore.properties` (repository root) or, if that file is
+absent, from `TRIPLOGGER_*` environment variables. With neither present the
+release variant is left unsigned, so debug builds and tests still work.
+
+1. You already have an upload key from Android Studio (`androidstudio.jks`,
+alias `TRIPLOGG` — confirm with
+`keytool -list -v -keystore <file>`). If you ever need a new one:
 
 ```bash
-keytool -genkeypair -v -keystore triplogger-release.jks \
+keytool -genkeypair -v -keystore upload-key.jks \
   -alias triplogger -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-2. Tell Gradle about it locally (do NOT commit secrets). Either set environment
-   variables and add a `signingConfig` in `app/build.gradle.kts`:
+2. Copy `keystore.properties.example` to `keystore.properties` and fill it in
+   (`storeFile` may be absolute or relative to the repository root).
+   `storeFile`, `storePassword` and `keyAlias` are required; `keyPassword` is
+   optional and defaults to `storePassword`, which is correct for PKCS12 stores
+   (the `.jks` files Android Studio exports are PKCS12). Do not wrap values in
+   quotes: `java.util.Properties` keeps the quotes as part of the password.
 
-```kotlin
-android {
-    signingConfigs {
-        create("release") {
-            storeFile = file(System.getenv("TRIPLOGGER_KEYSTORE") ?: "triplogger-release.jks")
-            storePassword = System.getenv("TRIPLOGGER_STORE_PASSWORD")
-            keyAlias = "triplogger"
-            keyPassword = System.getenv("TRIPLOGGER_KEY_PASSWORD")
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-        }
-    }
-}
+```properties
+storeFile=/path/to/upload-key.jks
+storePassword=...
+keyAlias=triplogger
+keyPassword=...
 ```
 
-3. Build + install:
+3. Build the bundle for Play:
 
 ```bash
-./gradlew :app:assembleRelease      # app/build/outputs/apk/release/app-release.apk
+./gradlew :app:bundleRelease     # app/build/outputs/bundle/release/app-release.aab
+```
+
+R8 shrinking is enabled for release, so keep `app/build/outputs/mapping/release/`
+from the release you publish — it is what turns a crash stack trace back into
+readable names.
+
+For a plain installable release APK instead of a bundle:
+
+```bash
+./gradlew :app:assembleRelease   # app/build/outputs/apk/release/app-release.apk
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
 ### Versioning
 
 `versionCode` / `versionName` live in `app/build.gradle.kts` (`defaultConfig`).
-Increase `versionCode` for every release APK you install over an older one.
+Increase `versionCode` for every release you upload; Play rejects a bundle whose
+`versionCode` was already used.
 
 ## Troubleshooting
 
