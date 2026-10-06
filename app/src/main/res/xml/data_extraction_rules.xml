@@ -1,19 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Backup and transfer rules (Android 12+).
+
+    allowBackup is false (see AndroidManifest.xml), so cloud backup is off for
+    every Android version. These excludes are still needed: on Android 12+ some
+    device manufacturers perform device-to-device migration even when
+    allowBackup is false, and this file is what the system consults for it.
+
+    Excluded domains:
+      - database:   the Room database of recorded trips (locations, addresses)
+      - sharedpref: settings, including the registered car devices (MAC address)
+
+    Nothing else in the app writes user data, so per-domain excludes are enough.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
     </device-transfer>
-    -->
 </data-extraction-rules>

@@ -133,3 +133,16 @@ can also be deleted from the report with its red trash icon.
 - **[BUILD.md](BUILD.md)** — how to build and install the app yourself.
 - **[UI.md](UI.md)** — detailed interface specification.
 - **[todo.md](todo.md)** — planned features (e.g. ticket photos).
+
+---
+
+## License
+
+Trip Logger is free software, released under the **GNU General Public License,
+version 3 or later** (`GPL-3.0-or-later`).
+
+Copyright (C) 2026 Anthony Jourdan.
+
+You may use, study, share and modify the app. If you distribute it or a version
+derived from it, you must publish the corresponding source under the same
+license. Full terms: [LICENSE](LICENSE).
