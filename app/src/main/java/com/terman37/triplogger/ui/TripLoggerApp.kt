@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -13,6 +13,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -33,10 +36,13 @@ enum class TopLevelDestination(
     val label: String,
     val icon: ImageVector,
 ) {
-    // Tab order: Home, Report, Devices.
+    // Tab order: Home, Report, Settings.
     HOME("home", "Home", Icons.Filled.Home),
     REPORT("report", "Report", Icons.Filled.Assessment),
-    DEVICES("devices", "Devices", Icons.Filled.Bluetooth),
+    // Settings holds the Bluetooth device setup, the grace period and the
+    // About entry; the gear icon matches that mixed content better than the
+    // old Bluetooth icon.
+    SETTINGS("settings", "Settings", Icons.Filled.Settings),
 }
 
 /**
@@ -49,6 +55,11 @@ fun TripLoggerApp() {
     // The NavController knows which destination is currently displayed and how
     // to navigate between them.
     val navController = rememberNavController()
+
+    // Set when Home sends the user to Settings because no device is registered:
+    // the Available list then starts expanded so the "Allow Bluetooth access"
+    // button is visible right away. Reset on every other tab switch.
+    var expandAvailableInSettings by remember { mutableStateOf(false) }
 
     // currentBackStackEntryAsState() turns the navigation state into a Compose
     // state: when the user navigates, this recomposes and the bottom bar can
@@ -75,7 +86,12 @@ fun TripLoggerApp() {
                 TopLevelDestination.entries.forEach { destination ->
                     NavigationBarItem(
                         selected = currentRoute == destination.route,
-                        onClick = { switchTo(destination.route) },
+                        onClick = {
+                            // A plain tab tap is not the first-run detour: leave
+                            // the Available list collapsed as usual.
+                            expandAvailableInSettings = false
+                            switchTo(destination.route)
+                        },
                         icon = {
                             Icon(
                                 imageVector = destination.icon,
@@ -98,10 +114,15 @@ fun TripLoggerApp() {
                 .padding(innerPadding),
         ) {
             composable(TopLevelDestination.HOME.route) {
-                HomeScreen()
+                HomeScreen(
+                    onOpenSettings = {
+                        expandAvailableInSettings = true
+                        switchTo(TopLevelDestination.SETTINGS.route)
+                    },
+                )
             }
-            composable(TopLevelDestination.DEVICES.route) {
-                DevicesScreen()
+            composable(TopLevelDestination.SETTINGS.route) {
+                DevicesScreen(expandAvailable = expandAvailableInSettings)
             }
             composable(TopLevelDestination.REPORT.route) {
                 ReportScreen()

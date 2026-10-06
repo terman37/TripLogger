@@ -52,11 +52,16 @@ import kotlinx.coroutines.delay
  * Home tab (UI.md): live status card on top, then the trip list of today and
  * yesterday. Pure rendering: all state comes from [HomeViewModel.uiState].
  *
- * @param onOpenDevices jump to the Devices tab (used by the card when
- *   monitoring is off, UI.md).
+ * @param onOpenSettings called when the user switches monitoring on before any
+ *   device is registered: there is nothing to monitor yet, so the app sends
+ *   them to the Settings tab (with the Available list opened) instead of
+ *   silently doing nothing.
  */
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onOpenSettings: () -> Unit = {},
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     // Master switch on Home: enabling needs all monitoring
@@ -126,6 +131,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     Column(modifier = Modifier.fillMaxSize()) {
         MonitorSwitchRow(
             state = uiState,
+            onOpenSettings = onOpenSettings,
             onToggle = { enable ->
                 if (enable) {
                     when (viewModel.permissionStep()) {
@@ -289,6 +295,7 @@ private fun StatusCard(
 @Composable
 private fun MonitorSwitchRow(
     state: HomeUiState,
+    onOpenSettings: () -> Unit,
     onToggle: (Boolean) -> Unit,
 ) {
     Row(
@@ -303,16 +310,25 @@ private fun MonitorSwitchRow(
                 if (state.canEnableMonitoring) {
                     "Auto-record when a registered device connects."
                 } else {
-                    "Register a device (Devices tab) to enable auto-recording."
+                    // First run: switching on cannot work yet (no device), so
+                    // the switch routes to Settings instead.
+                    "No device registered — switch on to set one up."
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
         }
         Switch(
             checked = state.monitoringEnabled,
-            onCheckedChange = onToggle,
-            // Only meaningful with at least one registered device (UI.md).
-            enabled = state.canEnableMonitoring || state.monitoringEnabled,
+            onCheckedChange = { enable ->
+                if (state.canEnableMonitoring) {
+                    onToggle(enable)
+                } else {
+                    onOpenSettings()
+                }
+            },
+            // Always tappable: without a registered device the tap opens the
+            // Settings tab instead of toggling monitoring (see above).
+            enabled = true,
         )
     }
 }

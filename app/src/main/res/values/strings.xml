@@ -16,4 +16,22 @@
     <string name="background_location_dialog_title">Allow location all the time</string>
     <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, Trip Logger needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
     <string name="background_location_open_settings">Open settings</string>
+
+    <!-- About dialog, opened by the "?" button on Home. GPL-3.0-or-later only
+         requires the source to be reachable while the app is distributed, so
+         the dialog exists to make that offer (and the version) visible. URLs
+         and the e-mail are not translatable. -->
+    <string name="about_entry_title">About this app</string>
+    <string name="about_entry_subtitle">Version, licence and source code</string>
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s (build %2$d)</string>
+    <string name="about_copyright">© 2026 Anthony Jourdan</string>
+    <string name="about_licence">Free software under the GNU General Public License v3 or later, with no warranty.</string>
+    <string name="about_licence_link">Read the full licence</string>
+    <string name="about_source_link">Source code</string>
+    <string name="about_contact_link">Send an e-mail</string>
+    <string name="about_close">Close</string>
+    <string name="about_source_url" translatable="false">https://github.com/terman37/TripLogger</string>
+    <string name="about_licence_url" translatable="false">https://github.com/terman37/TripLogger/blob/main/LICENSE</string>
+    <string name="about_contact_email" translatable="false">anthony.jourdan@gmail.com</string>
 </resources>

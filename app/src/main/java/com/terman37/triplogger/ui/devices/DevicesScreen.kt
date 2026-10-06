@@ -3,6 +3,7 @@ package com.terman37.triplogger.ui.devices
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,24 +38,33 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.terman37.triplogger.R
+import com.terman37.triplogger.ui.home.AboutDialog
 
 /**
- * Devices tab (UI.md): registered device list (remove with X), paired devices
- * (add with +), reconnect grace slider. The master "Monitor trips" switch now
- * lives at the top of Home. No in-app pairing — pairing happens
+ * Settings tab (UI.md): registered device list (remove with X), paired devices
+ * (add with +), reconnect grace slider, and — at the bottom — the About row
+ * (version, licence, source code: the GPL source offer). The master "Monitor
+ * trips" switch lives at the top of Home. No in-app pairing — pairing happens
  * in Android settings; refreshPairedDevices re-reads on resume.
  *
- * The two lists are collapsible: their headers stay visible with
- * the device count, the bodies hide. Registered starts expanded; Available
- * starts collapsed so the page stays short.
+ * @param expandAvailable true when the screen was opened from the Home switch
+ *   because no device is set up yet: the Available list starts open so the
+ *   "Allow Bluetooth access" button is visible without an extra tap. Only read
+ *   on first composition (each tab switch recreates this screen), so the user
+ *   can still collapse the section afterwards.
  */
 @Composable
-fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
+fun DevicesScreen(
+    viewModel: DevicesViewModel = viewModel(),
+    expandAvailable: Boolean = false,
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     // Refresh the paired-device list when the screen comes back to the front
@@ -73,109 +85,135 @@ fun DevicesScreen(viewModel: DevicesViewModel = viewModel()) {
         viewModel.onBluetoothPermissionResult(granted)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-    ) {
-        Text(
-            "Bluetooth devices",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
+    // About dialog (version, licence, source links). State stays local to this
+    // screen: opening it changes nothing outside the UI.
+    var showAboutDialog by rememberSaveable { mutableStateOf(false) }
 
-        // --- registered devices ------------------------------------------
-        CollapsibleSection(
-            title = "Registered",
-            subtitle = "Devices that trigger a trip when they connect.",
-            count = uiState.registered.size,
-            initiallyExpanded = true,
+    // Two nested Columns: the inner one scrolls and takes the remaining height
+    // (weight(1f)), the About row below it stays pinned to the bottom of the
+    // page, just above the tab bar, however short or tall the settings get.
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
         ) {
-            if (uiState.registered.isEmpty()) {
-                Text(
-                    "No device registered",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
-            }
-            uiState.registered.forEach { row ->
-                DeviceRowItem(
-                    name = row.name,
-                    address = row.address,
-                    trailing = {
-                        IconButton(onClick = { viewModel.removeDevice(row.address) }) {
-                            Icon(Icons.Filled.Close, contentDescription = "Remove ${row.name}")
-                        }
-                    },
-                )
-            }
-        }
-
-        Spacer(Modifier.height(8.dp))
-        HorizontalDivider()
-
-        // --- available paired devices ------------------------------------
-        CollapsibleSection(
-            title = "Available",
-            subtitle = "Devices paired in Android settings.",
-            count = uiState.available.size,
-            initiallyExpanded = false,
-        ) {
-            if (!uiState.hasBluetoothPermission) {
-                Text(
-                    "Bluetooth access is needed to see paired devices.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                OutlinedButton(
-                    onClick = {
-                        bluetoothAccessLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
-                    },
-                ) {
-                    Text("Allow Bluetooth access")
-                }
-            } else {
-                uiState.bluetoothHint?.let { hint ->
-                    Text(hint, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            uiState.available.forEach { row ->
-                DeviceRowItem(
-                    name = row.name,
-                    address = row.address,
-                    trailing = {
-                        IconButton(onClick = { viewModel.addDevice(row.address, row.name) }) {
-                            Icon(Icons.Filled.Add, contentDescription = "Register ${row.name}")
-                        }
-                    },
-                )
-            }
-        }
-
-        // --- grace period slider ------------------------------------------
-        Spacer(Modifier.height(16.dp))
-        HorizontalDivider()
-        Spacer(Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Reconnect grace period", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "Minutes after a Bluetooth drop before the trip ends.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
             Text(
-                "${uiState.graceMinutes} min",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 8.dp),
+                "Bluetooth devices",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+
+            // --- registered devices --------------------------------------
+            CollapsibleSection(
+                title = "Registered",
+                subtitle = "Devices that trigger a trip when they connect.",
+                count = uiState.registered.size,
+                initiallyExpanded = true,
+            ) {
+                if (uiState.registered.isEmpty()) {
+                    Text(
+                        "No device registered",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    )
+                }
+                uiState.registered.forEach { row ->
+                    DeviceRowItem(
+                        name = row.name,
+                        address = row.address,
+                        trailing = {
+                            IconButton(onClick = { viewModel.removeDevice(row.address) }) {
+                                Icon(Icons.Filled.Close, contentDescription = "Remove ${row.name}")
+                            }
+                        },
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            HorizontalDivider()
+
+            // --- available paired devices --------------------------------
+            CollapsibleSection(
+                title = "Available",
+                subtitle = "Devices paired in Android settings.",
+                count = uiState.available.size,
+                initiallyExpanded = expandAvailable,
+            ) {
+                if (!uiState.hasBluetoothPermission) {
+                    Text(
+                        "Bluetooth access is needed to see paired devices.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    // Amber (tertiary) on purpose: this is the step the user
+                    // has to take to unlock the rest of the screen.
+                    OutlinedButton(
+                        onClick = {
+                            bluetoothAccessLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
+                    ) {
+                        Text("Allow Bluetooth access")
+                    }
+                } else {
+                    uiState.bluetoothHint?.let { hint ->
+                        Text(hint, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                uiState.available.forEach { row ->
+                    DeviceRowItem(
+                        name = row.name,
+                        address = row.address,
+                        trailing = {
+                            IconButton(onClick = { viewModel.addDevice(row.address, row.name) }) {
+                                Icon(Icons.Filled.Add, contentDescription = "Register ${row.name}")
+                            }
+                        },
+                    )
+                }
+            }
+
+            // --- grace period slider --------------------------------------
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Reconnect grace period", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Minutes after a Bluetooth drop before the trip ends.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text(
+                    "${uiState.graceMinutes} min",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+            Slider(
+                value = uiState.graceMinutes.toFloat(),
+                onValueChange = { viewModel.setGracePeriodMinutes(it.toInt()) },
+                valueRange = 1f..15f,
+                steps = 13, // 15 positions total, labels handled by the row above
             )
         }
-        Slider(
-            value = uiState.graceMinutes.toFloat(),
-            onValueChange = { viewModel.setGracePeriodMinutes(it.toInt()) },
-            valueRange = 1f..15f,
-            steps = 13, // 15 positions total, labels handled by the row above
-        )
+
+        // --- about --------------------------------------------------------
+        // Pinned footer: help affordance for the app itself (version, licence,
+        // source), separated from the scrolling settings above. It stays at the
+        // bottom of the page even when the lists grow.
+        HorizontalDivider()
+        AboutRow(onClick = { showAboutDialog = true })
+    }
+
+    if (showAboutDialog) {
+        AboutDialog(onDismiss = { showAboutDialog = false })
     }
 }
 
@@ -228,5 +266,26 @@ private fun DeviceRowItem(
         headlineContent = { Text(name) },
         supportingContent = { Text(address, style = MaterialTheme.typography.bodySmall) },
         trailingContent = trailing,
+    )
+}
+
+/**
+ * Row that opens the About dialog. Styled like the device rows (a [ListItem])
+ * so it reads as another settings entry rather than a button.
+ */
+@Composable
+private fun AboutRow(onClick: () -> Unit) {
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.about_entry_title)) },
+        supportingContent = { Text(stringResource(R.string.about_entry_subtitle)) },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                // The row text already names the action, so the icon adds no
+                // information for screen readers.
+                contentDescription = null,
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick),
     )
 }
