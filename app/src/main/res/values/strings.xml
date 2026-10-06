@@ -1,6 +1,6 @@
 <resources>
     <!-- App name shown under the launcher icon. -->
-    <string name="app_name">Trip Logger</string>
+    <string name="app_name">KmExpense</string>
 
     <!-- Foreground service notification (user request): always leads with
          "Monitoring active", the state follows after the dash. -->
@@ -14,7 +14,7 @@
          reboot (see docs/DETAILS.md). Android 11+ cannot ask for this in the
          runtime dialog, so the user is sent to the app's system settings. -->
     <string name="background_location_dialog_title">Allow location all the time</string>
-    <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, Trip Logger needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
+    <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, KmExpense needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
     <string name="background_location_open_settings">Open settings</string>
 
     <!-- About dialog, opened by the "?" button on Home. GPL-3.0-or-later only

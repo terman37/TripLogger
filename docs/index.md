@@ -1,4 +1,4 @@
-# Trip Logger — documentation
+# KmExpense — documentation
 
 Android app that **logs car trips automatically** when the car's Bluetooth
 connects, and lets you **export them as an Excel spreadsheet** for your expense

@@ -1,4 +1,4 @@
-# Trip Logger — UI specification
+# KmExpense — UI specification
 
 Current description of how the app looks and behaves. Reflects the validated
 implementation (the validated implementation); keep in sync with the code.
@@ -94,7 +94,7 @@ expanded so the permission button is immediately visible.
 
 ## Background notification
 
-- Title "Trip Logger"; content always leads with **"Monitoring active"**:
+- Title "KmExpense"; content always leads with **"Monitoring active"**:
   - idle → "Monitoring active"
   - recording → "Monitoring active — Recording 12.4 km"
   - grace → "Monitoring active — Disconnected, finishing trip…"

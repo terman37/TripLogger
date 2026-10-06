@@ -1,4 +1,4 @@
-# Building Trip Logger
+# Building KmExpense
 
 How to produce an installable APK or the signed bundle for Google Play.
 
@@ -119,5 +119,5 @@ Increase `versionCode` for every release you upload; Play rejects a bundle whose
 | `No connected devices!` | `adb devices` empty → reconnect USB / `adb connect <IP:PORT>` |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | Different signing key or downgrade: uninstall the app first (this deletes its database) |
 | `INSTALL_FAILED_VERSION_DOWNGRADE` | Increase `versionCode` or uninstall |
-| Foreground service stops when battery saver is strict | Exempt Trip Logger from battery optimization in Android settings (monitoring is a foreground service; some OEMs still restrict) |
+| Foreground service stops when battery saver is strict | Exempt KmExpense from battery optimization in Android settings (monitoring is a foreground service; some OEMs still restrict) |
 | Monitoring stops after driving | Check the notification is still there; if it was swiped away, monitoring is off by design (turn the Home switch back on) |
