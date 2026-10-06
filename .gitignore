@@ -194,3 +194,6 @@ keystore.properties
 
 # Others
 release_guide.md
+# Play store screenshots: raw captures show trip addresses (personal data),
+# the repository is public. Regenerate with store/render-screenshots.sh.
+/store/screenshots/

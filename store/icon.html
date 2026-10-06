@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>KmExpense — Play store icon 512×512</title>
+<style>
+  /* Wrapper that renders store/icon.svg at exactly 512x512.
+     Why a wrapper at all: Chrome writes an RGB PNG when every pixel is opaque,
+     but Play requires a 32-bit PNG with an alpha channel. Centring the artwork
+     with a 2px transparent inset keeps the alpha channel (and is invisible
+     once Play applies its rounded-corner mask). */
+  * { margin: 0; padding: 0; }
+  html, body { width: 512px; height: 512px; background: transparent; }
+  body { display: flex; align-items: center; justify-content: center; }
+  img { width: 508px; height: 508px; display: block; }
+</style>
+</head>
+<body>
+  <img src="icon.svg" alt="">
+</body>
+</html>

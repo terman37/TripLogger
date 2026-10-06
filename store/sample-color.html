@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>sample</title>
+<style>
+  /* Samples the app's background colour from a device capture so the letterbox
+     bars in the composed Play screenshots match it exactly. Drawn into a
+     canvas and printed into the DOM, which the caller reads with
+     `google-chrome --dump-dom`. Needs --allow-file-access-from-files. */
+  body { font: 16px monospace; color: #000; background: #fff; }
+</style>
+</head>
+<body>
+<pre id="out">pending</pre>
+<script>
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const src = params.get("img");
+    const img = new Image();
+    img.onload = function () {
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const hex = (x, y) => {
+        const d = ctx.getImageData(x, y, 1, 1).data;
+        return "#" + [d[0], d[1], d[2]]
+          .map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+      };
+      const w = img.naturalWidth, h = img.naturalHeight;
+      // x = 2 is inside the screen margin (cards are inset by 16dp), so those
+      // pixels are the app's plain background.
+      document.getElementById("out").textContent =
+        ["sample " + w + "x" + h,
+         hex(2, Math.round(h * 0.40)),
+         hex(2, Math.round(h * 0.60)),
+         hex(w - 3, Math.round(h * 0.50))].join("\n");
+    };
+    img.onerror = function () {
+      document.getElementById("out").textContent = "error loading " + src;
+    };
+    img.src = src;
+  })();
+</script>
+</body>
+</html>

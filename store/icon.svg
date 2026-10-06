@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108">
+  <!--
+    Google Play store icon (512x512), rendered from the app's adaptive-icon
+    layers so the store icon and the launcher icon cannot drift apart:
+      drawable/ic_launcher_background.xml  -> the #101418 rectangle
+      drawable/ic_launcher_foreground.xml  -> road, centre stripe, car, windows
+    The artwork is scaled 1.25x about the centre so it fills the tile the way
+    Play renders it (Play adds the rounded corners and drop shadow itself, so
+    neither is drawn here).
+  -->
+  <rect width="108" height="108" fill="#101418"/>
+  <g transform="translate(54 54) scale(1.25) translate(-54 -54)">
+    <!-- S-shaped mint road -->
+    <path d="M54,24 C82,40 26,68 54,84" fill="none" stroke="#41D8B7" stroke-width="24"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- road centre stripe -->
+    <path d="M54,24 C82,40 26,68 54,84" fill="none" stroke="#101418" stroke-width="4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- amber car, seen from above -->
+    <path d="M41,41q0,-5 5,-5h16q5,0 5,5v26q0,5 -5,5h-16q-5,0 -5,-5z"
+          fill="#FFD166" stroke="#101418" stroke-width="2"/>
+    <!-- windshield + rear window -->
+    <path d="M45,45h18v9h-18z M45,58h18v9h-18z" fill="#101418"/>
+  </g>
+</svg>
