@@ -46,7 +46,7 @@ interface TripDao {
     fun tripsSinceFlow(sinceEpochMillis: Long): kotlinx.coroutines.flow.Flow<List<Trip>>
 
     /**
-     * Every trip, oldest first. Used by the lazy address retry (todo.md):
+     * Every trip, oldest first. Used by the lazy address retry:
      * pending addresses may belong to any past trip.
      */
     @Query("SELECT * FROM trips ORDER BY startEpochMillis ASC")
@@ -69,7 +69,7 @@ interface TripDao {
 
     /**
      * Updates an existing trip (same id). Used to fill in addresses after a
-     * delayed reverse geocode (todo.md lazy retry).
+     * delayed reverse geocode (lazy retry).
      */
     @Update
     suspend fun update(trip: Trip)

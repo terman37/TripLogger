@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 /**
- * The app's local database (decision: local-only, no server — todo.md).
+ * The app's local database (decision: local-only, no server — see docs/DETAILS.md).
  *
  * What is a "database" here: Room is a layer over SQLite that turns Kotlin
  * classes into tables and interface functions into SQL. This class only

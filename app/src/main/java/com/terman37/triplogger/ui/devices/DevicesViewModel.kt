@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * Devices screen logic: grace period + registered devices + the system's
+ * Settings tab logic: grace period + registered devices + the system's
  * paired devices, mapped to [DevicesUiState]. The master monitoring switch
  * lives on Home.
  *

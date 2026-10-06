@@ -4,7 +4,7 @@ package com.terman37.triplogger.core
  * How a trip was started. AUTO = started because a registered Bluetooth device
  * connected (or resumed within the grace period); MANUAL = started with the
  * fallback button on the Home screen. Stored in the database so the UI can show
- * "Started manually" instead of a connected device name (UI.md).
+ * "Started manually" instead of a connected device name (docs/UI.md).
  */
 enum class TripOrigin {
     AUTO,
@@ -28,7 +28,7 @@ object TrackingPolicy {
     const val MAX_ACCURACY_METERS = 50.0
 
     /** Steps implying more than this many km/h are GPS jumps, not driving
-     * (todo.md decision: 160). */
+     * (decided limit: 160). */
     const val MAX_SPEED_KMH = 160.0
 
     /** Mean Earth radius used by the Haversine distance. */

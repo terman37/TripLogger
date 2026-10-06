@@ -12,7 +12,7 @@ package com.terman37.triplogger.ui.home
  * Background location is required because Android 14+ refuses to start a
  * location foreground service from the background (for example after a reboot)
  * unless the app holds `ACCESS_BACKGROUND_LOCATION`. Without it, monitoring
- * could not resume by itself (see DETAILS.md).
+ * could not resume by itself (see docs/DETAILS.md).
  */
 object MonitoringPermissionFlow {
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ site.description | strip_newlines | escape }}">  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+
+  <!-- Sticky header: app name, the section links, and the source repository.
+       Colours are the app's own palette (mint primary, sky blue links). -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      <nav class="site-nav">
+        <a href="{{ '/user-guide.html' | relative_url }}">User guide</a>
+        <a href="{{ '/DETAILS.html' | relative_url }}">Technical</a>
+        <a href="{{ '/UI.html' | relative_url }}">Interface</a>
+        <a href="{{ '/BUILD.html' | relative_url }}">Building</a>
+        <a href="{{ '/privacy-policy.html' | relative_url }}">Privacy</a>
+        <a class="nav-external" href="https://github.com/terman37/TripLogger">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      <strong>{{ site.title }}</strong> — free software under the
+      <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3 or later</a>.
+      Source: <a href="https://github.com/terman37/TripLogger">github.com/terman37/TripLogger</a>.
+    </p>
+    <p>Local-only app: no account, no server — your trips stay on your phone.</p>
+  </footer>
+
+</body>
+</html>

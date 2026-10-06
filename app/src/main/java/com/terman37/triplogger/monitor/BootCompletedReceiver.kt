@@ -15,7 +15,7 @@ import com.terman37.triplogger.TripLoggerApplication
  * "monitoring = ON" setting would survive the reboot while the service stays
  * dead: the Home switch would show ON, but no notification would appear and
  * nothing would be recorded — silent monitoring, which the app must never do
- * (DETAILS.md "Notification = monitoring indicator").
+ * (docs/DETAILS.md "Notification = monitoring indicator").
  *
  * It handles two system broadcasts:
  * - `ACTION_BOOT_COMPLETED` — the device finished booting.

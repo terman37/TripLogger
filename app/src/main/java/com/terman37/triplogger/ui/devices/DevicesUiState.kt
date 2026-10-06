@@ -1,7 +1,7 @@
 package com.terman37.triplogger.ui.devices
 
 /**
- * UI state for the Devices screen (UI.md). Rendered directly by
+ * UI state for the Settings tab (docs/UI.md). Rendered directly by
  * DevicesScreen — produced by [DevicesStateMapper] from settings + paired
  * devices, so the mapping rules are JVM-testable.
  *

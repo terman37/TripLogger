@@ -10,7 +10,7 @@ package com.terman37.triplogger.monitor
  * function covered by unit tests.
  *
  * Monitoring is only meaningful when it is switched on AND at least one trigger
- * device is registered (UI.md: the Home switch cannot be enabled otherwise).
+ * device is registered (docs/UI.md: the Home switch cannot be enabled otherwise).
  * Starting the service with no device would show a notification that never
  * records anything.
  */

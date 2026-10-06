@@ -63,7 +63,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             ),
         )
 
-    /** Recent trips: everything from the start of YESTERDAY (UI.md). */
+    /** Recent trips: everything from the start of YESTERDAY (docs/UI.md). */
     private fun recentTripsFlow(): kotlinx.coroutines.flow.Flow<List<Trip>> {
         val startOfYesterday = LocalDate.now(zone)
             .minusDays(1)

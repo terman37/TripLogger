@@ -4,7 +4,7 @@ import com.terman37.triplogger.data.Trip
 
 /**
  * Builds a display [TripRowUi] from a database trip. Shared by the Home and
- * Report screens (both expand rows with the same detail, UI.md).
+ * Report screens (both expand rows with the same detail, docs/UI.md).
  */
 fun tripToRowUi(trip: Trip, zone: java.time.ZoneId): TripRowUi {
     val startAddress = TripText.addressText(

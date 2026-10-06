@@ -48,7 +48,7 @@ import com.terman37.triplogger.R
 import com.terman37.triplogger.ui.home.AboutDialog
 
 /**
- * Settings tab (UI.md): registered device list (remove with X), paired devices
+ * Settings tab (docs/UI.md): registered device list (remove with X), paired devices
  * (add with +), reconnect grace slider, and — at the bottom — the About row
  * (version, licence, source code: the GPL source offer). The master "Monitor
  * trips" switch lives at the top of Home. No in-app pairing — pairing happens

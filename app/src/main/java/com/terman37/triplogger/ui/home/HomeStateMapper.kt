@@ -39,7 +39,7 @@ object HomeStateMapper {
             hasTrips = rows.isNotEmpty(),
             monitoringEnabled = monitoringEnabled,
             // Registered devices == the names passed in; an empty list means the
-            // switch must stay disabled (register first, UI.md).
+            // switch must stay disabled (register first, docs/UI.md).
             canEnableMonitoring = deviceNames.isNotEmpty(),
         )
     }

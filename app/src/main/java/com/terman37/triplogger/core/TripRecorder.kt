@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
  * disconnect, GPS samples, manual start/stop, grace timer) and outputs are
  * finished trips ([TripDraft]) that the caller persists.
  *
- * States (see README "How a trip is recorded" and todo.md decisions):
+ * States (see README "How a trip is recorded" and the documented decisions):
  *
  * ```
  *                deviceConnected / manualStart
@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * - RECORDING: GPS samples are filtered and accumulated as distance.
  * - GRACE PERIOD: a Bluetooth disconnect only ENDS a trip after the grace
- *   period (configurable, default 3 min, todo.md). Reconnecting within the
+ *   period (configurable, default 3 min, see README). Reconnecting within the
  *   period resumes the SAME trip (same start time, accumulated distance).
  *   A reconnect after the timer expired starts a new trip, because the old
  *   one was already finished.
@@ -38,7 +38,7 @@ class TripRecorder(
     gracePeriodMillis: Long = 3 * 60_000L,
 ) {
     // Grace period length, changeable at runtime (the user edits it in the
-    // Devices screen; the app container pushes new values here).
+    // Settings tab; the app container pushes new values here).
     private var gracePeriodMillis: Long = gracePeriodMillis
     // The active recording session, or null when idle.
     private var session: Session? = null
@@ -92,7 +92,7 @@ class TripRecorder(
     /**
      * Plain data for an in-progress trip, safe to persist (no Android types, no
      * filter state). The service stores it so a restart can finish the trip at
-     * the last recorded position (see DETAILS.md).
+     * the last recorded position (see docs/DETAILS.md).
      */
     data class ActiveTrip(
         val startEpochMillis: Long,
@@ -148,7 +148,7 @@ class TripRecorder(
         )
     }
 
-    /** Called when the user changes the grace period (Devices screen). */
+    /** Called when the user changes the grace period (Settings tab). */
     fun updateGracePeriodMillis(millis: Long) {
         require(millis > 0) { "grace period must be positive: $millis" }
         gracePeriodMillis = millis

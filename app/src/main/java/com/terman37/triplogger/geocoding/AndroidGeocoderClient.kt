@@ -12,7 +12,7 @@ import com.terman37.triplogger.core.ReverseGeocodeResult
  * Notes:
  * - Requires network (it queries an online service); failure returns null and
  *   the caller retries later — this is the "offline at trip end" path decided
- *   in todo.md.
+ *   on the device.
  * - Android's Geocoder does NOT need Play Services (it uses the platform
  *   geocoding service), so it fits the no-Play-Services decision.
  * - Blocking: call from Dispatchers.IO, never the main thread.

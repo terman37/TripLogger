@@ -5,7 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// App colors. Decision from UI.md: dark theme ONLY — the app never switches to
+// App colors. Decision from docs/UI.md: dark theme ONLY — the app never switches to
 // a light scheme, so the color scheme is a fixed Material 3 dark palette.
 //
 // Accent ( request, earlier decisions): pop green/blue instead of the

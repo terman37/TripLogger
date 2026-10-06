@@ -9,23 +9,26 @@ implementation (the validated implementation); keep in sync with the code.
 | --- | --- |
 | UI toolkit | Jetpack Compose |
 | Design system | Material 3, dark theme only |
-| Accent palette | mint green `#41D8B7` (primary), sky blue `#7AB8FF` (secondary), amber `#FFD166` (tertiary: map icons, grace) on dark neutrals; deep red `#FF5252` (`DestructiveRed`) for delete actions |
+| Accent palette | mint green `#41D8B7` (primary), sky blue `#7AB8FF` (secondary), amber `#FFD166` (tertiary: map icons, grace, and the "Allow Bluetooth access" button that unblocks first-run setup) on dark neutrals; deep red `#FF5252` (`DestructiveRed`) for delete actions |
 | Language | English only |
 | App structure | Single activity, bottom navigation, 3 tabs |
-| Tab order | **Home / Report / Devices** |
+| Tab order | **Home / Report / Settings** |
 | Icon | Adaptive: dark background, S-shaped mint road with dark centre stripe + warm amber car; S road + car silhouette as themed-icon layer |
 
 ## Screen 1 — Home
 
 Top to bottom:
 
-1. **Monitor trips switch** — master switch with explainer. Disabled (with
-   hint "Register a device…") until at least one device is registered. Turning
+1. **Monitor trips switch** — master switch with explainer. Turning
    it ON requests the three runtime permissions (Bluetooth, location,
    notifications) the first time; grants enable monitoring immediately. Location
    must also be set to "Allow all the time" (system settings, the app opens the
    page): Android otherwise refuses to restart monitoring after a phone reboot;
    the app shows a dialog explaining this.
+   Before any device is registered the switch has nothing to monitor: it stays
+   off and tapping it opens the **Settings** tab with the *Available* list
+   expanded. Its helper text then reads
+   "No device registered — switch on to set one up."
 2. **Status card** — one of:
 
 | Condition | Card |
@@ -69,18 +72,25 @@ Preview rows use the same collapsed/expandable card as Home, **including the
 per-trip red trash icon + confirmation** (deleting from the report refreshes the
 list).
 
-## Screen 3 — Devices
+## Screen 3 — Settings
 
 Both device sections are **collapsible** (tap the header): the header shows the
 section name and the current device count. Registered starts expanded;
-Available starts collapsed so the page stays short.
+Available starts collapsed so the page stays short — except when the screen was
+opened from the Home switch (no device registered yet), where it starts
+expanded so the permission button is immediately visible.
 
 1. **Registered** — devices that trigger a trip on connect. Each row: name +
    MAC, **X** to remove. Empty: "No device registered".
 2. **Available** — devices paired in Android settings, **+** to register.
-   Missing Bluetooth permission → "Allow Bluetooth access" button (grants
-   `BLUETOOTH_CONNECT` and refreshes). No in-app pairing by design.
+   Missing Bluetooth permission → an amber **Allow Bluetooth access** button
+   (grants `BLUETOOTH_CONNECT` and refreshes). No in-app pairing by design.
 3. **Reconnect grace period** — slider 1–15 minutes (default 3), persisted.
+4. **About this app** — pinned to the bottom of the page, above the tab bar
+   (only the settings area above it scrolls). Opens the About dialog: installed
+   version (`versionName` + `versionCode`), copyright, the licence line with its
+   no-warranty note, and links to the documentation site, the privacy policy and
+   the contact e-mail. Static content: no network call, no permission.
 
 ## Background notification
 
@@ -125,7 +135,7 @@ highlighted light yellow.
 | Place | State | Text |
 | --- | --- | --- |
 | Home list | no trips today/yesterday | "No trips yet" |
-| Home switch | no registered device | "Register a device (Devices tab) to enable auto-recording." |
-| Devices registered | empty | "No device registered" |
-| Devices available | permission missing / nothing paired | "Allow Bluetooth access to see paired devices." / "No paired devices. Pair in Android settings, then come back." |
+| Home switch | no registered device | "No device registered — switch on to set one up." (tapping the switch opens Settings with *Available* expanded) |
+| Settings — registered | empty | "No device registered" |
+| Settings — available | permission missing / nothing paired | "Allow Bluetooth access to see paired devices." / "No paired devices. Pair in Android settings, then come back." |
 | Report list | no trips in range | "No trips in this period" |

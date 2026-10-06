@@ -40,7 +40,7 @@ import com.terman37.triplogger.ui.home.TripRowUi
 import com.terman37.triplogger.ui.theme.DestructiveRed
 
 /**
- * One trip row, shared by Home (recent list) and Report (preview, UI.md):
+ * One trip row, shared by Home (recent list) and Report (preview, docs/UI.md):
  * collapsed shows date+time, "Home → Office" summary and km; tapping expands
  * to the full detail (times, duration, addresses). Delete appears only when
  * [onDelete] is provided.

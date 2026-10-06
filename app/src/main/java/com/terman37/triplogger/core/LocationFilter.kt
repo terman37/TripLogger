@@ -1,7 +1,7 @@
 package com.terman37.triplogger.core
 
 /**
- * Decides which GPS samples become part of the trip distance (todo.md GPS
+ * Decides which GPS samples become part of the trip distance (GPS
  * decisions):
  *
  * 1. every fix that moved less than [minDisplacementMeters] since the last

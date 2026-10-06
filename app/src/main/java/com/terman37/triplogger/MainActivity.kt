@@ -8,7 +8,7 @@ import com.terman37.triplogger.ui.TripLoggerApp
 import com.terman37.triplogger.ui.theme.TripLoggerTheme
 
 /**
- * Single entry point of the app (UI.md: one screen container with a bottom
+ * Single entry point of the app (docs/UI.md: one screen container with a bottom
  * navigation bar). All screens are Compose composables rendered inside this
  * activity; TripLoggerApp builds the navigation structure.
  */

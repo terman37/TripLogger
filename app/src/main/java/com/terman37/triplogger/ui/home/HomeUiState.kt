@@ -19,7 +19,7 @@ data class HomeUiState(
 )
 
 /**
- * Status card states (UI.md). One of these is shown at the top of Home.
+ * Status card states (docs/UI.md). One of these is shown at the top of Home.
  */
 sealed interface CardUiState {
 
@@ -51,7 +51,7 @@ sealed interface CardUiState {
 /**
  * One row in the "today + yesterday" trip list. Collapsed shows [title] +
  * [summary] + [distanceText]; expanded (user taps) shows the remaining fields
- * (UI.md). Text fields are pre-formatted strings so the composable stays dumb.
+ * (docs/UI.md). Text fields are pre-formatted strings so the composable stays dumb.
  */
 data class TripRowUi(
     val id: Long,

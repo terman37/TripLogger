@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * Pure text formatting for the Home screen (English-only, UI.md). Separated
+ * Pure text formatting for the Home screen (English-only, docs/UI.md). Separated
  * from Compose so it is JVM-testable; the zone is injected so tests are
  * deterministic.
  */
@@ -15,7 +15,7 @@ object TripText {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm", Locale.US)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.US)
 
-    /** "12.4 km" — one decimal, dot separator (decision, todo.md). */
+    /** "12.4 km" — one decimal, dot separator (decision). */
     fun kmText(km: Double): String = String.format(Locale.US, "%.1f km", km)
 
     /** "Aug 6, 14:32" — date + start time of a trip row. */
@@ -39,7 +39,7 @@ object TripText {
      * - street + city present → "12 Rue de Rivoli, Paris"
      * - only one part → that part
      * - nothing, but coordinates exist → "Address pending" (geocoding retries
-     *   later, todo.md)
+     *   later)
      * - nothing and no coordinates → "No location"
      */
     fun addressText(street: String?, city: String?, hasCoordinates: Boolean): String {

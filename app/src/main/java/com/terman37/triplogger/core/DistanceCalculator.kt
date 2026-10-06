@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 /**
  * Great-circle distance between two GPS points, using the Haversine formula on
  * a spherical Earth. Accurate to well under 1% for the tens-of-kilometers
- * distances of car trips — plenty for expense reporting (todo.md).
+ * distances of car trips — plenty for expense reporting (see docs/DETAILS.md).
  *
  * Why Haversine and not the Android Location.distanceTo: this class runs on the
  * JVM in unit tests without any Android dependency.

@@ -1,0 +1,40 @@
+---
+# GitHub Pages configuration for the documentation site.
+#
+# Publish this folder: repository Settings → Pages → Source: "Deploy from a
+# branch" → Branch: `main` → Folder: `/docs`.
+#
+# That keeps the public URLs stable and short: docs/privacy-policy.md is served
+# as https://terman37.github.io/TripLogger/privacy-policy.html (the URL used in
+# the Play Console listing).
+title: Trip Logger
+description: >-
+  Android app that logs car trips automatically when the car's Bluetooth
+  connects, and exports them as an Excel spreadsheet for expense reports.
+  Local-only: no account, no server, no data leaves the phone.
+
+# No `theme:` on purpose. The docs use a custom dark layout that carries the
+# app's own colours (see _layouts/default.html and assets/css/style.css), so the
+# site looks like the app instead of a generic GitHub Pages theme.
+# Styling is plain CSS in a local file: no CDN, no fonts to download, no scripts,
+# and therefore no cookies or third-party requests on the hosted pages.
+
+# GitHub Pages ships these plugins; listing them is enough, no Gemfile needed.
+plugins:
+  # Render .md pages that have no YAML front matter (keeps the files clean when
+  # browsed on github.com, where front matter shows up as a table).
+  - jekyll-optional-front-matter
+  # Apply the default layout without front matter.
+  - jekyll-default-layout
+  # Take each page title from its first heading.
+  - jekyll-titles-from-headings
+  # Rewrite relative links between the docs (links to `X.md` work on the
+  # rendered site as well as in the repository).
+  - jekyll-relative-links
+
+# Belt and braces next to jekyll-default-layout: give every page the dark layout.
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"

@@ -49,7 +49,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.delay
 
 /**
- * Home tab (UI.md): live status card on top, then the trip list of today and
+ * Home tab (docs/UI.md): live status card on top, then the trip list of today and
  * yesterday. Pure rendering: all state comes from [HomeViewModel.uiState].
  *
  * @param onOpenSettings called when the user switches monitoring on before any
@@ -208,7 +208,7 @@ private fun StatusCard(
     onStartManual: () -> Unit,
     onStop: () -> Unit,
 ) {
-    // Container color gives an instant visual cue (UI.md: green/neutral/gray).
+    // Container color gives an instant visual cue (docs/UI.md: green/neutral/gray).
     val container = when (state) {
         is CardUiState.Recording -> MaterialTheme.colorScheme.primaryContainer
         is CardUiState.GracePeriod -> MaterialTheme.colorScheme.tertiaryContainer

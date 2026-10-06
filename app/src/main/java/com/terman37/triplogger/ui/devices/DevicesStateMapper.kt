@@ -4,7 +4,7 @@ import com.terman37.triplogger.data.RegisteredDevice
 import com.terman37.triplogger.monitor.PairedDeviceInfo
 
 /**
- * Pure mapping for the Devices screen (see [DevicesUiState]). Android-free so
+ * Pure mapping for the Settings tab (see [DevicesUiState]). Android-free so
  * the composition rules (exclusion, ordering, hints) are unit-tested.
  */
 object DevicesStateMapper {

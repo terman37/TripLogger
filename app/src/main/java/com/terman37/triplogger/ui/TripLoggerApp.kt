@@ -29,7 +29,7 @@ import com.terman37.triplogger.ui.report.ReportScreen
 
 /**
  * The three top-level destinations shown in the bottom navigation bar
- * (UI.md). Each has a unique route used by the NavHost.
+ * (docs/UI.md). Each has a unique route used by the NavHost.
  */
 enum class TopLevelDestination(
     val route: String,

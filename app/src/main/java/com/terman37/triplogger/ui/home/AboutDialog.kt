@@ -26,7 +26,7 @@ import com.terman37.triplogger.R
  *
  * Why a dialog instead of a screen: GPL-3.0-or-later requires the source to be
  * reachable while the app is distributed, and this is the smallest way to make
- * that offer visible without adding a tab (UI.md).
+ * that offer visible without adding a tab (docs/UI.md).
  *
  * Everything here is static: no permission, no network request — the links are
  * handed to the browser or the e-mail app by the system.
@@ -55,8 +55,20 @@ fun AboutDialog(onDismiss: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
-                LinkButton(R.string.about_source_link, stringResource(R.string.about_source_url), context)
-                LinkButton(R.string.about_licence_link, stringResource(R.string.about_licence_url), context)
+                // Documentation lives on GitHub Pages (docs/ folder): the site
+                // carries the user guide, the technical docs and the source
+                // link in its footer, so the GPL source offer stays one click
+                // away without cluttering the dialog.
+                LinkButton(
+                    labelRes = R.string.about_documentation_link,
+                    uri = stringResource(R.string.about_documentation_url),
+                    context = context,
+                )
+                LinkButton(
+                    labelRes = R.string.about_privacy_link,
+                    uri = stringResource(R.string.about_privacy_url),
+                    context = context,
+                )
                 LinkButton(
                     labelRes = R.string.about_contact_link,
                     uri = "mailto:${stringResource(R.string.about_contact_email)}",

@@ -6,10 +6,15 @@ How to produce an installable APK or the signed bundle for Google Play.
 
 - JDK 17 (the Gradle toolchain resolves/builds with it).
 - Android SDK with platform 37 + build-tools (Android Studio installs these).
+  The SDK path is machine-specific and therefore **not** in the repository
+  (`local.properties` is gitignored), so a fresh clone needs one of:
+  Android Studio (which writes `local.properties` for you), or an
+  `ANDROID_HOME` environment variable pointing at the SDK. Without either, even
+  `assembleDebug` stops with "SDK location not found". Example:
+  `export ANDROID_HOME=$HOME/Android/Sdk`.
 - `adb` (Android SDK `platform-tools`) on PATH, or use the full path
   `~/Android/Sdk/platform-tools/adb`.
-- A phone with USB debugging or wireless debugging enabled
-  (Developer options → Wireless debugging → pair). For wireless:
+- A phone with USB debugging or wireless debugging enabled  (Developer options → Wireless debugging → pair). For wireless:
   `adb pair <IP:PORT>` (code from the dialog), then `adb connect <IP:PORT>`.
   `adb devices` must list the phone.
 

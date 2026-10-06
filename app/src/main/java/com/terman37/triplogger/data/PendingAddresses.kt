@@ -7,7 +7,7 @@ import com.terman37.triplogger.core.ReverseGeocodeResult
  * the result. Kept free of Android code so it is JVM testable; the repository
  * (data layer) drives it with real trips and the geocoder client.
  *
- * Retry rule (todo.md): a side needs geocoding when the trip HAS coordinates
+ * Retry rule: a side needs geocoding when the trip HAS coordinates
  * for it but the stored address is incomplete (street or city missing). This
  * also covers the case where a previous lookup returned only a city: the next
  * retry overwrites whatever it gets.

@@ -18,7 +18,7 @@ class TripRepository(
     /**
      * Persists a finished trip (from the recorder). Geocoding happens HERE,
      * once per side: online → store address with the trip; offline → store
-     * coordinates only, the lazy retry fills the address later (todo.md).
+     * coordinates only, the lazy retry fills the address later (see docs/DETAILS.md).
      */
     suspend fun saveTrip(draft: TripDraft): Long = withContext(Dispatchers.IO) {
         // Build the entity with the coordinates and NO addresses yet.
@@ -54,7 +54,7 @@ class TripRepository(
     }
 
     /**
-     * Lazy retry (todo.md): geocodes every side of every trip whose address is
+     * Lazy retry: geocodes every side of every trip whose address is
      * still missing, then persists the changes. Runs at app open and again at
      * report generation.
      *

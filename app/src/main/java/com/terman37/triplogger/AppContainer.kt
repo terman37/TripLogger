@@ -45,7 +45,7 @@ class AppContainer(context: Context) {
         TripRepository(database.tripDao(), geocoder)
 
     /** Persists the trip currently being recorded so a process death can finish
-     * it at the last known position (see DETAILS.md). */
+     * it at the last known position (see docs/DETAILS.md). */
     val tripSessionStore: TripSessionStore =
         SharedPreferencesTripSessionStore(appContext)
 
@@ -53,7 +53,7 @@ class AppContainer(context: Context) {
 
     init {
         // Keep the recorder's grace period in sync with the setting: the user
-        // can change it on the Devices screen while the recorder exists.
+        // can change it in the Settings tab while the recorder exists.
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             settings.gracePeriodMinutes.collect { minutes ->
                 tripRecorder.updateGracePeriodMillis(minutes * 60_000L)

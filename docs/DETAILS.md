@@ -1,8 +1,8 @@
 # Trip Logger — technical details
 
 Technical documentation for developers and the curious. User guide:
-[README.md](README.md) · Interface spec: [UI.md](UI.md) · Builds:
-[BUILD.md](BUILD.md) · Backlog: [todo.md](todo.md)
+[user-guide.md](user-guide.md) · Interface spec: [UI.md](UI.md)
+· Builds: [BUILD.md](BUILD.md)
 
 ## What the app does
 
@@ -16,7 +16,7 @@ Validated on a real device (Pixel 9a, Android 17).
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  UI — single activity, Compose, bottom nav (Home/Report/Devices)│
+│  UI — single activity, Compose, bottom nav (Home/Report/Settings)│
 │  HomeViewModel / ReportViewModel / DevicesViewModel            │
 └───────────────┬────────────────────────────────────────────────┘
                 │ StateFlow / suspend calls (AppContainer singletons)
@@ -45,7 +45,7 @@ Package layout (`app/src/main/java/com/terman37/triplogger/`):
 | `location/` | `LocationSource` interface + `LocationManager` implementation |
 | `monitor/` | `TripMonitorService` (foreground service), `BluetoothMonitor` (polling), `PairedDevicesSource` impl, `NotificationDismissReceiver` |
 | `report/` | `ReportXlsxBuilder` (pure, .xlsx) |
-| `ui/` | `MainActivity`, `TripLoggerApp` (nav), `home/`, `report/`, `devices/`, `common/` (TripRowCard, MapsUrl usage), `theme/` |
+| `ui/` | `MainActivity`, `TripLoggerApp` (nav), `home/` (incl. `AboutDialog`, `VersionText`), `report/`, `devices/` (the Settings tab), `common/` (TripRowCard, MapsUrl usage), `theme/` |
 
 `AppContainer` is a manual DI singleton created by `TripLoggerApplication`; it
 owns the single shared `TripRecorder` so the service and the UI see the same
@@ -181,7 +181,7 @@ No storage permission: the database and exports live in app-private storage.
 
 ## Testing
 
-- JVM unit tests (`app/src/test`, 111 tests):
+- JVM unit tests (`app/src/test`, 139 tests):
   - geo/math: Haversine, `LocationFilter` (displacement/accuracy/speed), address
     parsing, `PendingAddresses`, `MapsUrl` encoding + fallbacks;
   - state machine: `TripRecorder` full lifecycles (grace, reconnect, manual,
@@ -190,7 +190,8 @@ No storage permission: the database and exports live in app-private storage.
   - settings rules: grace clamping, device add/remove/dedupe;
   - report: `ReportDates` defaults/range/zone, `ReportXlsxBuilder` columns,
     hyperlinks, styles, totals under the km column, true Excel dates, timezone;
-  - UI mapping: Home and Devices state mappers;
+  - UI mapping: Home and Settings state mappers, About version fallback
+    (`VersionTextTest`);
   - integration (`TripRecordingFlowTest`): recorder → repository → Room (fake)
     → geocoded addresses → Excel, including offline-pending + lazy retry, grace
     reconnect keeping one trip, manual origin and the <50 m discard.

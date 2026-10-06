@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
  *
  * WHY A FOREGROUND SERVICE: Android kills background work quickly. A service
  * with a visible notification may keep running while the app is closed — that
- * is exactly what trip monitoring needs (todo.md open question, now decided).
+ * is exactly what trip monitoring needs (decided on the device).
  * The UI never binds to it: commands arrive as intents (see companion).
  */
 class TripMonitorService : Service() {
@@ -113,7 +113,7 @@ class TripMonitorService : Service() {
      * Central rule: look at settings + recorder, then bring the service to the
      * matching state. Called after every event (intent, Bluetooth, timer).
      *
-     * Rules (UI.md / todo.md):
+     * Rules (docs/UI.md):
      * - Monitoring ON → run as foreground service + listen to Bluetooth.
      * - Trip recording (auto or manual) → also sample GPS.
      * - Monitoring OFF and no recording → stop the service entirely.
@@ -162,7 +162,7 @@ class TripMonitorService : Service() {
             monitor?.unregister()
         }
 
-        // GPS only while a trip is actually recording (battery, todo.md).
+        // GPS only while a trip is actually recording (battery).
         when (phase) {
             TripRecorder.Phase.RECORDING -> ensureLocationRunning()
             TripRecorder.Phase.GRACE -> scheduleGraceTimer()

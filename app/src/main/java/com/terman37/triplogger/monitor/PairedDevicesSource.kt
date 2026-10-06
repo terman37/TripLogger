@@ -11,7 +11,7 @@ data class PairedDeviceInfo(
 
 /**
  * Lists devices paired in Android settings. Thin boundary so the Devices
- * screen logic stays testable; no in-app pairing (decision, UI.md): pairing
+ * screen logic stays testable; no in-app pairing (decision, docs/UI.md): pairing
  * happens in Android settings.
  */
 interface PairedDevicesSource {

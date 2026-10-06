@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-        Permissions needed by the trip monitor (see README / todo.md):
+        Permissions needed by the trip monitor (see README):
         - BLUETOOTH_CONNECT: observe the car device's connect/disconnect
           (dangerous permission → runtime request on Android 12+).
         - ACCESS_FINE_LOCATION: GPS fixes for distance and addresses
@@ -33,7 +33,7 @@
     <!--
         Backup is disabled on purpose: trip records (times, coordinates, street
         and city) and the registered devices are personal data and the app
-        promises local-only storage (see privacy-policy.html). Cloud backup
+        promises local-only storage (see docs/privacy-policy.md). Cloud backup
         would upload them to the user's Google Drive.
 
         dataExtractionRules stays because some Android 12+ manufacturers still

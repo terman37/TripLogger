@@ -11,7 +11,7 @@
 
     <!-- Explains why location must be set to "Allow all the time": without it
          Android 14+ refuses to restart the location foreground service after a
-         reboot (see DETAILS.md). Android 11+ cannot ask for this in the
+         reboot (see docs/DETAILS.md). Android 11+ cannot ask for this in the
          runtime dialog, so the user is sent to the app's system settings. -->
     <string name="background_location_dialog_title">Allow location all the time</string>
     <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, Trip Logger needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
@@ -22,16 +22,16 @@
          the dialog exists to make that offer (and the version) visible. URLs
          and the e-mail are not translatable. -->
     <string name="about_entry_title">About this app</string>
-    <string name="about_entry_subtitle">Version, licence and source code</string>
+    <string name="about_entry_subtitle">Version, documentation and privacy policy</string>
     <string name="about_title">About</string>
     <string name="about_version">Version %1$s (build %2$d)</string>
     <string name="about_copyright">© 2026 Anthony Jourdan</string>
     <string name="about_licence">Free software under the GNU General Public License v3 or later, with no warranty.</string>
-    <string name="about_licence_link">Read the full licence</string>
-    <string name="about_source_link">Source code</string>
+    <string name="about_documentation_link">Documentation</string>
+    <string name="about_privacy_link">Privacy policy</string>
     <string name="about_contact_link">Send an e-mail</string>
     <string name="about_close">Close</string>
-    <string name="about_source_url" translatable="false">https://github.com/terman37/TripLogger</string>
-    <string name="about_licence_url" translatable="false">https://github.com/terman37/TripLogger/blob/main/LICENSE</string>
+    <string name="about_documentation_url" translatable="false">https://terman37.github.io/TripLogger/</string>
+    <string name="about_privacy_url" translatable="false">https://terman37.github.io/TripLogger/privacy-policy.html</string>
     <string name="about_contact_email" translatable="false">anthony.jourdan@gmail.com</string>
 </resources>

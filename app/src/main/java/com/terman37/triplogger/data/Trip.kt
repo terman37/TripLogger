@@ -6,7 +6,7 @@ import androidx.room.TypeConverter
 import com.terman37.triplogger.core.TripOrigin
 
 /**
- * One recorded car trip (one database row). Column meanings (todo.md "write row
+ * One recorded car trip (one database row). Column meanings ("write row
  * in db"):
  *
  * - [startEpochMillis] / [endEpochMillis]: UTC instants in milliseconds since

@@ -1,7 +1,7 @@
 <resources>
     <!--
         Window theme applied before Compose draws its content (mainly the
-        launcher/splash frame). UI.md: dark theme only, no ActionBar (Compose
+        launcher/splash frame). docs/UI.md: dark theme only, no ActionBar (Compose
         renders its own UI inside the single activity).
     -->
     <style name="Theme.TripLogger" parent="Theme.MaterialComponents.NoActionBar">

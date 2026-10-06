@@ -309,7 +309,7 @@ private fun DateFieldButton(
 /** The two date fields of the range picker. */
 private enum class DateField { FROM, TO }
 
-/** Sends the Excel report via the system share sheet (decision, todo.md). */
+/** Sends the Excel report via the system share sheet (decision). */
 private fun shareReport(context: Context, file: File) {
     val uri: android.net.Uri = FileProvider.getUriForFile(
         context,
