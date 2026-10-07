@@ -7,9 +7,9 @@
 # That keeps the public URLs stable and short: docs/privacy-policy.md is served
 # as https://terman37.github.io/TripLogger/privacy-policy.html (the URL used in
 # the Play Console listing).
-title: KmExpense
+title: TripToExcel
 # Store title on Google Play (kept longer than the app label on purpose):
-# "KmExpense: Auto Drive Log"
+# "TripToExcel - Km Logger"
 description: >-
   Android app that logs car trips automatically when the car's Bluetooth
   connects, and exports them as an Excel spreadsheet for expense reports.

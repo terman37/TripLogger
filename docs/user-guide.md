@@ -1,4 +1,4 @@
-# KmExpense — user guide
+# TripToExcel — user guide
 
 An Android app that **logs your car trips automatically** and lets you export
 them as a spreadsheet for your expense report.
@@ -24,7 +24,7 @@ Requirement: Android 14 or newer.
 1. **Pair your car in Android settings** (the app never does the pairing
    itself): Settings → Bluetooth → pair your car/head unit or your usual car
    adapter.
-2. Open **KmExpense**. On a fresh install, just tap the **Monitor trips**
+2. Open **TripToExcel**. On a fresh install, just tap the **Monitor trips**
    switch: there is no device yet, so the app takes you to the **Settings** tab
    with the *Available* list already open.
 3. Tap **Allow Bluetooth access** (the amber button), then tap **+** next to
@@ -97,7 +97,7 @@ address.
 
 ## Good to know
 
-- **The notification is monitoring.** If you swipe the "KmExpense"
+- **The notification is monitoring.** If you swipe the "TripToExcel"
   notification away, the app stops monitoring (that is intentional: it never
   tracks silently). Turn the switch on Home back on if that was a mistake.
 - **Closing the app is fine.** Monitoring continues in the background while the
@@ -115,7 +115,7 @@ address.
   again.
 - **Battery**: the app asks for GPS only while a trip is recording (one fix
   every 30 seconds), so it is light on battery. Some phone brands additionally
-  restrict background apps; if recording stops unexpectedly, allow KmExpense
+  restrict background apps; if recording stops unexpectedly, allow TripToExcel
   to run in the background / disable battery optimization for it.
 - **Permissions**: Bluetooth is used only to notice your car connecting;
   location is used for distance and addresses, and "Allow all the time" so

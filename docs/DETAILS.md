@@ -1,4 +1,4 @@
-# KmExpense — technical details
+# TripToExcel — technical details
 
 Technical documentation for developers and the curious. User guide:
 [user-guide.md](user-guide.md) · Interface spec: [UI.md](UI.md)

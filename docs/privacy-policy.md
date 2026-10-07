@@ -1,20 +1,21 @@
-# KmExpense — Privacy Policy
+# TripToExcel — Privacy Policy
 
 *Last updated: 2 October 2026*
 
-> **KmExpense is a local-only app.** It does not collect, transmit, or sell your
+> **TripToExcel is a local-only app.** It does not collect, transmit, or sell your
 > personal data. There is no account, no server, and no analytics. Your trips stay
 > on your phone unless you choose to share an export yourself.
 
 ## 1. Who this policy is for
 
-This policy covers the Android app **KmExpense**
-(package `com.terman37.triplogger`), developed by **Anthony Jourdan**. It explains
+This policy covers the Android app **TripToExcel**, listed on Google Play as
+*TripToExcel - Km Logger* (package `com.terman37.triplogger`), developed by
+**Anthony Jourdan**. It explains
 what the app uses on your device, where that data goes, and how you can remove it.
 
 ## 2. What the app uses on your device
 
-KmExpense accesses the following data *on your device only*:
+TripToExcel accesses the following data *on your device only*:
 
 - **Bluetooth connection status** of the car device you register in the app. This
   is used solely to know when a trip starts and when it ends. The app does not
@@ -28,7 +29,7 @@ KmExpense accesses the following data *on your device only*:
 
 ## 3. No collection, no transmission
 
-KmExpense does not send your data anywhere. It has no backend server, no user
+TripToExcel does not send your data anywhere. It has no backend server, no user
 account, no advertising SDK, and no analytics or crash-reporting service.
 
 The only way trip data leaves your phone is when **you** explicitly export a
@@ -58,9 +59,9 @@ server; deletion is entirely local and immediate.
 
 - **Android's built-in geocoder** is used to turn coordinates into an address.
   This is a system service; its handling of data is governed by your device's
-  platform and Google's terms, not by KmExpense.
+  platform and Google's terms, not by TripToExcel.
 - **Google Maps** opens only when you tap a map link. The app simply hands a URL
-  to the Maps app or browser; no trip data is sent by KmExpense.
+  to the Maps app or browser; no trip data is sent by TripToExcel.
 
 No other third party receives data from the app.
 
@@ -79,7 +80,7 @@ visible, and dismissing that notification stops monitoring.
 
 ## 8. Children
 
-KmExpense is not directed at children and does not knowingly collect any
+TripToExcel is not directed at children and does not knowingly collect any
 information from children.
 
 ## 9. Changes to this policy
@@ -95,6 +96,6 @@ Questions about this policy or about the app's data handling:
 
 ---
 
-KmExpense — privacy policy. This page is a static file: it sets no cookies and
+TripToExcel — privacy policy. This page is a static file: it sets no cookies and
 runs no scripts. Source code:
 [github.com/terman37/TripLogger](https://github.com/terman37/TripLogger).

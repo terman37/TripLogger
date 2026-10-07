@@ -1,4 +1,4 @@
-# KmExpense
+# TripToExcel
 
 An Android app that **logs your car trips automatically** and lets you export
 them as a spreadsheet for your expense report.
@@ -34,7 +34,7 @@ GitHub Pages (source: `docs/`, Markdown rendered with Jekyll).
 
 ## License
 
-KmExpense is free software, released under the **GNU General Public License,
+TripToExcel is free software, released under the **GNU General Public License,
 version 3 or later** (`GPL-3.0-or-later`).
 
 Copyright (C) 2026 Anthony Jourdan.

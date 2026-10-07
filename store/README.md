@@ -37,7 +37,7 @@ neither is drawn here.
 `feature-graphic.html` is the source: mint hairline, the icon on the left, the
 wordmark, a two-line tagline and an amber "Local-only · no account · no ads"
 pill. Text stays inside a 56px margin because Play crops this banner in some
-placements. The store title is `KmExpense: Auto Drive Log` (see the release
+placements. The store title is `TripToExcel - Km Logger` (see the release
 plan); the graphic uses the shorter wordmark, which is also the launcher label.
 
 ### Screenshots

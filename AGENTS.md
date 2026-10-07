@@ -1,4 +1,4 @@
-# AGENTS.md — KmExpense (Android)
+# AGENTS.md — TripToExcel (Android)
 
 Guidelines for AI agents and contributors working in this repository. Applies in
 addition to the global agent rules (`~/.pi/agent/AGENTS.md`).
