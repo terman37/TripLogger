@@ -159,4 +159,10 @@
     <string name="xlsx_column_trip">Trajet</string>
     <string name="xlsx_total">Total</string>
     <string name="xlsx_address_not_found">Adresse introuvable</string>
+
+    <!-- Play requires a prominent in-app disclosure BEFORE the runtime permission
+         request; this dialog is that disclosure (release_guide.md step 12b). -->
+    <string name="disclosure_title">Autoriser le suivi des trajets</string>
+    <string name="disclosure_body">Pour enregistrer vos trajets automatiquement, TripToExcel utilise votre position, y compris lorsque l\'écran est éteint et que l\'application est fermée. La position sert uniquement à calculer la distance et à retrouver les adresses de départ et d\'arrivée ; elle reste sur votre téléphone et n\'est jamais transmise.\n\nAndroid va demander l\'accès au Bluetooth, à la localisation et aux notifications. Choisissez ensuite « Autoriser en permanence » pour que le suivi puisse reprendre tout seul après un redémarrage du téléphone. Pendant l\'enregistrement, une notification permanente « Suivi actif » l\'indique : la balayer arrête le suivi.</string>
+    <string name="disclosure_continue">Continuer</string>
 </resources>

@@ -30,8 +30,10 @@ Requirement: Android 14 or newer.
 3. Tap **Allow Bluetooth access** (the amber button), then tap **+** next to
    your car in the *Available* list. Your car now appears under *Registered*.
 4. Go back to **Home** (first tab) and turn on the **Monitor trips** switch.
-   Android asks for permissions (Bluetooth, Location, Notifications): accept
-   all three — they are required.
+   The app first shows an information dialog explaining how the location is used
+   (including in the background with the screen off): tap **Continue**. Android
+   then asks for permissions (Bluetooth, Location, Notifications): accept all
+   three — they are required.
 5. A small "Monitoring active" notification appears. Setup is done.
 
 You can log several cars/devices: add each one with **+**. Remove one with the

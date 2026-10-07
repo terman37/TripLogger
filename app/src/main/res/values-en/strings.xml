@@ -156,4 +156,10 @@
     <string name="xlsx_column_trip">trip</string>
     <string name="xlsx_total">Total</string>
     <string name="xlsx_address_not_found">Address not found</string>
+
+    <!-- Play requires a prominent in-app disclosure BEFORE the runtime permission
+         request; this dialog is that disclosure (release_guide.md step 12b). -->
+    <string name="disclosure_title">Allow trip monitoring</string>
+    <string name="disclosure_body">To record your trips automatically, TripToExcel uses your location, also while the screen is off and the app is closed. The location is only used to calculate the distance and to resolve the start and end addresses; it stays on your phone and is never transmitted.\n\nAndroid will ask for Bluetooth, location and notification access. Then choose \"Allow all the time\" so monitoring can resume by itself after a phone reboot. While recording, a permanent \"Monitoring active\" notification shows it: swiping it away stops monitoring.</string>
+    <string name="disclosure_continue">Continue</string>
 </resources>

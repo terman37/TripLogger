@@ -72,6 +72,10 @@ fun HomeScreen(
     // ON_RESUME then finishes enabling monitoring once it is granted.
     var pendingEnable by remember { mutableStateOf(false) }
     var showBackgroundLocationDialog by remember { mutableStateOf(false) }
+    // Play requires a prominent in-app disclosure *before* the runtime prompt,
+    // so the switch opens this dialog first and only "Continuer" runs the
+    // permission flow below (release_guide.md step 12b).
+    var showLocationDisclosure by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -81,6 +85,24 @@ fun HomeScreen(
             MonitoringPermissionFlow.Step.OPEN_BACKGROUND_SETTINGS ->
                 showBackgroundLocationDialog = true
             MonitoringPermissionFlow.Step.REQUEST_FOREGROUND -> Unit
+        }
+    }
+
+    // One place starts the permission flow; the switch calls it only after the
+    // disclosure has been accepted, so no path can request location silently.
+    fun requestPermissionsThenMonitor() {
+        when (viewModel.permissionStep()) {
+            MonitoringPermissionFlow.Step.READY -> viewModel.setMonitoringEnabled(true)
+            MonitoringPermissionFlow.Step.REQUEST_FOREGROUND ->
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ),
+                )
+            MonitoringPermissionFlow.Step.OPEN_BACKGROUND_SETTINGS ->
+                showBackgroundLocationDialog = true
         }
     }
 
@@ -96,6 +118,17 @@ fun HomeScreen(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (showLocationDisclosure) {
+        LocationDisclosureDialog(
+            onContinue = {
+                showLocationDisclosure = false
+                requestPermissionsThenMonitor()
+            },
+            // Cancelling means "not now": no prompt, monitoring stays off.
+            onDismiss = { showLocationDisclosure = false },
+        )
     }
 
     if (showBackgroundLocationDialog) {
@@ -135,19 +168,11 @@ fun HomeScreen(
             onOpenSettings = onOpenSettings,
             onToggle = { enable ->
                 if (enable) {
-                    when (viewModel.permissionStep()) {
-                        MonitoringPermissionFlow.Step.READY ->
-                            viewModel.setMonitoringEnabled(true)
-                        MonitoringPermissionFlow.Step.REQUEST_FOREGROUND ->
-                            permissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.BLUETOOTH_CONNECT,
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.POST_NOTIFICATIONS,
-                                ),
-                            )
-                        MonitoringPermissionFlow.Step.OPEN_BACKGROUND_SETTINGS ->
-                            showBackgroundLocationDialog = true
+                    if (viewModel.permissionStep() == MonitoringPermissionFlow.Step.READY) {
+                        // Nothing to request: permissions are already in place.
+                        viewModel.setMonitoringEnabled(true)
+                    } else {
+                        showLocationDisclosure = true
                     }
                 } else {
                     viewModel.setMonitoringEnabled(false)
@@ -359,6 +384,33 @@ private fun MonitorSwitchRow(
             enabled = true,
         )
     }
+}
+
+/**
+ * Play's prominent disclosure, shown before any runtime permission request:
+ * what is accessed (location, also in the background), what it is used for
+ * (recording the user's trips), where it stays (on the phone), and how the
+ * recording is made visible (the notification). "Continuer" proceeds to the
+ * system prompts; dismissing it changes nothing.
+ */
+@Composable
+private fun LocationDisclosureDialog(
+    onContinue: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.disclosure_title)) },
+        text = { Text(stringResource(R.string.disclosure_body)) },
+        confirmButton = {
+            TextButton(onClick = onContinue) {
+                Text(stringResource(R.string.disclosure_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
+        },
+    )
 }
 
 /**

@@ -33,7 +33,9 @@ Configuration requise : Android 14 ou version ultérieure.
    votre voiture dans la liste *Disponibles*. Votre voiture apparaît maintenant
    sous *Enregistrés*.
 4. Revenez à l'onglet **Accueil** (premier onglet) et activez l'interrupteur
-   **Suivi des trajets**. Android demande les autorisations (Bluetooth,
+   **Suivi des trajets**. L'application affiche d'abord un message d'information
+   qui explique l'usage de la position (y compris en arrière-plan, écran éteint) :
+   touchez **Continuer**. Android demande alors les autorisations (Bluetooth,
    localisation, notifications) : acceptez les trois, elles sont nécessaires.
 5. Une petite notification « Suivi actif » apparaît. La configuration est
    terminée.

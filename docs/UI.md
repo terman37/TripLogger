@@ -20,8 +20,12 @@ implementation (the validated implementation); keep in sync with the code.
 Top to bottom:
 
 1. **Monitor trips switch** — master switch with explainer. Turning
-   it ON requests the three runtime permissions (Bluetooth, location,
-   notifications) the first time; grants enable monitoring immediately. Location
+   it ON shows the **location disclosure dialog first** (Play's prominent
+   disclosure requirement: what is accessed, why, that it stays on the device,
+   with *Continuer* / *Annuler*); only *Continuer* requests the three runtime
+   permissions (Bluetooth, location, notifications) the first time, and grants
+   enable monitoring immediately. *Annuler* leaves monitoring off and asks for
+   nothing. Location
    must also be set to "Allow all the time" (system settings, the app opens the
    page): Android otherwise refuses to restart monitoring after a phone reboot;
    the app shows a dialog explaining this.
