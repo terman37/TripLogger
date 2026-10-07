@@ -17,6 +17,8 @@ compte, ni serveur, ni envoi de données.
   publication signé. *(en anglais)*
 - **[Politique de confidentialité](privacy-policy.md)** — ce que l'application fait
   de vos données (réponse courte : rien ne quitte le téléphone).
+- **[Notes de version](release-notes.md)** — ce qui change à chaque version (source
+  des notes « Nouveautés » de la fiche Play).
 
 English version of this page: [English](en/index.md).
 

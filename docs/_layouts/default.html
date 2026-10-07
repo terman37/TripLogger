@@ -13,7 +13,7 @@
 {% assign is_english = false %}
 {% if page.path contains 'en/' %}{% assign is_english = true %}{% endif %}
 {% assign has_translation = false %}
-{% if page.name == 'index.md' or page.name == 'user-guide.md' or page.name == 'privacy-policy.md' %}
+{% if page.name == 'index.md' or page.name == 'user-guide.md' or page.name == 'privacy-policy.md' or page.name == 'release-notes.md' %}
   {% assign has_translation = true %}
 {% endif %}
 <html lang="{% if is_english %}en{% else %}fr{% endif %}">
@@ -39,12 +39,14 @@
           <a href="{{ '/UI.html' | relative_url }}">Interface</a>
           <a href="{{ '/BUILD.html' | relative_url }}">Building</a>
           <a href="{{ '/en/privacy-policy.html' | relative_url }}">Privacy</a>
+          <a href="{{ '/en/release-notes.html' | relative_url }}">Releases</a>
         {% else %}
           <a href="{{ '/user-guide.html' | relative_url }}">Guide</a>
           <a href="{{ '/DETAILS.html' | relative_url }}">Technique</a>
           <a href="{{ '/UI.html' | relative_url }}">Interface</a>
           <a href="{{ '/BUILD.html' | relative_url }}">Compilation</a>
           <a href="{{ '/privacy-policy.html' | relative_url }}">Confidentialité</a>
+          <a href="{{ '/release-notes.html' | relative_url }}">Versions</a>
         {% endif %}
         {% if has_translation %}
           {% if is_english %}

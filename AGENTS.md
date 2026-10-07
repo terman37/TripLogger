@@ -35,6 +35,29 @@ understandable, generously commented, and behavior must be testable.
 - Version catalog: `gradle/libs.versions.toml` (single source of dependency
   versions). Add new libraries there, never hardcode versions in build files.
 
+## When asked to create a new AAB (do all of this, in order)
+
+1. **Bump `versionCode`** in `app/build.gradle.kts` — Play requires it to be higher
+   than every bundle already uploaded, including to an internal/closed testing
+   track. Leave `versionName` alone unless the user-visible version really changes
+   (1.0 → 1.1); the two numbers are different things.
+2. **Update the release notes in both languages**:
+   `docs/release-notes.md` (French) and `docs/en/release-notes.md` (English).
+   Add an entry for the new version — same tone as the existing ones, one to five
+   bullets, user-visible changes first, no commit hashes and no developer jargon.
+   These files are the single source for the Play Console's "What's new" field in
+   each language, so they must be written before the bundle is built, not after.
+3. **Build and verify**: `./gradlew :app:bundleRelease`, then check the signature
+   (`keytool -printcert -jarfile`), the `application-label` and the version
+   (`aapt2 dump badging` on the matching APK), and that `SampleDataSeeder` is
+   absent from `base/dex`. Report the AAB path, its size and the
+   `app/build/outputs/mapping/release/mapping.txt` file that must be kept for that
+   build's crash reports.
+4. **Tell the user what to paste** into the Console: the new "What's new" text per
+   language, and remind them that the upload needs a rollout on the chosen track.
+
+Keep the plan (`release_guide.md`, gitignored) in sync with what was done.
+
 ## Conventions
 
 - **Language:** Kotlin. Follow official Kotlin code style (`kotlin.code.style=official`).

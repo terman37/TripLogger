@@ -14,6 +14,8 @@ report. Everything stays on the phone: no account, no server, nothing uploaded.
 - **[Building and installing](../BUILD.md)** — debug build, signed release bundle.
 - **[Privacy policy](privacy-policy.md)** — what the app does with your data
   (short answer: nothing leaves the phone).
+- **[Release notes](release-notes.md)** — what changes in each version (source for
+  the Play listing's "What's new").
 
 ## The app in one paragraph
 

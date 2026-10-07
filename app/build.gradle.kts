@@ -63,7 +63,11 @@ android {
         applicationId = "com.terman37.triplogger"
         minSdk = 34
         targetSdk = 37
-        versionCode = 1
+        // versionCode: Play's counter — it must be higher than every upload,
+        // including uploads to testing tracks. Bump it for every new AAB.
+        // versionName: what users see; it only changes when the release itself
+        // changes (see AGENTS.md and docs/release-notes.md).
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
