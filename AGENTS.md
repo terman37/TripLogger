@@ -43,10 +43,18 @@ understandable, generously commented, and behavior must be testable.
    (1.0 → 1.1); the two numbers are different things.
 2. **Update the release notes in both languages**:
    `docs/release-notes.md` (French) and `docs/en/release-notes.md` (English).
-   Add an entry for the new version — same tone as the existing ones, one to five
-   bullets, user-visible changes first, no commit hashes and no developer jargon.
-   These files are the single source for the Play Console's "What's new" field in
-   each language, so they must be written before the bundle is built, not after.
+   Add an entry for the new version — same tone as the existing ones, user-visible
+   changes first, no commit hashes and no developer jargon. These files are the
+   single source for the Play Console's "What's new" field in each language, so
+   they must be written before the bundle is built, not after.
+   **The text must be ≤ 500 characters per language** (Play's limit — the Console
+   rejects a longer note with "La note de version … est trop longue"). Put the
+   pasteable text in a fenced block and state its count in the entry, then verify
+   the count with:
+   `python3 -c "import re,pathlib;t=pathlib.Path('docs/release-notes.md').read_text();print(len(re.search(r'\`\`\`\n(.*?)\n\`\`\`',t,re.S).group(1)))"`
+   The same text is duplicated in `release_guide.md` Appendix A.2/A.3 — keep the
+   two in sync (Appendix A is the English/French listing copy, the docs pages are
+   what the user reads on the site).
 3. **Build and verify**: `./gradlew :app:bundleRelease`, then check the signature
    (`keytool -printcert -jarfile`), the `application-label` and the version
    (`aapt2 dump badging` on the matching APK), and that `SampleDataSeeder` is
