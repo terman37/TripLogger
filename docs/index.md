@@ -1,25 +1,32 @@
 # TripToExcel — documentation
 
-Android app that **logs car trips automatically** when the car's Bluetooth
-connects, and lets you **export them as an Excel spreadsheet** for your expense
-report. Everything stays on the phone: no account, no server, nothing uploaded.
+Application Android qui **enregistre automatiquement vos trajets en voiture** dès
+que le Bluetooth de la voiture se connecte, et qui vous permet de **les exporter
+dans un tableur Excel** pour votre note de frais. Tout reste sur le téléphone : ni
+compte, ni serveur, ni envoi de données.
 
 ## Documents
 
-- **[User guide](user-guide.md)** — installing, first-time setup, daily use,
-  reports and spreadsheets, version and licence.
-- **[Technical details](DETAILS.md)** — architecture, how a trip is recorded,
-  data model, permissions, tests.
-- **[Interface specification](UI.md)** — every screen, state and empty case.
-- **[Building and installing](BUILD.md)** — debug build, signed release bundle.
-- **[Privacy policy](privacy-policy.md)** — what the app does with your data
-  (short answer: nothing leaves the phone).
+- **[Guide d'utilisation](user-guide.md)** — installation, première configuration,
+  usage quotidien, rapports et tableurs, version et licence.
+- **[Détails techniques](DETAILS.md)** — architecture, déroulement d'un trajet,
+  modèle de données, autorisations, tests. *(en anglais)*
+- **[Spécification de l'interface](UI.md)** — chaque écran, chaque état, chaque cas
+  vide. *(en anglais)*
+- **[Compiler et installer](BUILD.md)** — compilation de débogage, paquet de
+  publication signé. *(en anglais)*
+- **[Politique de confidentialité](privacy-policy.md)** — ce que l'application fait
+  de vos données (réponse courte : rien ne quitte le téléphone).
 
-## The app in one paragraph
+English version of this page: [English](en/index.md).
 
-Pair your car in Android's Bluetooth settings and register it in the app. When
-the car connects, a trip starts; when it disconnects, the trip ends after a
-configurable grace period so a brief Bluetooth dropout does not split one drive
-in two. Distance, start/end addresses and times are recorded with the phone in
-your pocket. Later you pick a date range and export a spreadsheet whose rows are
-real Excel dates with Google Maps links and a total row.
+## L'application en un paragraphe
+
+Appairez votre voiture dans les réglages Bluetooth d'Android et enregistrez-la dans
+l'application. Quand la voiture se connecte, un trajet démarre ; quand elle se
+déconnecte, le trajet se termine après un délai configurable, pour qu'une brève
+coupure Bluetooth ne coupe pas un trajet en deux. La distance, les adresses et les
+heures de départ et d'arrivée sont enregistrées avec le téléphone dans votre poche.
+Ensuite, vous choisissez une période et exportez un tableur dont les lignes
+contiennent de véritables dates Excel, des liens Google Maps et une ligne de
+totaux.

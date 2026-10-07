@@ -54,13 +54,15 @@ class DevicesStateMapperTest {
     @Test
     fun hints_onlyWhenRelevant() {
         // Bluetooth permission missing → ask for access first.
+        // The mapper returns which hint applies; the text lives in resources
+        // (phase L1 of the localisation work), so this asserts the enum.
         assertEquals(
-            "Allow Bluetooth access to see paired devices.",
+            BluetoothHint.NEED_PERMISSION,
             map(btPermission = false).bluetoothHint,
         )
         // Permission ok but nothing paired → point to Android settings.
         assertEquals(
-            "No paired devices. Pair in Android settings, then come back.",
+            BluetoothHint.NO_PAIRED_DEVICES,
             map().bluetoothHint,
         )
         // Paired devices exist → no hint needed.

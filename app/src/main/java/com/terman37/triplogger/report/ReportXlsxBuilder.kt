@@ -34,13 +34,6 @@ import java.util.zip.ZipOutputStream
  */
 object ReportXlsxBuilder {
 
-    /** Shown when a trip endpoint has no reverse-geocoded address. */
-    const val NO_ADDRESS = "Address not found"
-
-    private val HEADERS = listOf(
-        "start date", "end date", "start address", "end address", "km", "trip",
-    )
-
     // Style indexes into the cellXfs list in [STYLES_XML]. Keep in sync.
     private const val STYLE_HEADER = 1
     private const val STYLE_BODY = 2
@@ -65,14 +58,16 @@ object ReportXlsxBuilder {
     /**
      * @param trips ascending by start time (as the DAO returns them).
      * @param zone local time zone used for the date columns.
+     * @param labels column headers and fixed labels, resolved from resources by
+     *   the caller (this object stays Android-free; see [XlsxLabels]).
      */
-    fun build(trips: List<Trip>, zone: ZoneId): ByteArray {
+    fun build(trips: List<Trip>, zone: ZoneId, labels: XlsxLabels): ByteArray {
         val links = mutableListOf<Hyperlink>()
         val rows = StringBuilder()
 
         // --- header row ----------------------------------------------------
         rows.append("<row r=\"1\">")
-        HEADERS.forEachIndexed { column, title ->
+        labels.headers().forEachIndexed { column, title ->
             rows.append(inlineCell(ref(column, 1), STYLE_HEADER, title))
         }
         rows.append("</row>")
@@ -84,18 +79,18 @@ object ReportXlsxBuilder {
             rows.append(dateCell(ref(0, row), trip.startEpochMillis, zone))
             rows.append(dateCell(ref(1, row), trip.endEpochMillis, zone))
             appendLinkCell(
-                rows, links, ref(2, row),
+                rows, links, labels, ref(2, row),
                 addressText(trip.startStreet, trip.startCity),
                 MapsUrl.place(trip.startStreet, trip.startCity, trip.startLat, trip.startLng),
             )
             appendLinkCell(
-                rows, links, ref(3, row),
+                rows, links, labels, ref(3, row),
                 addressText(trip.endStreet, trip.endCity),
                 MapsUrl.place(trip.endStreet, trip.endCity, trip.endLat, trip.endLng),
             )
             rows.append(numberCell(ref(4, row), STYLE_KM_BODY, trip.distanceKm))
             appendLinkCell(
-                rows, links, ref(5, row), "trip",
+                rows, links, labels, ref(5, row), labels.trip,
                 MapsUrl.directions(
                     trip.startStreet, trip.startCity, trip.startLat, trip.startLng,
                     trip.endStreet, trip.endCity, trip.endLat, trip.endLng,
@@ -109,7 +104,7 @@ object ReportXlsxBuilder {
         val totalRow = trips.size + 2
         val totalKm = trips.sumOf { it.distanceKm }
         rows.append("<row r=\"$totalRow\">")
-        rows.append(inlineCell(ref(0, totalRow), STYLE_TOTAL, "Total"))
+        rows.append(inlineCell(ref(0, totalRow), STYLE_TOTAL, labels.total))
         for (column in 1..3) {
             rows.append(inlineCell(ref(column, totalRow), STYLE_TOTAL, ""))
         }
@@ -136,19 +131,21 @@ object ReportXlsxBuilder {
         ).joinToString(", ")
 
     /**
-     * Address/place cell: shows [display] (or [NO_ADDRESS] when empty) and, if
+     * Address/place cell: shows [display] (or [XlsxLabels.addressNotFound] when
+     * empty) and, if
      * [target] is known, registers it as an external hyperlink.
      */
     private fun appendLinkCell(
         rows: StringBuilder,
         links: MutableList<Hyperlink>,
+        labels: XlsxLabels,
         cell: String,
         display: String,
         target: String?,
         plainStyle: Int = STYLE_BODY,
         linkStyle: Int = STYLE_LINK,
     ) {
-        val text = display.ifEmpty { NO_ADDRESS }
+        val text = display.ifEmpty { labels.addressNotFound }
         if (target == null) {
             rows.append(inlineCell(cell, plainStyle, text))
         } else {

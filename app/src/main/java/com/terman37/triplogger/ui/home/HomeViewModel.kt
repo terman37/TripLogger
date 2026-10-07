@@ -10,6 +10,7 @@ import com.terman37.triplogger.TripLoggerApplication
 import com.terman37.triplogger.core.TripRecorder
 import com.terman37.triplogger.data.Trip
 import com.terman37.triplogger.monitor.TripMonitorService
+import com.terman37.triplogger.text.tripTextFrom
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +36,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val container = (application as TripLoggerApplication).container
     private val zone: ZoneId = ZoneId.systemDefault()
 
+    // Trip-row texts come from resources; the pure formatter is injected so it
+    // stays Android-free (phase L1b of the localisation work).
+    private val text = tripTextFrom(application)
+
     val uiState: StateFlow<HomeUiState> =
         combine(
             container.tripRecorder.snapshotFlow,
@@ -48,6 +53,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 deviceNames = devices.map { it.name },
                 trips = trips,
                 zone = zone,
+                text = text,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -60,6 +66,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 deviceNames = container.settings.registeredDevices.value.map { it.name },
                 trips = emptyList(),
                 zone = zone,
+                text = text,
             ),
         )
 

@@ -1,37 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Default (base) resources: FRENCH.
+
+    The app ships French-first (decision 2026-10-02, release_guide.md §6): this
+    file is what Android falls back to for any device whose language has no
+    translation folder, and English lives in ../values-en. Every key that is
+    user-visible exists in both files; the parity is checked with the script
+    documented in §6 phase L2.
+
+    Notes for translators/maintainers:
+    - Android needs apostrophes escaped as \' (they are part of the French text
+      here, unlike English).
+    - Positional placeholders (%1$s …) so a translation can reorder arguments.
+    - translatable="false" entries (URLs, e-mail) live here only, once.
+-->
 <resources>
-    <!-- App name shown under the launcher icon. -->
+    <!-- App name under the launcher icon. Same in both languages (decision). -->
     <string name="app_name">TripToExcel</string>
 
-    <!-- Foreground service notification (user request): always leads with
-         "Monitoring active", the state follows after the dash. -->
-    <string name="notification_channel_name">Trip monitoring</string>
-    <string name="notification_monitoring_text">Monitoring active</string>
-    <string name="notification_recording_label">Recording</string>
-    <string name="notification_disconnected_label">Disconnected, finishing trip…</string>
+    <!-- Foreground service notification: always leads with the monitoring text. -->
+    <string name="notification_channel_name">Suivi des trajets</string>
+    <string name="notification_monitoring_text">Suivi actif</string>
+    <string name="notification_recording_label">Enregistrement</string>
+    <string name="notification_disconnected_label">Déconnecté, fin du trajet…</string>
+    <!-- Full notification lines: one string each so a translation can reorder
+         the parts; the distance arrives already formatted for the locale. -->
+    <string name="notification_recording_text">%1$s — %2$s %3$s</string>
+    <string name="notification_grace_text">%1$s — %2$s</string>
 
-    <!-- Explains why location must be set to "Allow all the time": without it
-         Android 14+ refuses to restart the location foreground service after a
-         reboot (see docs/DETAILS.md). Android 11+ cannot ask for this in the
-         runtime dialog, so the user is sent to the app's system settings. -->
-    <string name="background_location_dialog_title">Allow location all the time</string>
-    <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, TripToExcel needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
-    <string name="background_location_open_settings">Open settings</string>
+    <!-- Why location must be "all the time": without it Android refuses to
+         restart the location foreground service after a reboot (docs/DETAILS.md). -->
+    <string name="background_location_dialog_title">Autoriser la localisation en permanence</string>
+    <string name="background_location_dialog_text">Pour relancer le suivi automatiquement après un redémarrage du téléphone, TripToExcel a besoin d\'un accès à la localisation réglé sur « Autoriser en permanence ». Ouvrez les réglages de l\'application et choisissez cette option dans Autorisations, puis dans Localisation.</string>
+    <string name="background_location_open_settings">Ouvrir les réglages</string>
 
-    <!-- About dialog, opened by the "?" button on Home. GPL-3.0-or-later only
-         requires the source to be reachable while the app is distributed, so
-         the dialog exists to make that offer (and the version) visible. URLs
-         and the e-mail are not translatable. -->
-    <string name="about_entry_title">About this app</string>
-    <string name="about_entry_subtitle">Version, documentation and privacy policy</string>
-    <string name="about_title">About</string>
+    <!-- About dialog, opened by the "?" row at the bottom of the Settings tab. -->
+    <string name="about_entry_title">À propos de cette application</string>
+    <string name="about_entry_subtitle">Version, documentation et politique de confidentialité</string>
+    <string name="about_title">À propos</string>
     <string name="about_version">Version %1$s (build %2$d)</string>
     <string name="about_copyright">© 2026 Anthony Jourdan</string>
-    <string name="about_licence">Free software under the GNU General Public License v3 or later, with no warranty.</string>
+    <string name="about_licence">Logiciel libre sous licence GNU General Public License v3 ou ultérieure, sans garantie.</string>
     <string name="about_documentation_link">Documentation</string>
-    <string name="about_privacy_link">Privacy policy</string>
-    <string name="about_contact_link">Send an e-mail</string>
-    <string name="about_close">Close</string>
+    <string name="about_privacy_link">Politique de confidentialité</string>
+    <string name="about_contact_link">Envoyer un e-mail</string>
+    <string name="about_close">Fermer</string>
     <string name="about_documentation_url" translatable="false">https://terman37.github.io/TripLogger/</string>
     <string name="about_privacy_url" translatable="false">https://terman37.github.io/TripLogger/privacy-policy.html</string>
     <string name="about_contact_email" translatable="false">anthony.jourdan@gmail.com</string>
+
+    <!-- UI text (phase L1/L2 of the localisation work). -->
+    <!-- Shared -->
+    <string name="common_cancel">Annuler</string>
+    <string name="common_delete">Supprimer</string>
+    <string name="common_ok">OK</string>
+    <string name="error_deletion_failed">Échec de la suppression</string>
+    <string name="error_export_failed">Échec de l\'exportation</string>
+
+    <!-- Bottom navigation tab labels -->
+    <string name="tab_home">Accueil</string>
+    <string name="tab_report">Rapport</string>
+    <string name="tab_settings">Réglages</string>
+
+    <!-- Home screen -->
+    <string name="home_switch_title">Suivi des trajets</string>
+    <string name="home_switch_hint_ready">Enregistrement automatique quand un appareil enregistré se connecte.</string>
+    <string name="home_switch_hint_setup">Aucun appareil enregistré — activez pour en ajouter un.</string>
+    <string name="home_no_trips">Aucun trajet</string>
+    <string name="home_recent_trips">Trajets récents</string>
+    <string name="home_card_off_title">Suivi désactivé</string>
+    <string name="home_card_off_body">Utilisez l\'interrupteur ci-dessus pour enregistrer les trajets automatiquement.</string>
+    <string name="home_card_waiting_title">En attente de %1$s…</string>
+    <string name="home_card_waiting_many">l\'un de vos appareils enregistrés</string>
+    <string name="home_card_waiting_any">un appareil enregistré</string>
+    <string name="home_card_waiting_body">Le trajet démarre automatiquement à la connexion.</string>
+    <string name="home_start_manually">Démarrer manuellement</string>
+    <string name="home_card_recording_title">Enregistrement</string>
+    <string name="home_card_recording_manual">Démarré manuellement</string>
+    <string name="home_card_recording_device">Connecté : %1$s</string>
+    <string name="home_card_recording_device_fallback">la voiture</string>
+    <string name="home_card_grace_title">Déconnecté</string>
+    <string name="home_card_grace_body">Fin du trajet — reconnectez pour reprendre.</string>
+    <string name="home_card_grace_since">Déconnecté depuis %1$s</string>
+    <string name="home_stop">Arrêter</string>
+    <string name="home_stop_now">Arrêter maintenant</string>
+
+    <!-- Trip row card (shared by Home and Report) -->
+    <string name="row_collapse">Réduire</string>
+    <string name="row_expand">Développer</string>
+    <string name="row_open_directions">Ouvrir l\'itinéraire dans Google Maps</string>
+    <string name="row_open_place">Ouvrir %1$s dans Google Maps</string>
+    <string name="row_duration">Durée : %1$s</string>
+    <string name="row_address_from">Départ</string>
+    <string name="row_address_to">Arrivée</string>
+    <string name="row_delete">Supprimer le trajet</string>
+    <string name="row_delete_title">Supprimer ce trajet ?</string>
+    <string name="row_delete_body">Ce trajet sera définitivement supprimé de vos enregistrements et de vos rapports.</string>
+
+    <!-- Report screen -->
+    <string name="report_date_from">Du</string>
+    <string name="report_date_to">Au</string>
+    <string name="report_empty">Aucun trajet sur cette période</string>
+    <string name="report_export">Exporter le tableau</string>
+    <string name="report_export_subject">Export du rapport</string>
+    <string name="report_delete_all_description">Supprimer tous les trajets de cette période</string>
+    <string name="report_delete_body">Tous les trajets du %1$s au %2$s seront définitivement supprimés de vos enregistrements et de vos rapports.</string>
+    <!-- French counts 0 as singular ("0 trajet"), which is why the one-case is used. -->
+    <plurals name="report_summary">
+        <item quantity="one">%1$d trajet · %2$.1f km</item>
+        <item quantity="other">%1$d trajets · %2$.1f km</item>
+    </plurals>
+    <plurals name="report_delete_confirm">
+        <item quantity="one">Supprimer %1$d trajet ?</item>
+        <item quantity="other">Supprimer %1$d trajets ?</item>
+    </plurals>
+
+    <!-- Settings tab: Bluetooth devices -->
+    <string name="devices_title">Appareils Bluetooth</string>
+    <string name="devices_registered">Enregistrés</string>
+    <string name="devices_registered_subtitle">Appareils qui déclenchent un trajet à la connexion.</string>
+    <string name="devices_registered_empty">Aucun appareil enregistré</string>
+    <string name="devices_available">Disponibles</string>
+    <string name="devices_available_subtitle">Appareils appairés dans les réglages Android.</string>
+    <string name="devices_permission_needed">L\'accès Bluetooth est nécessaire pour voir les appareils appairés.</string>
+    <string name="devices_allow_access">Autoriser l\'accès Bluetooth</string>
+    <string name="devices_register">Enregistrer %1$s</string>
+    <string name="devices_remove">Supprimer %1$s</string>
+    <string name="devices_section_title">%1$s (%2$d)</string>
+    <string name="devices_collapse_section">Réduire %1$s</string>
+    <string name="devices_expand_section">Développer %1$s</string>
+    <string name="devices_grace_title">Délai de reconnexion</string>
+    <string name="devices_grace_subtitle">Délai après une coupure Bluetooth avant la fin du trajet.</string>
+    <string name="devices_grace_value">%1$d min</string>
+    <string name="devices_hint_need_permission">Autorisez l\'accès Bluetooth pour voir les appareils appairés.</string>
+    <string name="devices_hint_no_paired">Aucun appareil appairé. Appairez-le dans les réglages Android, puis revenez ici.</string>
+
+    <!-- Texts for the pure formatting layers (TripText, TripRowFactory,
+         ReportXlsxBuilder). Those layers stay Android-free, so the ViewModels
+         read these strings and inject them — see text/AppTextResources.kt.
+         The date/time patterns are data on purpose: each language brings its
+         own order ("d MMM" here, "MMM d" in English). -->
+    <string name="trip_text_address_pending">Adresse en attente</string>
+    <string name="trip_text_no_location">Aucune position</string>
+    <string name="trip_text_start_placeholder">Départ</string>
+    <string name="trip_text_end_placeholder">Arrivée</string>
+    <string name="trip_text_duration_minutes">%1$d min</string>
+    <string name="trip_text_duration_hours">%1$d h %2$02d</string>
+    <string name="trip_text_kilometres">%1$.1f km</string>
+    <string name="trip_text_datetime_pattern">d MMM, HH:mm</string>
+    <string name="trip_text_time_pattern">HH:mm</string>
+
+    <!-- Fixed labels of the exported Excel workbook. -->
+    <string name="xlsx_column_start_date">Date de début</string>
+    <string name="xlsx_column_end_date">Date de fin</string>
+    <string name="xlsx_column_start_address">Adresse de départ</string>
+    <string name="xlsx_column_end_address">Adresse d\'arrivée</string>
+    <string name="xlsx_column_km">km</string>
+    <string name="xlsx_column_trip">Trajet</string>
+    <string name="xlsx_total">Total</string>
+    <string name="xlsx_address_not_found">Adresse introuvable</string>
 </resources>

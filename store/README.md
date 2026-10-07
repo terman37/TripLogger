@@ -5,9 +5,10 @@ Nothing here is needed to build or run the app.
 
 | File | Size / format | Play requirement |
 | --- | --- | --- |
-| `icon-512.png` | 512×512, 32-bit PNG **with alpha**, ~14 KB | store icon; max 1024 KB |
-| `feature-graphic-1024x500.png` | 1024×500, 24-bit PNG, no alpha, ~149 KB | feature graphic |
-| `screenshots/play-*.png` | 1080×1920 (9:16), 24-bit PNG, no alpha | phone screenshots, min 2 |
+| `icon-512.png` | 512×512, 32-bit PNG **with alpha**, ~14 KB | store icon — carries no text, so it is shared by both listings |
+| `feature-graphic-fr-1024x500.png` | 1024×500, 24-bit PNG, no alpha, ~149 KB | French banner (default listing) |
+| `feature-graphic-en-1024x500.png` | 1024×500, 24-bit PNG, no alpha, ~147 KB | English banner (`en-US` listing) |
+| `screenshots/play-*-fr.png`, `…-en.png` | 1080×1920 (9:16), 24-bit PNG, no alpha | phone screenshots, four per language (min 2) |
 
 ## Regenerating
 
@@ -34,11 +35,14 @@ neither is drawn here.
 
 ### Feature graphic
 
-`feature-graphic.html` is the source: mint hairline, the icon on the left, the
-wordmark, a two-line tagline and an amber "Local-only · no account · no ads"
-pill. Text stays inside a 56px margin because Play crops this banner in some
-placements. The store title is `TripToExcel - Km Logger` (see the release
-plan); the graphic uses the shorter wordmark, which is also the launcher label.
+One banner per listing language, same layout: `feature-graphic-fr.html` and
+`feature-graphic-en.html` — mint hairline, the icon on the left, the wordmark, a
+two-line tagline and an amber pill ("Données locales · ni compte · ni pub" /
+"Local-only · no account · no ads"). Text stays inside a 56px margin because Play
+crops this banner in some placements. The French banner uses a slightly smaller
+icon card and tagline because the French line is longer. The store title is
+`TripToExcel - Km Logger` in both languages (see the release plan); the banner
+uses the shorter wordmark, which is also the launcher label.
 
 ### Screenshots
 
@@ -63,12 +67,21 @@ Suggested set (Play: minimum 2, maximum 8 per device type):
 | `settings` | Settings tab (registered device, grace slider, About row) |
 | `about` | Settings tab with the About dialog open |
 
+## Data shown in the screenshots
+
+The current sets use **seeded sample data**, not the owner's trips:
+`app/src/androidTest/.../tools/SampleDataSeederTest.kt` inserts a Paris → Orléans
+→ Limoges → Toulouse drive in three legs plus a local Toulouse hop, a fake
+registered device and monitoring on. Public addresses only, no personal data.
+See the "How to reproduce" bullet in release_guide.md §Phase L4 for the exact
+commands (and the three traps: `connectedDebugAndroidTest` uninstalls the app
+afterwards, `SharedPreferences.apply()` needs a forced commit, and the four
+permissions must be granted or monitoring switches itself off).
+
 ## Privacy
 
-`screenshots/` is **gitignored**: real captures show trip addresses (home, work),
-which are personal data and this repository is public. The composed PNGs are
-local files that get uploaded to the Play Console; the repository only keeps the
-non-personal sources (`icon.svg`, the two HTML templates and the scripts).
-
-Play also requires the images to be free of personal data, so pick a date range
-with neutral addresses (or a test drive) if you would rather not show your own.
+`screenshots/` is **gitignored** even so: captures can contain trip addresses,
+which are personal data and this repository is public. The composed PNGs are local
+files that get uploaded to the Play Console; the repository only keeps the
+non-personal sources (`icon.svg`, the HTML templates, the sample-data seeder and
+the scripts).

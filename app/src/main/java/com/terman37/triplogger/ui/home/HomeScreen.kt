@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.terman37.triplogger.R
 import com.terman37.triplogger.core.TripOrigin
 import com.terman37.triplogger.ui.common.TripRowCard
+import com.terman37.triplogger.text.rememberTripText
 import java.time.ZoneId
 import kotlinx.coroutines.delay
 
@@ -166,14 +167,14 @@ fun HomeScreen(
 
         if (!uiState.hasTrips) {
             Text(
-                text = "No trips yet",
+                text = stringResource(R.string.home_no_trips),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(16.dp),
             )
         } else {
             // Heading above the list (trip rows carry their own date+time).
             Text(
-                text = "Recent trips",
+                text = stringResource(R.string.home_recent_trips),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -208,6 +209,9 @@ private fun StatusCard(
     onStartManual: () -> Unit,
     onStop: () -> Unit,
 ) {
+    // Texts for the live distance / duration, from resources (phase L1b).
+    val tripText = rememberTripText()
+
     // Container color gives an instant visual cue (docs/UI.md: green/neutral/gray).
     val container = when (state) {
         is CardUiState.Recording -> MaterialTheme.colorScheme.primaryContainer
@@ -224,67 +228,88 @@ private fun StatusCard(
         Column(modifier = Modifier.padding(16.dp)) {
             when (state) {
                 is CardUiState.MonitoringOff -> {
-                    Text("Monitoring off", style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Use the switch above to record trips automatically.",
+                        stringResource(R.string.home_card_off_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Text(
+                        stringResource(R.string.home_card_off_body),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
                 is CardUiState.Waiting -> {
                     val who = if (state.deviceNames.size > 1) {
-                        "one of your registered devices"
+                        stringResource(R.string.home_card_waiting_many)
                     } else {
-                        state.deviceNames.firstOrNull() ?: "a registered device"
+                        state.deviceNames.firstOrNull()
+                            ?: stringResource(R.string.home_card_waiting_any)
                     }
-                    Text("Waiting for $who…", style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Trip starts automatically when it connects.",
+                        stringResource(R.string.home_card_waiting_title, who),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Text(
+                        stringResource(R.string.home_card_waiting_body),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = onStartManual) { Text("Start manually") }
+                    Button(onClick = onStartManual) {
+                        Text(stringResource(R.string.home_start_manually))
+                    }
                 }
 
                 is CardUiState.Recording -> {
-                    Text("Recording", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        stringResource(R.string.home_card_recording_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
                     Text(
                         text = if (state.origin == TripOrigin.MANUAL) {
-                            "Started manually"
+                            stringResource(R.string.home_card_recording_manual)
                         } else {
-                            "Connected: ${state.deviceName ?: "car"}"
+                            stringResource(
+                                R.string.home_card_recording_device,
+                                state.deviceName
+                                    ?: stringResource(R.string.home_card_recording_device_fallback),
+                            )
                         },
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        text = TripText.kmText(state.distanceKm),
+                        text = tripText.kmText(state.distanceKm),
                         style = MaterialTheme.typography.displaySmall,
                     )
                     Text(
-                        text = TripText.durationText(state.startedAtEpochMillis, now),
+                        text = tripText.durationText(state.startedAtEpochMillis, now),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = onStop) { Text("Stop") }
+                    Button(onClick = onStop) { Text(stringResource(R.string.home_stop)) }
                 }
 
                 is CardUiState.GracePeriod -> {
-                    Text("Disconnected", style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Finishing trip — reconnect to resume.",
+                        stringResource(R.string.home_card_grace_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Text(
+                        stringResource(R.string.home_card_grace_body),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        "Disconnected since " +
-                            TripText.durationText(state.graceStartedAtEpochMillis, now),
+                        stringResource(
+                            R.string.home_card_grace_since,
+                            tripText.durationText(state.graceStartedAtEpochMillis, now),
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        text = TripText.kmText(state.distanceKm),
+                        text = tripText.kmText(state.distanceKm),
                         style = MaterialTheme.typography.titleLarge,
                     )
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = onStop) { Text("Stop now") }
+                    Button(onClick = onStop) { Text(stringResource(R.string.home_stop_now)) }
                 }
             }
         }
@@ -305,14 +330,17 @@ private fun MonitorSwitchRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("Monitor trips", style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.home_switch_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
             Text(
                 if (state.canEnableMonitoring) {
-                    "Auto-record when a registered device connects."
+                    stringResource(R.string.home_switch_hint_ready)
                 } else {
                     // First run: switching on cannot work yet (no device), so
                     // the switch routes to Settings instead.
-                    "No device registered — switch on to set one up."
+                    stringResource(R.string.home_switch_hint_setup)
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -353,7 +381,7 @@ private fun BackgroundLocationDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
 }

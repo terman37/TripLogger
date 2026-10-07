@@ -8,8 +8,9 @@
 #   ./store/render-assets.sh
 #
 # Outputs (overwritten):
-#   store/icon-512.png               512x512, 32-bit PNG with alpha, < 1 MB
-#   store/feature-graphic-1024x500.png  1024x500, 24-bit PNG, no alpha
+#   store/icon-512.png                  512x512, 32-bit PNG with alpha, < 1 MB
+#   store/feature-graphic-fr-1024x500.png  1024x500, 24-bit PNG, no alpha (French)
+#   store/feature-graphic-en-1024x500.png  1024x500, 24-bit PNG, no alpha (English)
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -38,8 +39,13 @@ PY
   --screenshot="$here/icon-512.png" "file://$here/icon.html"
 
 # Feature graphic: 1024x500, opaque (Play rejects transparency here).
+# One file per language: the Play listing text is per language, so the banner
+# must be too (French is the default listing, see release_guide.md §6).
 "$chrome" "${common[@]}" --window-size=1024,500 \
-  --screenshot="$here/feature-graphic-1024x500.png" "file://$here/feature-graphic.html"
+  --screenshot="$here/feature-graphic-fr-1024x500.png" "file://$here/feature-graphic-fr.html"
+"$chrome" "${common[@]}" --window-size=1024,500 \
+  --screenshot="$here/feature-graphic-en-1024x500.png" "file://$here/feature-graphic-en.html"
 
 report "$here/icon-512.png"
-report "$here/feature-graphic-1024x500.png"
+report "$here/feature-graphic-fr-1024x500.png"
+report "$here/feature-graphic-en-1024x500.png"

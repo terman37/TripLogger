@@ -5,8 +5,9 @@ import com.terman37.triplogger.data.Trip
 
 /**
  * Pure mapping: recorder snapshot + settings + trips → [HomeUiState].
- * Android-free and deterministic (zone injected) so the mapping rules are JVM
- * unit-tested; the ViewModel only collects sources and calls [toUi].
+ * Android-free and deterministic (zone and the [TripText] formatter are
+ * injected) so the mapping rules are JVM unit-tested; the ViewModel only
+ * collects sources and calls [toUi].
  */
 object HomeStateMapper {
 
@@ -16,6 +17,7 @@ object HomeStateMapper {
         deviceNames: List<String>,
         trips: List<Trip>,
         zone: java.time.ZoneId,
+        text: TripText,
     ): HomeUiState {
         val card = when {
             snapshot.phase == TripRecorder.Phase.RECORDING -> CardUiState.Recording(
@@ -32,7 +34,7 @@ object HomeStateMapper {
             else -> CardUiState.MonitoringOff
         }
 
-        val rows = trips.map { tripToRowUi(it, zone) }
+        val rows = trips.map { tripToRowUi(it, zone, text) }
         return HomeUiState(
             card = card,
             recentTrips = rows,

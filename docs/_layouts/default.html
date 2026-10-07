@@ -1,25 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  Site layout. The documentation is French-first (decision 2026-10-02,
+  release_guide.md §6): the pages at the site root are French, their English
+  translations live under /en/, and the technical documents (DETAILS, UI, BUILD)
+  exist in English only at the root. The switch below is therefore shown only on
+  the three pages that have a counterpart in both languages.
+
+  Everything is derived from the page itself (no front matter for maintainability):
+  - `page.path` tells whether we are in the /en/ tree,
+  - `page.name` tells whether this page has a translation.
+-->
+{% assign is_english = false %}
+{% if page.path contains 'en/' %}{% assign is_english = true %}{% endif %}
+{% assign has_translation = false %}
+{% if page.name == 'index.md' or page.name == 'user-guide.md' or page.name == 'privacy-policy.md' %}
+  {% assign has_translation = true %}
+{% endif %}
+<html lang="{% if is_english %}en{% else %}fr{% endif %}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
-  <meta name="description" content="{{ site.description | strip_newlines | escape }}">  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <meta name="description" content="{{ site.description | strip_newlines | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
 
-  <!-- Sticky header: app name, the section links, and the source repository.
-       Colours are the app's own palette (mint primary, sky blue links). -->
+  <!-- Sticky header: app name, the section links in the page's language, the
+       language switch (only for translated pages) and the source repository. -->
   <header class="site-header">
     <div class="site-header-inner">
       <a class="brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
       <nav class="site-nav">
-        <a href="{{ '/user-guide.html' | relative_url }}">User guide</a>
-        <a href="{{ '/DETAILS.html' | relative_url }}">Technical</a>
-        <a href="{{ '/UI.html' | relative_url }}">Interface</a>
-        <a href="{{ '/BUILD.html' | relative_url }}">Building</a>
-        <a href="{{ '/privacy-policy.html' | relative_url }}">Privacy</a>
+        {% if is_english %}
+          <a href="{{ '/en/user-guide.html' | relative_url }}">User guide</a>
+          <a href="{{ '/DETAILS.html' | relative_url }}">Technical</a>
+          <a href="{{ '/UI.html' | relative_url }}">Interface</a>
+          <a href="{{ '/BUILD.html' | relative_url }}">Building</a>
+          <a href="{{ '/en/privacy-policy.html' | relative_url }}">Privacy</a>
+        {% else %}
+          <a href="{{ '/user-guide.html' | relative_url }}">Guide</a>
+          <a href="{{ '/DETAILS.html' | relative_url }}">Technique</a>
+          <a href="{{ '/UI.html' | relative_url }}">Interface</a>
+          <a href="{{ '/BUILD.html' | relative_url }}">Compilation</a>
+          <a href="{{ '/privacy-policy.html' | relative_url }}">Confidentialité</a>
+        {% endif %}
+        {% if has_translation %}
+          {% if is_english %}
+            <a class="lang-switch" href="{{ page.url | replace: '/en/', '/' | relative_url }}"
+               hreflang="fr" lang="fr" title="Version française">Français</a>
+          {% else %}
+            <a class="lang-switch" href="{{ page.url | replace_first: '/', '/en/' | relative_url }}"
+               hreflang="en" lang="en" title="English version">English</a>
+          {% endif %}
+        {% endif %}
         <a class="nav-external" href="https://github.com/terman37/TripLogger">GitHub</a>
       </nav>
     </div>
@@ -30,12 +65,23 @@
   </main>
 
   <footer class="site-footer">
-    <p>
-      <strong>{{ site.title }}</strong> — free software under the
-      <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3 or later</a>.
-      Source: <a href="https://github.com/terman37/TripLogger">github.com/terman37/TripLogger</a>.
-    </p>
-    <p>Local-only app: no account, no server — your trips stay on your phone.</p>
+    {% if is_english %}
+      <p>
+        <strong>{{ site.title }}</strong> — free software under the
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3 or later</a>.
+        Source: <a href="https://github.com/terman37/TripLogger">github.com/terman37/TripLogger</a>.
+      </p>
+      <p>Local-only app: no account, no server — your trips stay on your phone.</p>
+    {% else %}
+      <p>
+        <strong>{{ site.title }}</strong> — logiciel libre sous
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html">licence GNU GPL v3 ou
+        ultérieure</a>. Code source :
+        <a href="https://github.com/terman37/TripLogger">github.com/terman37/TripLogger</a>.
+      </p>
+      <p>Application purement locale : ni compte, ni serveur — vos trajets restent sur
+        votre téléphone.</p>
+    {% endif %}
   </footer>
 
 </body>

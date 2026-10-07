@@ -1,5 +1,6 @@
 package com.terman37.triplogger
 
+import com.terman37.triplogger.testtext.EnglishText
 import com.terman37.triplogger.core.Clock
 import com.terman37.triplogger.core.GpsSample
 import com.terman37.triplogger.core.ReverseGeocodeResult
@@ -83,7 +84,7 @@ class TripRecordingFlowTest {
         assertEquals("5 Rue de Belleville", stored.endStreet)
         assertEquals("Paris", stored.endCity)
 
-        val workbook = ReportXlsxBuilder.build(dao.snapshot(), zone)
+        val workbook = ReportXlsxBuilder.build(dao.snapshot(), zone, EnglishText.xlsxLabels)
         val sheet = zipText(workbook, "xl/worksheets/sheet1.xml")
         val rels = zipText(workbook, "xl/worksheets/_rels/sheet1.xml.rels")
         assertTrue(sheet.contains("Rue de Rivoli"))

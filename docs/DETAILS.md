@@ -1,7 +1,7 @@
 # TripToExcel — technical details
 
 Technical documentation for developers and the curious. User guide:
-[user-guide.md](user-guide.md) · Interface spec: [UI.md](UI.md)
+[user-guide.md](en/user-guide.md) · Interface spec: [UI.md](UI.md)
 · Builds: [BUILD.md](BUILD.md)
 
 ## What the app does

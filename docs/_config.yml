@@ -11,9 +11,10 @@ title: TripToExcel
 # Store title on Google Play (kept longer than the app label on purpose):
 # "TripToExcel - Km Logger"
 description: >-
-  Android app that logs car trips automatically when the car's Bluetooth
-  connects, and exports them as an Excel spreadsheet for expense reports.
-  Local-only: no account, no server, no data leaves the phone.
+  Application Android qui enregistre automatiquement vos trajets en voiture
+  lorsque le Bluetooth de la voiture se connecte, et qui les exporte dans un
+  tableur Excel pour vos notes de frais. Purement locale : ni compte, ni serveur,
+  aucune donnée ne quitte le téléphone.
 
 # No `theme:` on purpose. The docs use a custom dark layout that carries the
 # app's own colours (see _layouts/default.html and assets/css/style.css), so the

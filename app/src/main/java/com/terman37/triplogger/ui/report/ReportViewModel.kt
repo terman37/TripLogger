@@ -8,6 +8,8 @@ import com.terman37.triplogger.TripLoggerApplication
 import com.terman37.triplogger.data.Trip
 import com.terman37.triplogger.report.ReportDates
 import com.terman37.triplogger.report.ReportXlsxBuilder
+import com.terman37.triplogger.text.tripTextFrom
+import com.terman37.triplogger.text.xlsxLabelsFrom
 import com.terman37.triplogger.ui.home.TripRowUi
 import com.terman37.triplogger.ui.home.tripToRowUi
 import java.io.File
@@ -37,6 +39,11 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
     private val zone: ZoneId = ZoneId.systemDefault()
     private val tag = "ReportViewModel"
 
+    // Row texts and workbook labels come from resources (phase L1b): the
+    // formatter and the builder stay Android-free and testable.
+    private val text = tripTextFrom(application)
+    private val xlsxLabels = xlsxLabelsFrom(application)
+
     init {
         // Lazy address retry (offline trips fill in as soon as possible). The
         // export runs it again before building the file.
@@ -64,7 +71,7 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
 
     /** Display rows for the preview (same card as Home). */
     fun toRows(data: ReportData): List<TripRowUi> =
-        data.trips.map { tripToRowUi(it, zone) }
+        data.trips.map { tripToRowUi(it, zone, text) }
 
     /** Deletes one trip (per-row trash in the report list). */
     suspend fun deleteTrip(id: Long): Boolean = withContext(Dispatchers.IO) {
@@ -101,7 +108,7 @@ class ReportViewModel(application: Application) : AndroidViewModel(application) 
         try {
             container.tripRepository.retryPendingAddresses() // freshest addresses
             val trips = queryRange(from, to)
-            val bytes = ReportXlsxBuilder.build(trips, zone)
+            val bytes = ReportXlsxBuilder.build(trips, zone, xlsxLabels)
             val dir = File(getApplication<Application>().cacheDir, "exports").apply { mkdirs() }
             val file = File(dir, "trips_${from}_${to}.xlsx")
             file.writeBytes(bytes)

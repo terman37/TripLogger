@@ -32,8 +32,8 @@ object DevicesStateMapper {
             .map { DeviceRow(it.address, it.name) }
 
         val hint = when {
-            !hasBluetoothPermission -> "Allow Bluetooth access to see paired devices."
-            paired.isEmpty() -> "No paired devices. Pair in Android settings, then come back."
+            !hasBluetoothPermission -> BluetoothHint.NEED_PERMISSION
+            paired.isEmpty() -> BluetoothHint.NO_PAIRED_DEVICES
             else -> null
         }
 

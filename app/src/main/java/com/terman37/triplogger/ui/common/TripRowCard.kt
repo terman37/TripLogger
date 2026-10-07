@@ -34,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.terman37.triplogger.R
 import com.terman37.triplogger.core.MapsUrl
 import com.terman37.triplogger.ui.home.TripRowUi
 import com.terman37.triplogger.ui.theme.DestructiveRed
@@ -97,7 +99,7 @@ fun TripRowCard(
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Map,
-                            contentDescription = "Open directions in Google Maps",
+                            contentDescription = stringResource(R.string.row_open_directions),
                             tint = MaterialTheme.colorScheme.tertiary,
                         )
                     }
@@ -109,7 +111,11 @@ fun TripRowCard(
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) {
+                        stringResource(R.string.row_collapse)
+                    } else {
+                        stringResource(R.string.row_expand)
+                    },
                 )
             }
 
@@ -118,16 +124,19 @@ fun TripRowCard(
                 HorizontalDivider()
                 Spacer(Modifier.height(8.dp))
                 Text(row.timeRangeText, style = MaterialTheme.typography.bodyMedium)
-                Text("Duration: ${row.durationText}", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    stringResource(R.string.row_duration, row.durationText),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
                 Spacer(Modifier.height(8.dp))
                 AddressLine(
-                    label = "From",
+                    label = stringResource(R.string.row_address_from),
                     address = row.startAddressText,
                     mapsUrl = startMapsUrl,
                 )
                 Spacer(Modifier.height(4.dp))
                 AddressLine(
-                    label = "To",
+                    label = stringResource(R.string.row_address_to),
                     address = row.endAddressText,
                     mapsUrl = endMapsUrl,
                     trailing = {
@@ -138,7 +147,7 @@ fun TripRowCard(
                                     contentColor = DestructiveRed,
                                 ),
                             ) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete trip")
+                                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.row_delete))
                             }
                         }
                     },
@@ -150,9 +159,9 @@ fun TripRowCard(
     if (confirmDelete && onDelete != null) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete this trip?") },
+            title = { Text(stringResource(R.string.row_delete_title)) },
             text = {
-                Text("This trip will be permanently removed from your records and reports.")
+                Text(stringResource(R.string.row_delete_body))
             },
             confirmButton = {
                 TextButton(
@@ -163,10 +172,12 @@ fun TripRowCard(
                         confirmDelete = false
                         onDelete()
                     },
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.common_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
+                TextButton(onClick = { confirmDelete = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
@@ -192,7 +203,7 @@ private fun AddressLine(
             }) {
                 Icon(
                     imageVector = Icons.Filled.Place,
-                    contentDescription = "Open $label in Google Maps",
+                    contentDescription = stringResource(R.string.row_open_place, label),
                     tint = MaterialTheme.colorScheme.tertiary,
                 )
             }

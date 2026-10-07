@@ -23,14 +23,17 @@ Everything stays **on your phone**: no account, no server, nothing uploaded.
 
 | Document | What it covers |
 | --- | --- |
-| [User guide](docs/user-guide.md) | Installing, first-time setup, daily use, reports |
+| [User guide](docs/en/user-guide.md) · [français](docs/user-guide.md) | Installing, first-time setup, daily use, reports |
+| [Privacy policy](https://terman37.github.io/TripLogger/privacy-policy.html) · [English](https://terman37.github.io/TripLogger/en/privacy-policy.html) | What the app does with your data |
 | [Technical details](docs/DETAILS.md) | Architecture, how a trip is recorded, tests |
 | [Interface specification](docs/UI.md) | Every screen, state and empty case |
 | [Building and installing](docs/BUILD.md) | Debug build, signed release bundle |
-| [Privacy policy](https://terman37.github.io/TripLogger/privacy-policy.html) | What the app does with your data |
 
-Those files also live in [`docs/`](docs/) and are published as a website by
-GitHub Pages (source: `docs/`, Markdown rendered with Jekyll).
+Those files also live in [`docs/`](docs/) and are published as a website by GitHub
+Pages (source: `docs/`, Markdown rendered with Jekyll). The documentation is
+**French-first** because the app ships French-first: the site root is French, the
+English translations are under [`docs/en/`](docs/en/), and the technical documents
+are English only.
 
 ## License
 

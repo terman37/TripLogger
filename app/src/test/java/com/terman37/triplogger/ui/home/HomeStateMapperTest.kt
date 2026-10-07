@@ -3,6 +3,7 @@ package com.terman37.triplogger.ui.home
 import com.terman37.triplogger.core.TripOrigin
 import com.terman37.triplogger.core.TripRecorder
 import com.terman37.triplogger.data.Trip
+import com.terman37.triplogger.testtext.EnglishText
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
@@ -68,6 +69,7 @@ class HomeStateMapperTest {
             deviceNames = emptyList(),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         assertEquals(CardUiState.MonitoringOff, state.card)
         assertEquals(false, state.hasTrips)
@@ -76,7 +78,7 @@ class HomeStateMapperTest {
     @Test
     fun switchFlags_reflectSettingsAndRegisteredDevices() {
         // No registered devices → switch disabled even when off.
-        val empty = HomeStateMapper.toUi(idle(), false, emptyList(), emptyList(), utc)
+        val empty = HomeStateMapper.toUi(idle(), false, emptyList(), emptyList(), utc, EnglishText.tripText)
         assertEquals(false, empty.monitoringEnabled)
         assertEquals(false, empty.canEnableMonitoring)
 
@@ -86,6 +88,7 @@ class HomeStateMapperTest {
             deviceNames = listOf("Car"),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         assertEquals(true, withDevices.monitoringEnabled)
         assertEquals(true, withDevices.canEnableMonitoring)
@@ -99,6 +102,7 @@ class HomeStateMapperTest {
             deviceNames = listOf("Car bluetooth"),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         assertEquals(CardUiState.Waiting(listOf("Car bluetooth")), state.card)
     }
@@ -111,6 +115,7 @@ class HomeStateMapperTest {
             deviceNames = emptyList(),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         val card = state.card as CardUiState.Recording
         assertEquals(TripOrigin.MANUAL, card.origin)
@@ -126,6 +131,7 @@ class HomeStateMapperTest {
             deviceNames = emptyList(),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         val card = state.card as CardUiState.Recording
         assertEquals("Car bluetooth", card.deviceName)
@@ -139,6 +145,7 @@ class HomeStateMapperTest {
             deviceNames = emptyList(),
             trips = emptyList(),
             zone = utc,
+            text = EnglishText.tripText,
         )
         assertEquals(
             CardUiState.GracePeriod(distanceKm = 7.3, graceStartedAtEpochMillis = 5000L),
@@ -164,7 +171,7 @@ class HomeStateMapperTest {
             ),
         )
 
-        val state = HomeStateMapper.toUi(idle(), false, emptyList(), trips, utc)
+        val state = HomeStateMapper.toUi(idle(), false, emptyList(), trips, utc, EnglishText.tripText)
 
         val row = state.recentTrips.single()
         assertEquals("Aug 6, 14:32", row.title)
@@ -181,7 +188,7 @@ class HomeStateMapperTest {
         val trips = listOf(
             trip(id = 2L, street = null, city = null, lat = null, lng = null),
         )
-        val state = HomeStateMapper.toUi(idle(), false, emptyList(), trips, utc)
+        val state = HomeStateMapper.toUi(idle(), false, emptyList(), trips, utc, EnglishText.tripText)
         val row = state.recentTrips.single()
         assertEquals("Start → End", row.summary)
         assertEquals("No location", row.startAddressText)

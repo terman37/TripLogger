@@ -40,17 +40,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.terman37.triplogger.R
 import com.terman37.triplogger.ui.common.TripRowCard
 import com.terman37.triplogger.ui.theme.DestructiveRed
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
@@ -74,6 +76,12 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
     var expandedIds by remember { mutableStateOf(setOf<Long>()) }
     var deletePending by remember { mutableStateOf(false) }
 
+    // Error and share-sheet texts are resolved here: stringResource() is a
+    // @Composable function and cannot be called inside the click lambdas below.
+    val deletionFailed = stringResource(R.string.error_deletion_failed)
+    val exportFailed = stringResource(R.string.error_export_failed)
+    val exportSubject = stringResource(R.string.report_export_subject)
+
     val datePickerState = rememberDatePickerState()
 
     // Live reload: every date change re-queries (no Generate button anymore).
@@ -91,13 +99,13 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DateFieldButton(
-                label = "From",
+                label = stringResource(R.string.report_date_from),
                 date = from,
                 onClick = { pickerFor = DateField.FROM },
                 modifier = Modifier.weight(1f),
             )
             DateFieldButton(
-                label = "To",
+                label = stringResource(R.string.report_date_to),
                 date = to,
                 onClick = { pickerFor = DateField.TO },
                 modifier = Modifier.weight(1f),
@@ -116,10 +124,10 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
         val current = data
         if (current != null) {
             Text(
-                text = String.format(
-                    Locale.US, "%d %s · %.1f km",
+                text = pluralStringResource(
+                    R.plurals.report_summary,
                     current.trips.size,
-                    if (current.trips.size == 1) "trip" else "trips",
+                    current.trips.size,
                     current.totalKm,
                 ),
                 style = MaterialTheme.typography.titleMedium,
@@ -129,7 +137,7 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
 
         if (current == null || current.trips.isEmpty()) {
             Text(
-                "No trips in this period",
+                stringResource(R.string.report_empty),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,7 +165,7 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                                     data = viewModel.load(from, to)
                                     expandedIds = expandedIds - trip.id
                                 } else {
-                                    error = "Deletion failed"
+                                    error = deletionFailed
                                 }
                             }
                         },
@@ -196,7 +204,7 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
             ) {
                 Icon(
                     Icons.Filled.Delete,
-                    contentDescription = "Delete all trips in this period",
+                    contentDescription = stringResource(R.string.report_delete_all_description),
                 )
             }
             Button(
@@ -208,14 +216,14 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                             // Export triggers the lazy address retry: refresh
                             // the preview so newly geocoded addresses show up.
                             data = viewModel.load(from, to)
-                            shareReport(context, file)
+                            shareReport(context, file, exportSubject)
                         } else {
-                            error = "Export failed"
+                            error = exportFailed
                         }
                     }
                 },
             ) {
-                Text("Export spreadsheet")
+                Text(stringResource(R.string.report_export))
             }
         }
     }
@@ -226,11 +234,16 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
         val count = data?.trips?.size ?: 0
         AlertDialog(
             onDismissRequest = { deletePending = false },
-            title = { Text(if (count == 1) "Delete 1 trip?" else "Delete $count trips?") },
+            title = {
+                Text(pluralStringResource(R.plurals.report_delete_confirm, count, count))
+            },
             text = {
                 Text(
-                    "Every trip from $from to $to will be permanently removed " +
-                        "from your records and reports.",
+                    stringResource(
+                        R.string.report_delete_body,
+                        from.toString(),
+                        to.toString(),
+                    ),
                 )
             },
             confirmButton = {
@@ -246,14 +259,16 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                                 data = viewModel.load(from, to)
                                 expandedIds = emptySet()
                             } else {
-                                error = "Deletion failed"
+                                error = deletionFailed
                             }
                         }
                     },
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.common_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { deletePending = false }) { Text("Cancel") }
+                TextButton(onClick = { deletePending = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
@@ -279,10 +294,12 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                         }
                         pickerFor = null
                     },
-                ) { Text("OK") }
+                ) { Text(stringResource(R.string.common_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { pickerFor = null }) { Text("Cancel") }
+                TextButton(onClick = { pickerFor = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         ) {
             DatePicker(state = datePickerState)
@@ -310,7 +327,7 @@ private fun DateFieldButton(
 private enum class DateField { FROM, TO }
 
 /** Sends the Excel report via the system share sheet (decision). */
-private fun shareReport(context: Context, file: File) {
+private fun shareReport(context: Context, file: File, chooserTitle: String) {
     val uri: android.net.Uri = FileProvider.getUriForFile(
         context,
         "${context.packageName}.fileprovider",
@@ -322,5 +339,5 @@ private fun shareReport(context: Context, file: File) {
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    context.startActivity(Intent.createChooser(send, "Export report"))
+    context.startActivity(Intent.createChooser(send, chooserTitle))
 }

@@ -1,5 +1,6 @@
 package com.terman37.triplogger.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,12 +18,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.terman37.triplogger.R
 import com.terman37.triplogger.ui.home.HomeScreen
 import com.terman37.triplogger.ui.devices.DevicesScreen
 import com.terman37.triplogger.ui.report.ReportScreen
@@ -33,16 +36,17 @@ import com.terman37.triplogger.ui.report.ReportScreen
  */
 enum class TopLevelDestination(
     val route: String,
-    val label: String,
+    /** Tab label, resolved from resources (phase L1 of the localisation work). */
+    @param:StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
     // Tab order: Home, Report, Settings.
-    HOME("home", "Home", Icons.Filled.Home),
-    REPORT("report", "Report", Icons.Filled.Assessment),
+    HOME("home", R.string.tab_home, Icons.Filled.Home),
+    REPORT("report", R.string.tab_report, Icons.Filled.Assessment),
     // Settings holds the Bluetooth device setup, the grace period and the
     // About entry; the gear icon matches that mixed content better than the
     // old Bluetooth icon.
-    SETTINGS("settings", "Settings", Icons.Filled.Settings),
+    SETTINGS("settings", R.string.tab_settings, Icons.Filled.Settings),
 }
 
 /**
@@ -95,10 +99,10 @@ fun TripLoggerApp() {
                         icon = {
                             Icon(
                                 imageVector = destination.icon,
-                                contentDescription = destination.label,
+                                contentDescription = stringResource(destination.labelRes),
                             )
                         },
-                        label = { Text(destination.label) },
+                        label = { Text(stringResource(destination.labelRes)) },
                     )
                 }
             }

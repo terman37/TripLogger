@@ -1,0 +1,159 @@
+<resources>
+    <!-- App name shown under the launcher icon. -->
+    <string name="app_name">TripToExcel</string>
+
+    <!-- Foreground service notification (user request): always leads with
+         "Monitoring active", the state follows after the dash. -->
+    <string name="notification_channel_name">Trip monitoring</string>
+    <string name="notification_monitoring_text">Monitoring active</string>
+    <string name="notification_recording_label">Recording</string>
+    <string name="notification_disconnected_label">Disconnected, finishing trip…</string>
+    <!-- Full notification lines. Kept as one string each so a translation can
+         reorder the parts; the distance arrives already formatted for the
+         locale (phase L1b). -->
+    <string name="notification_recording_text">%1$s — %2$s %3$s</string>
+    <string name="notification_grace_text">%1$s — %2$s</string>
+
+    <!-- Explains why location must be set to "Allow all the time": without it
+         Android 14+ refuses to restart the location foreground service after a
+         reboot (see docs/DETAILS.md). Android 11+ cannot ask for this in the
+         runtime dialog, so the user is sent to the app's system settings. -->
+    <string name="background_location_dialog_title">Allow location all the time</string>
+    <string name="background_location_dialog_text">To restart monitoring by itself after the phone reboots, TripToExcel needs location access set to "Allow all the time". Open the app settings and choose that under Permissions, then Location.</string>
+    <string name="background_location_open_settings">Open settings</string>
+
+    <!-- About dialog, opened by the "?" button on Home. GPL-3.0-or-later only
+         requires the source to be reachable while the app is distributed, so
+         the dialog exists to make that offer (and the version) visible. URLs
+         and the e-mail are not translatable. -->
+    <string name="about_entry_title">About this app</string>
+    <string name="about_entry_subtitle">Version, documentation and privacy policy</string>
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s (build %2$d)</string>
+    <string name="about_copyright">© 2026 Anthony Jourdan</string>
+    <string name="about_licence">Free software under the GNU General Public License v3 or later, with no warranty.</string>
+    <string name="about_documentation_link">Documentation</string>
+    <string name="about_privacy_link">Privacy policy</string>
+    <string name="about_contact_link">Send an e-mail</string>
+    <string name="about_close">Close</string>
+
+    <!--
+        UI text. Phase L1 of the French localisation (release_guide.md §6): these
+        strings were hardcoded in the Compose screens. English is still the only
+        resource set for now — phase L2 makes French the base and moves this file
+        to values-en/. Keys are grouped by screen; `common_*` are shared.
+        Format arguments use positional placeholders so a translation can reorder
+        them.
+    -->
+
+    <!-- Shared -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_ok">OK</string>
+    <string name="error_deletion_failed">Deletion failed</string>
+    <string name="error_export_failed">Export failed</string>
+
+    <!-- Bottom navigation tab labels -->
+    <string name="tab_home">Home</string>
+    <string name="tab_report">Report</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Home screen -->
+    <string name="home_switch_title">Monitor trips</string>
+    <string name="home_switch_hint_ready">Auto-record when a registered device connects.</string>
+    <string name="home_switch_hint_setup">No device registered — switch on to set one up.</string>
+    <string name="home_no_trips">No trips yet</string>
+    <string name="home_recent_trips">Recent trips</string>
+    <string name="home_card_off_title">Monitoring off</string>
+    <string name="home_card_off_body">Use the switch above to record trips automatically.</string>
+    <string name="home_card_waiting_title">Waiting for %1$s…</string>
+    <string name="home_card_waiting_many">one of your registered devices</string>
+    <string name="home_card_waiting_any">a registered device</string>
+    <string name="home_card_waiting_body">Trip starts automatically when it connects.</string>
+    <string name="home_start_manually">Start manually</string>
+    <string name="home_card_recording_title">Recording</string>
+    <string name="home_card_recording_manual">Started manually</string>
+    <string name="home_card_recording_device">Connected: %1$s</string>
+    <string name="home_card_recording_device_fallback">car</string>
+    <string name="home_card_grace_title">Disconnected</string>
+    <string name="home_card_grace_body">Finishing trip — reconnect to resume.</string>
+    <string name="home_card_grace_since">Disconnected since %1$s</string>
+    <string name="home_stop">Stop</string>
+    <string name="home_stop_now">Stop now</string>
+
+    <!-- Trip row card (shared by Home and Report) -->
+    <string name="row_collapse">Collapse</string>
+    <string name="row_expand">Expand</string>
+    <string name="row_open_directions">Open directions in Google Maps</string>
+    <string name="row_open_place">Open %1$s in Google Maps</string>
+    <string name="row_duration">Duration: %1$s</string>
+    <string name="row_address_from">From</string>
+    <string name="row_address_to">To</string>
+    <string name="row_delete">Delete trip</string>
+    <string name="row_delete_title">Delete this trip?</string>
+    <string name="row_delete_body">This trip will be permanently removed from your records and reports.</string>
+
+    <!-- Report screen -->
+    <string name="report_date_from">From</string>
+    <string name="report_date_to">To</string>
+    <string name="report_empty">No trips in this period</string>
+    <string name="report_export">Export spreadsheet</string>
+    <string name="report_export_subject">Export report</string>
+    <string name="report_delete_all_description">Delete all trips in this period</string>
+    <string name="report_delete_body">Every trip from %1$s to %2$s will be permanently removed from your records and reports.</string>
+    <plurals name="report_summary">
+        <item quantity="one">%1$d trip · %2$.1f km</item>
+        <item quantity="other">%1$d trips · %2$.1f km</item>
+    </plurals>
+    <plurals name="report_delete_confirm">
+        <item quantity="one">Delete %1$d trip?</item>
+        <item quantity="other">Delete %1$d trips?</item>
+    </plurals>
+
+    <!-- Settings tab: Bluetooth devices -->
+    <string name="devices_title">Bluetooth devices</string>
+    <string name="devices_registered">Registered</string>
+    <string name="devices_registered_subtitle">Devices that trigger a trip when they connect.</string>
+    <string name="devices_registered_empty">No device registered</string>
+    <string name="devices_available">Available</string>
+    <string name="devices_available_subtitle">Devices paired in Android settings.</string>
+    <string name="devices_permission_needed">Bluetooth access is needed to see paired devices.</string>
+    <string name="devices_allow_access">Allow Bluetooth access</string>
+    <string name="devices_register">Register %1$s</string>
+    <string name="devices_remove">Remove %1$s</string>
+    <string name="devices_section_title">%1$s (%2$d)</string>
+    <string name="devices_collapse_section">Collapse %1$s</string>
+    <string name="devices_expand_section">Expand %1$s</string>
+    <string name="devices_grace_title">Reconnect grace period</string>
+    <string name="devices_grace_subtitle">Minutes after a Bluetooth drop before the trip ends.</string>
+    <string name="devices_grace_value">%1$d min</string>
+    <string name="devices_hint_need_permission">Allow Bluetooth access to see paired devices.</string>
+    <string name="devices_hint_no_paired">No paired devices. Pair in Android settings, then come back.</string>
+
+    <!--
+        Phase L1b: texts for the pure formatting layers (TripText, TripRowFactory,
+        ReportXlsxBuilder). Those layers stay Android-free, so the ViewModels read
+        these strings and inject them — see ui/common/AppTextResources.kt. The
+        date/time patterns are data on purpose: phase L2 translates them per
+        language (e.g. "d MMM, HH:mm" in French).
+    -->
+    <string name="trip_text_address_pending">Address pending</string>
+    <string name="trip_text_no_location">No location</string>
+    <string name="trip_text_start_placeholder">Start</string>
+    <string name="trip_text_end_placeholder">End</string>
+    <string name="trip_text_duration_minutes">%1$d min</string>
+    <string name="trip_text_duration_hours">%1$d h %2$02d</string>
+    <string name="trip_text_kilometres">%1$.1f km</string>
+    <string name="trip_text_datetime_pattern">MMM d, HH:mm</string>
+    <string name="trip_text_time_pattern">HH:mm</string>
+
+    <!-- Fixed labels of the exported Excel workbook. -->
+    <string name="xlsx_column_start_date">start date</string>
+    <string name="xlsx_column_end_date">end date</string>
+    <string name="xlsx_column_start_address">start address</string>
+    <string name="xlsx_column_end_address">end address</string>
+    <string name="xlsx_column_km">km</string>
+    <string name="xlsx_column_trip">trip</string>
+    <string name="xlsx_total">Total</string>
+    <string name="xlsx_address_not_found">Address not found</string>
+</resources>

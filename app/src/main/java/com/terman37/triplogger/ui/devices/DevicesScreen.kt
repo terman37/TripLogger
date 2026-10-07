@@ -100,21 +100,21 @@ fun DevicesScreen(
                 .padding(16.dp),
         ) {
             Text(
-                "Bluetooth devices",
+                stringResource(R.string.devices_title),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
 
             // --- registered devices --------------------------------------
             CollapsibleSection(
-                title = "Registered",
-                subtitle = "Devices that trigger a trip when they connect.",
+                title = stringResource(R.string.devices_registered),
+                subtitle = stringResource(R.string.devices_registered_subtitle),
                 count = uiState.registered.size,
                 initiallyExpanded = true,
             ) {
                 if (uiState.registered.isEmpty()) {
                     Text(
-                        "No device registered",
+                        stringResource(R.string.devices_registered_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(vertical = 8.dp),
                     )
@@ -125,7 +125,7 @@ fun DevicesScreen(
                         address = row.address,
                         trailing = {
                             IconButton(onClick = { viewModel.removeDevice(row.address) }) {
-                                Icon(Icons.Filled.Close, contentDescription = "Remove ${row.name}")
+                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.devices_remove, row.name))
                             }
                         },
                     )
@@ -137,14 +137,14 @@ fun DevicesScreen(
 
             // --- available paired devices --------------------------------
             CollapsibleSection(
-                title = "Available",
-                subtitle = "Devices paired in Android settings.",
+                title = stringResource(R.string.devices_available),
+                subtitle = stringResource(R.string.devices_available_subtitle),
                 count = uiState.available.size,
                 initiallyExpanded = expandAvailable,
             ) {
                 if (!uiState.hasBluetoothPermission) {
                     Text(
-                        "Bluetooth access is needed to see paired devices.",
+                        stringResource(R.string.devices_permission_needed),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     // Amber (tertiary) on purpose: this is the step the user
@@ -158,11 +158,19 @@ fun DevicesScreen(
                         ),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
                     ) {
-                        Text("Allow Bluetooth access")
+                        Text(stringResource(R.string.devices_allow_access))
                     }
                 } else {
                     uiState.bluetoothHint?.let { hint ->
-                        Text(hint, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = when (hint) {
+                                BluetoothHint.NEED_PERMISSION ->
+                                    stringResource(R.string.devices_hint_need_permission)
+                                BluetoothHint.NO_PAIRED_DEVICES ->
+                                    stringResource(R.string.devices_hint_no_paired)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
                 uiState.available.forEach { row ->
@@ -171,7 +179,7 @@ fun DevicesScreen(
                         address = row.address,
                         trailing = {
                             IconButton(onClick = { viewModel.addDevice(row.address, row.name) }) {
-                                Icon(Icons.Filled.Add, contentDescription = "Register ${row.name}")
+                                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.devices_register, row.name))
                             }
                         },
                     )
@@ -184,14 +192,17 @@ fun DevicesScreen(
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Reconnect grace period", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "Minutes after a Bluetooth drop before the trip ends.",
+                        stringResource(R.string.devices_grace_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        stringResource(R.string.devices_grace_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
                 Text(
-                    "${uiState.graceMinutes} min",
+                    stringResource(R.string.devices_grace_value, uiState.graceMinutes),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 8.dp),
                 )
@@ -240,13 +251,17 @@ private fun CollapsibleSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "$title ($count)",
+            stringResource(R.string.devices_section_title, title, count),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f),
         )
         Icon(
             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-            contentDescription = if (expanded) "Collapse $title" else "Expand $title",
+            contentDescription = if (expanded) {
+                stringResource(R.string.devices_collapse_section, title)
+            } else {
+                stringResource(R.string.devices_expand_section, title)
+            },
         )
     }
     Text(subtitle, style = MaterialTheme.typography.bodySmall)

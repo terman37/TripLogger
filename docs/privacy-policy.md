@@ -1,101 +1,113 @@
-# TripToExcel — Privacy Policy
+# TripToExcel — Politique de confidentialité
 
-*Last updated: 2 October 2026*
+*Dernière mise à jour : 2 octobre 2026*
 
-> **TripToExcel is a local-only app.** It does not collect, transmit, or sell your
-> personal data. There is no account, no server, and no analytics. Your trips stay
-> on your phone unless you choose to share an export yourself.
+> **TripToExcel est une application purement locale.** Elle ne collecte, ne
+> transmet et ne vend aucune donnée personnelle. Il n'y a ni compte, ni serveur,
+> ni outil d'analyse. Vos trajets restent sur votre téléphone, sauf si vous
+> choisissez vous-même de les partager.
 
-## 1. Who this policy is for
+## 1. Champ d'application
 
-This policy covers the Android app **TripToExcel**, listed on Google Play as
-*TripToExcel - Km Logger* (package `com.terman37.triplogger`), developed by
-**Anthony Jourdan**. It explains
-what the app uses on your device, where that data goes, and how you can remove it.
+Cette politique couvre l'application Android **TripToExcel**, publiée sur Google
+Play sous le nom *TripToExcel - Km Logger* (package `com.terman37.triplogger`),
+développée par **Anthony Jourdan**. Elle explique ce que l'application utilise sur
+votre appareil, où vont ces données et comment vous pouvez les supprimer.
 
-## 2. What the app uses on your device
+## 2. Ce que l'application utilise sur votre appareil
 
-TripToExcel accesses the following data *on your device only*:
+TripToExcel accède aux données suivantes, *uniquement sur votre appareil* :
 
-- **Bluetooth connection status** of the car device you register in the app. This
-  is used solely to know when a trip starts and when it ends. The app does not
-  read or transfer audio, contacts, or files over Bluetooth.
-- **Location (GPS)**, while a trip is recording, to calculate the driven distance
-  and to resolve the start and end addresses.
-- **Trip records** derived from the data above: start and end time, start and end
-  coordinates, street and city names, and distance.
-- **Notifications**, to display the ongoing “Monitoring active” notification that
-  shows when the app is recording.
+- **L'état de connexion Bluetooth** de l'appareil que vous avez enregistré dans
+  l'application. Il sert uniquement à déterminer quand un trajet commence et quand
+  il se termine. L'application ne lit ni ne transfère d'audio, de contacts ni de
+  fichiers via Bluetooth.
+- **La position (GPS)**, pendant l'enregistrement d'un trajet, pour calculer la
+  distance parcourue et retrouver les adresses de départ et d'arrivée.
+- **Les enregistrements de trajets** qui en découlent : heures de début et de fin,
+  coordonnées de départ et d'arrivée, nom de rue et ville, et distance.
+- **Les notifications**, pour afficher la notification permanente « Suivi actif »
+  qui indique que l'application enregistre.
 
-## 3. No collection, no transmission
+## 3. Aucune collecte, aucune transmission
 
-TripToExcel does not send your data anywhere. It has no backend server, no user
-account, no advertising SDK, and no analytics or crash-reporting service.
+TripToExcel n'envoie vos données nulle part. L'application n'a ni serveur, ni
+compte utilisateur, ni régie publicitaire, ni outil d'analyse ou de rapport de
+plantage.
 
-The only way trip data leaves your phone is when **you** explicitly export a
-spreadsheet and share it through the Android share sheet (for example by email or
-to cloud storage). That action is entirely under your control.
+La seule manière dont vos trajets quittent votre téléphone est lorsque **vous**
+exportez un tableau et le partagez via le partage Android (par e-mail, vers un
+espace de stockage en ligne, etc.). Cette action est entièrement sous votre
+contrôle.
 
-## 4. Where the data is stored
+## 4. Où les données sont stockées
 
-Trip records are stored in the app's private storage on your phone (a local
-database, plus a temporary export folder in the app's private cache). Other apps
-on your phone cannot read this storage. Exported spreadsheets are shared only
-through the Android share sheet, and only when you start the export.
+Les enregistrements de trajets sont stockés dans l'espace privé de l'application,
+sur votre téléphone (une base de données locale, plus un dossier temporaire
+d'export dans le cache privé de l'application). Les autres applications de votre
+téléphone ne peuvent pas lire cet espace. Les tableaux exportés ne sont partagés
+que via le partage Android, et uniquement lorsque vous lancez l'export.
 
-Android's own backup is switched off (`allowBackup="false"`), so trip data is not
-copied to your Google Drive or to another phone by the system.
+La sauvegarde automatique d'Android est désactivée (`allowBackup="false"`) : les
+données de trajets ne sont donc ni copiées vers votre Google Drive, ni transférées
+vers un autre téléphone par le système.
 
-## 5. Deleting your data
+## 5. Supprimer vos données
 
-- Delete a single trip from the trip list or the report list.
-- Delete all trips in a selected date range from the Report tab.
-- Uninstall the app to remove all stored trip data from your phone.
+- Supprimez un trajet depuis la liste des trajets ou depuis le rapport.
+- Supprimez tous les trajets d'une période depuis l'onglet Rapport.
+- Désinstallez l'application pour effacer toutes les données de trajets stockées
+  sur votre téléphone.
 
-Because the developer never receives your data, there is nothing to delete on a
-server; deletion is entirely local and immediate.
+Comme le développeur ne reçoit jamais vos données, il n'y a rien à supprimer sur
+un serveur : la suppression est entièrement locale et immédiate.
 
-## 6. Third parties
+## 6. Tiers
 
-- **Android's built-in geocoder** is used to turn coordinates into an address.
-  This is a system service; its handling of data is governed by your device's
-  platform and Google's terms, not by TripToExcel.
-- **Google Maps** opens only when you tap a map link. The app simply hands a URL
-  to the Maps app or browser; no trip data is sent by TripToExcel.
+- **Le géocodeur intégré d'Android** sert à transformer des coordonnées en
+  adresse. C'est un service du système : le traitement des données relève de votre
+  appareil et des conditions de Google, pas de TripToExcel.
+- **Google Maps** ne s'ouvre que lorsque vous touchez un lien de carte.
+  L'application transmet simplement une URL à l'application Maps ou au navigateur ;
+  aucune donnée de trajet n'est envoyée par TripToExcel.
 
-No other third party receives data from the app.
+Aucun autre tiers ne reçoit de données de l'application.
 
-## 7. Permissions and why they are needed
+## 7. Autorisations et raisons
 
-- `BLUETOOTH_CONNECT` — detect when your registered car connects or disconnects.
-- `ACCESS_FINE_LOCATION` — GPS fixes for distance and addresses while recording.
-- `ACCESS_BACKGROUND_LOCATION` (“Allow all the time”) — so monitoring can resume
-  by itself after a phone reboot. Android does not allow a location service to
-  start in the background without it.
-- `POST_NOTIFICATIONS` — show the persistent “Monitoring active” notification.
-- `RECEIVE_BOOT_COMPLETED` — restart monitoring after the phone reboots.
+- `BLUETOOTH_CONNECT` — détecter la connexion et la déconnexion de votre voiture.
+- `ACCESS_FINE_LOCATION` — relevés GPS pour la distance et les adresses pendant
+  l'enregistrement.
+- `ACCESS_BACKGROUND_LOCATION` (« Autoriser en permanence ») — pour que le suivi
+  puisse reprendre tout seul après un redémarrage du téléphone. Sans cette
+  autorisation, Android interdit à un service de localisation de démarrer en
+  arrière-plan.
+- `POST_NOTIFICATIONS` — afficher la notification permanente « Suivi actif ».
+- `RECEIVE_BOOT_COMPLETED` — redémarrer le suivi après un redémarrage du téléphone.
 
-Monitoring is never silent: while it is active, the notification is always
-visible, and dismissing that notification stops monitoring.
+Le suivi n'est jamais silencieux : tant qu'il est actif, la notification est
+visible, et balayer cette notification arrête le suivi.
 
-## 8. Children
+## 8. Enfants
 
-TripToExcel is not directed at children and does not knowingly collect any
-information from children.
+TripToExcel ne s'adresse pas aux enfants et ne collecte sciemment aucune
+information les concernant.
 
-## 9. Changes to this policy
+## 9. Modifications de cette politique
 
-If the app's behavior changes in a way that affects this policy (for example, if a
-future version adds syncing), this page will be updated before that version is
-released, and the “Last updated” date above will change.
+Si le comportement de l'application change d'une manière qui affecte cette
+politique (par exemple l'ajout d'une synchronisation), cette page sera mise à jour
+avant la publication de cette version, et la date de « Dernière mise à jour »
+ci-dessus changera.
 
 ## 10. Contact
 
-Questions about this policy or about the app's data handling:
+Pour toute question sur cette politique ou sur le traitement des données :
 [anthony.jourdan@gmail.com](mailto:anthony.jourdan@gmail.com).
 
 ---
 
-TripToExcel — privacy policy. This page is a static file: it sets no cookies and
-runs no scripts. Source code:
+TripToExcel — politique de confidentialité. Cette page est un fichier statique :
+elle n'utilise ni cookie ni script. Code source :
 [github.com/terman37/TripLogger](https://github.com/terman37/TripLogger).
+Version anglaise : [English](en/privacy-policy.md).

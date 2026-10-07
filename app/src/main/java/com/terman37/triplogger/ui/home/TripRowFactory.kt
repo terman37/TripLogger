@@ -6,26 +6,26 @@ import com.terman37.triplogger.data.Trip
  * Builds a display [TripRowUi] from a database trip. Shared by the Home and
  * Report screens (both expand rows with the same detail, docs/UI.md).
  */
-fun tripToRowUi(trip: Trip, zone: java.time.ZoneId): TripRowUi {
-    val startAddress = TripText.addressText(
+fun tripToRowUi(trip: Trip, zone: java.time.ZoneId, text: TripText): TripRowUi {
+    val startAddress = text.addressText(
         trip.startStreet, trip.startCity,
         hasCoordinates = trip.startLat != null && trip.startLng != null,
     )
-    val endAddress = TripText.addressText(
+    val endAddress = text.addressText(
         trip.endStreet, trip.endCity,
         hasCoordinates = trip.endLat != null && trip.endLng != null,
     )
-    val summary = TripText.shortLabel(trip.startStreet, trip.startCity, "Start") +
+    val summary = text.shortLabel(trip.startStreet, trip.startCity, text.startPlaceholder) +
         " → " +
-        TripText.shortLabel(trip.endStreet, trip.endCity, "End")
+        text.shortLabel(trip.endStreet, trip.endCity, text.endPlaceholder)
     return TripRowUi(
         id = trip.id,
-        title = TripText.dateTimeText(trip.startEpochMillis, zone),
+        title = text.dateTimeText(trip.startEpochMillis, zone),
         summary = summary,
-        distanceText = TripText.kmText(trip.distanceKm),
-        timeRangeText = "${TripText.timeText(trip.startEpochMillis, zone)} – " +
-            TripText.timeText(trip.endEpochMillis, zone),
-        durationText = TripText.durationText(trip.startEpochMillis, trip.endEpochMillis),
+        distanceText = text.kmText(trip.distanceKm),
+        timeRangeText = "${text.timeText(trip.startEpochMillis, zone)} – " +
+            text.timeText(trip.endEpochMillis, zone),
+        durationText = text.durationText(trip.startEpochMillis, trip.endEpochMillis),
         startAddressText = startAddress,
         endAddressText = endAddress,
         startStreet = trip.startStreet,

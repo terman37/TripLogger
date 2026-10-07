@@ -10,7 +10,7 @@ implementation (the validated implementation); keep in sync with the code.
 | UI toolkit | Jetpack Compose |
 | Design system | Material 3, dark theme only |
 | Accent palette | mint green `#41D8B7` (primary), sky blue `#7AB8FF` (secondary), amber `#FFD166` (tertiary: map icons, grace, and the "Allow Bluetooth access" button that unblocks first-run setup) on dark neutrals; deep red `#FF5252` (`DestructiveRed`) for delete actions |
-| Language | English only |
+| Language | French (base, `res/values/`) and English (`res/values-en/`); device language decides. More languages = one more `values-xx/` folder |
 | App structure | Single activity, bottom navigation, 3 tabs |
 | Tab order | **Home / Report / Settings** |
 | Icon | Adaptive: dark background, S-shaped mint road with dark centre stripe + warm amber car; S road + car silhouette as themed-icon layer |

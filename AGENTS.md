@@ -8,7 +8,8 @@ addition to the global agent rules (`~/.pi/agent/AGENTS.md`).
 Android app (Kotlin) that logs car trips and exports expense-report spreadsheets.
 See [README.md](README.md) (short front page, links to the hosted docs) and
 [docs/DETAILS.md](docs/DETAILS.md) (technical documentation) for the current
-behaviour. The user guide is [docs/user-guide.md](docs/user-guide.md).
+behaviour. The user guide is [docs/user-guide.md](docs/user-guide.md) (French,
+French-first decision) — its English translation is [docs/en/user-guide.md](docs/en/user-guide.md).
 The owner is **new to Android development**: code must be
 understandable, generously commented, and behavior must be testable.
 
@@ -26,8 +27,10 @@ understandable, generously commented, and behavior must be testable.
 
 - Working app: trip logging, Report/Excel export, Settings tab (device setup,
   reconnect grace period, About), dark Compose UI
-  (validated on a real device). See docs/user-guide.md for the user guide and
-  docs/DETAILS.md for the technical documentation.
+  (validated on a real device). See docs/user-guide.md (French) or
+  docs/en/user-guide.md (English) for the user guide, and docs/DETAILS.md for the
+  technical documentation. The app ships French-first with English in
+  `res/values-en/`; the UI strings live in `res/values/strings.xml` (French).
 - Package: `com.terman37.triplogger`. minSdk 34, targetSdk 37.
 - Version catalog: `gradle/libs.versions.toml` (single source of dependency
   versions). Add new libraries there, never hardcode versions in build files.
@@ -49,7 +52,9 @@ understandable, generously commented, and behavior must be testable.
   architecture or setup changes.
 - **Files:** README.md (repo front page) and docs/ (user guide, technical,
   interface, builds, privacy policy, site config) are source-of-truth docs. The
-  docs are published by GitHub Pages; keep them in sync with code behavior.
+  user-facing pages exist in both languages: French at the root, English under
+  `docs/en/`; technical docs are English only. The docs are published by GitHub
+  Pages; keep them in sync with code behavior.
 
 ## Validation
 

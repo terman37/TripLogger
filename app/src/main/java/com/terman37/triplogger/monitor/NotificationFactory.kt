@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import com.terman37.triplogger.MainActivity
 import com.terman37.triplogger.R
 import com.terman37.triplogger.core.TripRecorder
-import java.util.Locale
+import com.terman37.triplogger.text.tripTextFrom
 
 /**
  * Builds the monitoring notification (the foreground-service notification and
@@ -46,19 +46,24 @@ object NotificationFactory {
         context: Context,
         phase: TripRecorder.Phase,
         distanceKm: Double,
-    ): String = when (phase) {
-        TripRecorder.Phase.RECORDING -> String.format(
-            Locale.US, "%s — %s %.1f km",
-            context.getString(R.string.notification_monitoring_text),
-            context.getString(R.string.notification_recording_label),
-            distanceKm,
-        )
-        TripRecorder.Phase.GRACE -> String.format(
-            Locale.US, "%s — %s",
-            context.getString(R.string.notification_monitoring_text),
-            context.getString(R.string.notification_disconnected_label),
-        )
-        TripRecorder.Phase.IDLE -> context.getString(R.string.notification_monitoring_text)
+    ): String {
+        val monitoring = context.getString(R.string.notification_monitoring_text)
+        return when (phase) {
+            TripRecorder.Phase.RECORDING -> context.getString(
+                R.string.notification_recording_text,
+                monitoring,
+                context.getString(R.string.notification_recording_label),
+                // Locale-aware distance ("12,4 km" on a French phone): reuse the
+                // pure formatter instead of an ad-hoc %.1f (phase L1b).
+                tripTextFrom(context).kmText(distanceKm),
+            )
+            TripRecorder.Phase.GRACE -> context.getString(
+                R.string.notification_grace_text,
+                monitoring,
+                context.getString(R.string.notification_disconnected_label),
+            )
+            TripRecorder.Phase.IDLE -> monitoring
+        }
     }
 
     fun create(

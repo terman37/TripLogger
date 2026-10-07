@@ -1,5 +1,6 @@
 package com.terman37.triplogger.report
 
+import com.terman37.triplogger.testtext.EnglishText
 import com.terman37.triplogger.core.TripOrigin
 import com.terman37.triplogger.data.Trip
 import java.io.ByteArrayInputStream
@@ -62,7 +63,7 @@ class ReportXlsxBuilderTest {
     }
 
     private fun build(trips: List<Trip>): Map<String, String> =
-        entries(ReportXlsxBuilder.build(trips, utc))
+        entries(ReportXlsxBuilder.build(trips, utc, EnglishText.xlsxLabels))
 
     /** Expected Excel serial (days since 1899-12-30) for a UTC local date/time. */
     private fun serial(local: LocalDateTime): Double =
@@ -173,10 +174,10 @@ class ReportXlsxBuilderTest {
         val sheet = parts["xl/worksheets/sheet1.xml"]!!
 
         assertTrue(sheet.contains("<c r=\"C2\" s=\"3\" t=\"inlineStr\"><is>" +
-            "<t xml:space=\"preserve\">${ReportXlsxBuilder.NO_ADDRESS}</t></is></c>"))
+            "<t xml:space=\"preserve\">${EnglishText.xlsxLabels.addressNotFound}</t></is></c>"))
         // No coordinates → plain text, not a link.
         assertTrue(sheet.contains("<c r=\"D2\" s=\"2\" t=\"inlineStr\"><is>" +
-            "<t xml:space=\"preserve\">${ReportXlsxBuilder.NO_ADDRESS}</t></is></c>"))
+            "<t xml:space=\"preserve\">${EnglishText.xlsxLabels.addressNotFound}</t></is></c>"))
         assertTrue(parts["xl/worksheets/_rels/sheet1.xml.rels"]!!.contains("query=48.856600%2C2.352200"))
     }
 
@@ -227,7 +228,7 @@ class ReportXlsxBuilderTest {
         val start = epoch("2026-08-06T22:30") // UTC 22:30
         val t = trip(start = start, end = start + 3_600_000, km = 5.0)
         val sheet = entries(
-            ReportXlsxBuilder.build(listOf(t), ZoneId.of("Europe/Paris")),
+            ReportXlsxBuilder.build(listOf(t), ZoneId.of("Europe/Paris"), EnglishText.xlsxLabels),
         )["xl/worksheets/sheet1.xml"]!!
         // Paris is UTC+2 in August: 22:30 UTC → next day 00:30 local.
         val expected = serial(LocalDateTime.parse("2026-08-07T00:30"))

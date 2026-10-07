@@ -87,6 +87,16 @@ body {
 
 .site-nav a { color: var(--muted); text-decoration: none; }
 .site-nav a:hover, .site-nav a:focus { color: var(--secondary); }
+
+/* Language switch (FR/EN): distinct from the section links so it reads as a
+   language choice, not another section. */
+.lang-switch {
+  color: var(--amber) !important;
+  border: 1px solid var(--amber-deep);
+  border-radius: 999px;
+  padding: .1rem .7rem;
+}
+.lang-switch:hover, .lang-switch:focus { color: var(--amber-text) !important; }
 .nav-external::after { content: " ↗"; font-size: .8em; }
 
 /* --- content ----------------------------------------------------------- */
