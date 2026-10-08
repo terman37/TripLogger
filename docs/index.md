@@ -39,5 +39,5 @@ Si l'application vous est utile, vous pouvez m'offrir un ko-fi. C'est entièreme
 facultatif : aucune fonction de l'application n'y est conditionnée, il n'y a ni
 publicité ni version payante. Le lien ouvre ko-fi.com dans votre navigateur.
 
-[![Offrez-moi un ko-fi](assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+<a href="https://ko-fi.com/anthonyjourdan"><img src="assets/img/support_me_on_kofi_badge_blue.png" alt="Offrez-moi un ko-fi" width="140"></a>
 

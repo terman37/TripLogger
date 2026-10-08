@@ -21,13 +21,13 @@ Everything stays **on your phone**: no account, no server, nothing uploaded.
 
 **Full documentation: <https://terman37.github.io/TripLogger/>**
 
-| Document | What it covers |
-| --- | --- |
-| [User guide](docs/en/user-guide.md) · [français](docs/user-guide.md) | Installing, first-time setup, daily use, reports |
-| [Privacy policy](https://terman37.github.io/TripLogger/privacy-policy.html) · [English](https://terman37.github.io/TripLogger/en/privacy-policy.html) | What the app does with your data |
-| [Technical details](docs/DETAILS.md) | Architecture, how a trip is recorded, tests |
-| [Interface specification](docs/UI.md) | Every screen, state and empty case |
-| [Building and installing](docs/BUILD.md) | Debug build, signed release bundle |
+| Document                                                                                                                                              | What it covers                                   |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| [User guide](docs/en/user-guide.md) · [français](docs/user-guide.md)                                                                                  | Installing, first-time setup, daily use, reports |
+| [Privacy policy](https://terman37.github.io/TripLogger/privacy-policy.html) · [English](https://terman37.github.io/TripLogger/en/privacy-policy.html) | What the app does with your data                 |
+| [Technical details](docs/DETAILS.md)                                                                                                                  | Architecture, how a trip is recorded, tests      |
+| [Interface specification](docs/UI.md)                                                                                                                 | Every screen, state and empty case               |
+| [Building and installing](docs/BUILD.md)                                                                                                              | Debug build, signed release bundle               |
 
 Those files also live in [`docs/`](docs/) and are published as a website by GitHub
 Pages (source: `docs/`, Markdown rendered with Jekyll). The documentation is
@@ -41,7 +41,7 @@ If the app is useful to you, you can buy me a Ko-fi. It is entirely optional, an
 nothing in the app is locked behind it — TripToExcel is free software under the
 GPL, with no ads and no paid tier.
 
-[![Support me on Ko-fi](docs/assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+<a href="https://ko-fi.com/anthonyjourdan"><img src="docs/assets/img/support_me_on_kofi_badge_blue.png" alt="Support me on Ko-fi" width="140"></a>
 
 ---
 

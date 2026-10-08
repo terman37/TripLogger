@@ -32,5 +32,5 @@ If the app is useful to you, you can buy me a Ko-fi. It is entirely optional:
 nothing in the app is locked behind it, and there are no ads and no paid tier.
 The link opens ko-fi.com in your browser.
 
-[![Support me on Ko-fi](../assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+<a href="https://ko-fi.com/anthonyjourdan"><img src="../assets/img/support_me_on_kofi_badge_blue.png" alt="Support me on Ko-fi" width="140"></a>
 
