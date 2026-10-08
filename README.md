@@ -35,6 +35,16 @@ Pages (source: `docs/`, Markdown rendered with Jekyll). The documentation is
 English translations are under [`docs/en/`](docs/en/), and the technical documents
 are English only.
 
+## Support
+
+If the app is useful to you, you can buy me a Ko-fi. It is entirely optional, and
+nothing in the app is locked behind it — TripToExcel is free software under the
+GPL, with no ads and no paid tier.
+
+[![Support me on Ko-fi](docs/assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+
+---
+
 ## License
 
 TripToExcel is free software, released under the **GNU General Public License,

@@ -32,3 +32,12 @@ heures de départ et d'arrivée sont enregistrées avec le téléphone dans votr
 Ensuite, vous choisissez une période et exportez un fichier dont les lignes
 contiennent de véritables dates Excel, des liens Google Maps et une ligne de
 totaux.
+
+## Soutenir le projet
+
+Si l'application vous est utile, vous pouvez m'offrir un ko-fi. C'est entièrement
+facultatif : aucune fonction de l'application n'y est conditionnée, il n'y a ni
+publicité ni version payante. Le lien ouvre ko-fi.com dans votre navigateur.
+
+[![Offrez-moi un ko-fi](assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+

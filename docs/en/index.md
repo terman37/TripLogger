@@ -25,3 +25,12 @@ configurable grace period so a brief Bluetooth dropout does not split one drive
 in two. Distance, start/end addresses and times are recorded with the phone in
 your pocket. Later you pick a date range and export a spreadsheet whose rows are
 real Excel dates with Google Maps links and a total row.
+
+## Support
+
+If the app is useful to you, you can buy me a Ko-fi. It is entirely optional:
+nothing in the app is locked behind it, and there are no ads and no paid tier.
+The link opens ko-fi.com in your browser.
+
+[![Support me on Ko-fi](../assets/img/support_me_on_kofi_badge_blue.png)](https://ko-fi.com/anthonyjourdan)
+
