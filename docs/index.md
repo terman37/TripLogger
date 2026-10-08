@@ -2,7 +2,7 @@
 
 Application Android qui **enregistre automatiquement vos trajets en voiture** dès
 que le Bluetooth de la voiture se connecte, et qui vous permet de **les exporter
-dans un tableur Excel** pour votre note de frais. Tout reste sur le téléphone : ni
+dans un fichier Excel** pour votre note de frais. Tout reste sur le téléphone : ni
 compte, ni serveur, ni envoi de données.
 
 ## Documents
@@ -29,6 +29,6 @@ l'application. Quand la voiture se connecte, un trajet démarre ; quand elle se
 déconnecte, le trajet se termine après un délai configurable, pour qu'une brève
 coupure Bluetooth ne coupe pas un trajet en deux. La distance, les adresses et les
 heures de départ et d'arrivée sont enregistrées avec le téléphone dans votre poche.
-Ensuite, vous choisissez une période et exportez un tableur dont les lignes
+Ensuite, vous choisissez une période et exportez un fichier dont les lignes
 contiennent de véritables dates Excel, des liens Google Maps et une ligne de
 totaux.

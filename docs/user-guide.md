@@ -1,18 +1,24 @@
 # TripToExcel — guide d'utilisation
 
 Une application Android qui **enregistre vos trajets en voiture automatiquement**
-et vous permet de les exporter dans un tableur pour votre note de frais.
+et vous permet de les exporter dans un Excel pour votre note de frais.
 
 Vous n'avez rien à faire avant de conduire : quand le Bluetooth de votre voiture se
 connecte, le trajet démarre ; quand il se déconnecte, le trajet se termine. La
 distance, les adresses et les heures de départ et d'arrivée sont enregistrées.
-Ensuite, vous choisissez une période et exportez un tableur que vous pouvez envoyer
+Ensuite, vous choisissez une période et exportez un fichier que vous pouvez envoyer
 à votre employeur ou à votre comptable.
 
 Tout reste **sur votre téléphone**. Il n'y a ni compte, ni serveur, et
 l'application n'envoie rien.
 
 ## Installer l'application
+
+### Depuis Google Play Store
+
+En cours de publication.
+
+### En local
 
 Les étapes de compilation et d'installation sont dans [BUILD.md](BUILD.md) ; si
 quelqu'un vous a déjà donné un fichier `.apk`, ouvrez-le simplement sur votre
@@ -45,10 +51,12 @@ supprimez-les avec le **X** à côté de leur nom.
 
 ### Le délai de reconnexion (onglet Réglages)
 
-Le Bluetooth se coupe parfois quelques secondes (téléphone dans la poche, tunnel…).
+Le Bluetooth se coupe parfois quelques secondes (téléphone dans la poche, tunnel,
+pause pipi…).
 Le **Délai de reconnexion** (1 à 15 minutes, 3 par défaut) fait qu'une déconnexion
 ne termine le trajet qu'après ce délai : si la voiture se reconnecte à temps, le
-trajet reste un seul trajet.
+trajet reste un seul trajet. Cela permet également de ne pas couper un trajet en deux
+pour une pause pipi...
 
 ## Utilisation quotidienne
 
@@ -83,13 +91,13 @@ Ouvrez l'onglet **Rapport** :
    jours sont affichés ; la liste se met à jour dès que vous changez une date.
 2. Une ligne de résumé indique le nombre de trajets et le total de kilomètres de la
    période.
-3. Touchez le **bouton d'export** (en bas à droite) pour créer le tableur : le
+3. Touchez le **bouton d'export** (en bas à droite) pour créer le fichier : le
    partage Android s'ouvre, ce qui vous permet de l'envoyer par e-mail, de
    l'enregistrer sur Drive ou de l'ouvrir dans Google Sheets/Excel.
 4. L'**icône corbeille** (en bas à gauche) supprime **tous** les trajets de la
    période affichée — une confirmation est toujours demandée avant.
 
-Le tableur contient une ligne par trajet : les dates et heures de début et de fin
+Le fichier contient une ligne par trajet : les dates et heures de début et de fin
 en véritables dates Excel (Excel les affiche dans votre langue ; utilisez Format de
 cellule pour les modifier), l'adresse de départ et d'arrivée (chacune ouvre le lieu
 dans Google Maps), les kilomètres et un lien « Trajet » ouvrant l'itinéraire

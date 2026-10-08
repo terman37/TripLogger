@@ -13,6 +13,12 @@ is uploaded by the app.
 
 ## Installing the app
 
+### From Google Play Store
+
+Publish in progress.
+
+### From local build
+
 The build and install steps are in [BUILD.md](../BUILD.md); if someone already gave
 you an `.apk` file, just open it on your phone and allow installing apps from
 that source.
@@ -41,8 +47,9 @@ You can log several cars/devices: add each one with **+**. Remove one with the
 
 ### The reconnect grace period (Settings tab)
 
-Bluetooth sometimes drops for a few seconds (phone in a pocket, tunnel…). The
-**Reconnect grace period** (1–15 minutes, default 3) means a disconnect only
+Bluetooth sometimes drops for a few seconds (phone in a pocket, tunnel, coffee
+break…).
+The **Reconnect grace period** (1–15 minutes, default 3) means a disconnect only
 ends the trip after that delay: if the car reconnects in time, the trip
 continues as a single trip.
 
