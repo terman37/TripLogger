@@ -130,11 +130,26 @@ class LocationFilterTest {
     }
 
     @Test
-    fun pathologicalSameTimestamp_isKeptWhenMoved() {
+    fun sameTimestamp_reanchorsWithoutChargingDistance() {
+        // A fix that is not newer than the anchor cannot be validated: there is no
+        // elapsed time, so the speed gate has nothing to check. It must therefore
+        // add no distance — it becomes the new anchor instead. This is the guard
+        // behind the "+0.4 km at trip start" bug: a stale cached fix has an old
+        // timestamp, and the previous code skipped the speed check and charged the
+        // jump (see also TripRecorderTest for the hint validation).
         val filter = LocationFilter()
         filter.process(paris)
-        // Same timestamp as the anchor (cannot compute speed): displacement
-        // gate alone decides.
-        assertKept(filter.process(movedNorth(500.0, ts = 0L)), 0.5, 0.05)
+        assertKept(filter.process(movedNorth(500.0, ts = 0L)), 0.0)
+        // The new anchor is that fix, so the following step is measured from it.
+        assertKept(filter.process(movedNorth(1000.0, ts = 30_000)), 0.5, 0.05)
+    }
+
+    @Test
+    fun seededAnchor_isUsedWithoutChargingDistance() {
+        val filter = LocationFilter()
+        // seed() is what the recorder uses for a fresh cached fix at trip start.
+        filter.seed(paris)
+        // First real fix: 500 m further, 30 s later → counted from the seeded point.
+        assertKept(filter.process(movedNorth(500.0, ts = 30_000)), 0.5, 0.05)
     }
 }

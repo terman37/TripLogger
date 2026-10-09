@@ -69,7 +69,13 @@ startCity` (nullable = address pending), the same four for the end,
    as a connect event (trip starts immediately).
 2. **Trip starts** (auto) — recorder enters RECORDING; start timestamp is now.
 3. **GPS** — `LocationManager` GPS provider, one fix every 30 s while
-   RECORDING (`TrackingPolicy`). `lastKnown()` anchors the trip immediately.
+   RECORDING (`TrackingPolicy`). `lastKnown()` anchors the trip immediately, but
+   only when that cached fix is trustworthy: `TripRecorder.onAnchorHint` rejects it
+   if it is older than 90 s or less accurate than 100 m, because a stale cached fix
+   (another place, another day) used to be charged to the trip as a first bogus
+   step — a trip starting at "+0.4 km" on the device. `LocationFilter` also
+   refuses to charge a step whose timestamps give no positive elapsed time; such a
+   fix re-anchors the filter without adding distance.
    *Filters* (`LocationFilter`): keep a fix only when it moved ≥ 10 m from the
    last kept fix, accuracy ≤ 50 m, and the implied speed is ≤ 160 km/h. Distance
    = sum of Haversine steps of kept fixes. Parked cars and GPS jumps therefore

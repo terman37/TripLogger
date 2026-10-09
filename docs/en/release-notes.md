@@ -2,7 +2,7 @@
 
 French version: [Français](../release-notes.md).
 
-## 1.0 — 7 October 2026 (version code 2)
+## 1.0 — 7 October 2026 (version code 3)
 
 ```
 1.0 — first release.

@@ -27,6 +27,16 @@ class LocationFilter(
     private var anchor: GpsSample? = null
 
     /**
+     * Sets the anchor without charging any distance, for a fix supplied by the
+     * caller as a starting point (the platform's cached fix, see
+     * [TripRecorder.onAnchorHint]). The next processed sample is measured from it,
+     * so the caller is responsible for only seeding with a trustworthy fix.
+     */
+    fun seed(sample: GpsSample) {
+        anchor = sample
+    }
+
+    /**
      * Feeds one GPS sample through the filters.
      */
     fun process(sample: GpsSample): FilterDecision {
@@ -55,15 +65,21 @@ class LocationFilter(
             return FilterDecision.Ignored(IgnoreReason.DISPLACEMENT)
         }
 
-        // (3) Speed gate: speed = distance / elapsed time. Guard the division:
-        // two fixes with identical timestamps (pathological) cannot imply a
-        // speed, so they are not treated as a jump.
+        // (3) Speed gate: speed = distance / elapsed time.
         val elapsedSeconds = (sample.timestampEpochMillis - currentAnchor.timestampEpochMillis) / 1000.0
         if (elapsedSeconds > 0) {
             val speedKmh = (distanceMeters / 1000.0) / (elapsedSeconds / 3600.0)
             if (speedKmh > maxSpeedKmh) {
                 return FilterDecision.Ignored(IgnoreReason.SPEED)
             }
+        } else {
+            // A fix that is not newer than the anchor cannot be validated: with no
+            // elapsed time there is no speed to check, so the displacement gate
+            // alone would decide. Keep it as the new anchor and charge nothing
+            // instead of adding an unverifiable jump — a stale cached fix takes
+            // exactly this path.
+            anchor = sample
+            return FilterDecision.Kept(distanceKm = 0.0)
         }
 
         anchor = sample

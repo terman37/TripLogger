@@ -67,7 +67,7 @@ android {
         // including uploads to testing tracks. Bump it for every new AAB.
         // versionName: what users see; it only changes when the release itself
         // changes (see AGENTS.md and docs/release-notes.md).
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

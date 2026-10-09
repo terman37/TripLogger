@@ -35,6 +35,17 @@ object TrackingPolicy {
     const val EARTH_RADIUS_KM = 6371.0
 
     /**
+     * How old the platform's cached fix may be and still be trusted as the trip's
+     * start anchor. The platform can hand back a fix from another place or another
+     * day; using such a fix charged the distance between it and the first real fix
+     * to the trip (bug seen on device: a trip starting at +0.4 km).
+     */
+    const val MAX_ANCHOR_HINT_AGE_MS = 90_000L
+
+    /** Same idea for the cached fix's reported accuracy, in metres. */
+    const val MAX_ANCHOR_HINT_ACCURACY_METERS = 100.0
+
+    /**
      * Trips shorter than this are discarded on finish (earlier decisions, user
      * feedback): parked-engine sessions produce ~0 km rows that only pollute
      * reports. 50 m because rows display "0.0 km" up to ~49 m anyway.

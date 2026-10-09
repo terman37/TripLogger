@@ -210,6 +210,35 @@ class TripRecorder(
         publish()
     }
 
+    /**
+     * Cached fix the platform had when the trip started (see
+     * `LocationSource.lastKnown`).
+     *
+     * It becomes the trip's start position and the distance anchor **only when it
+     * is fresh and accurate enough**. A stale cached fix is what made a trip start
+     * at "+0.4 km" on the device: the platform may return a fix from another place
+     * or another day, and the distance between that old position and the first real
+     * fix was then charged to the trip. Ignoring a stale hint costs a slightly later
+     * start position, never a wrong distance.
+     */
+    fun onAnchorHint(sample: GpsSample) {
+        val s = session ?: return
+        if (graceUntilMillis != null) return
+
+        val ageMillis = clock.nowMillis() - sample.timestampEpochMillis
+        if (ageMillis > TrackingPolicy.MAX_ANCHOR_HINT_AGE_MS) return
+        if (sample.accuracyMeters?.let { it > TrackingPolicy.MAX_ANCHOR_HINT_ACCURACY_METERS } == true) return
+
+        // Position only: the hint adds no distance by itself, and the next real fix
+        // is measured from it.
+        if (s.startLat == null) {
+            s.startLat = sample.latitude
+            s.startLng = sample.longitude
+        }
+        s.filter.seed(sample)
+        publish()
+    }
+
     /** Fallback start button (no Bluetooth). */
     fun onManualStart() {
         if (session != null) return // already recording (any kind)

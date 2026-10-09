@@ -30,6 +30,55 @@ class TripRecorderTest {
         assertEquals(phase, recorder.snapshot().phase)
     }
 
+    // --- cached start fix (anchor hint) -----------------------------------
+
+    @Test
+    fun staleAnchorHint_isIgnored() {
+        // The platform hands back a fix from 10 minutes ago, 400 m away: using it
+        // would charge those 400 m to the trip (the reported bug).
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.onDeviceConnected("Car")
+
+        val stale = sampleAt(base - 10 * 60_000L, latOffsetDegrees = step500m * 0.8)
+        recorder.onAnchorHint(stale)
+
+        // First real fix 30 s later, near the real start: nothing charged.
+        recorder.onLocationSample(sampleAt(base + 30_000))
+        assertEquals(0.0, recorder.activeTrip()!!.distanceKm, 0.0001)
+        // …and the start position comes from the real fix, not the stale hint.
+        assertEquals(48.8566, recorder.activeTrip()!!.startLat!!, 0.0001)
+    }
+
+    @Test
+    fun freshAnchorHint_anchorsTheTrip() {
+        // A fix from 5 s ago is trustworthy: it keeps the first 30 s of driving.
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.onDeviceConnected("Car")
+
+        recorder.onAnchorHint(sampleAt(base - 5_000L))
+        assertEquals(48.8566, recorder.activeTrip()!!.startLat!!, 0.0001)
+
+        // 500 m driven in the 30 s after the hint → counted from the hint.
+        recorder.onLocationSample(sampleAt(base + 30_000, latOffsetDegrees = step500m))
+        assertEquals(0.5, recorder.activeTrip()!!.distanceKm, 0.01)
+    }
+
+    @Test
+    fun impreciseAnchorHint_isIgnored() {
+        val clock = FakeClock(base)
+        val recorder = TripRecorder(clock, graceMs)
+        recorder.onDeviceConnected("Car")
+        recorder.onAnchorHint(
+            GpsSample(base - 5_000L, 48.8566 + step500m, 2.3522, accuracyMeters = 500f),
+        )
+        // Ignored → no start position from the hint, no anchor.
+        assertNull(recorder.activeTrip()!!.startLat)
+        recorder.onLocationSample(sampleAt(base + 30_000))
+        assertEquals(0.0, recorder.activeTrip()!!.distanceKm, 0.0001)
+    }
+
     // --- auto trip lifecycle ---------------------------------------------
 
     @Test

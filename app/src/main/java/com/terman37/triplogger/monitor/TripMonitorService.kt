@@ -219,9 +219,10 @@ class TripMonitorService : Service() {
         }
         if (started) {
             locationSource = source
-            // Anchor the trip with the last cached fix so the first 30 s are
-            // not lost when GPS is cold.
-            source.lastKnown()?.let { recorder.onLocationSample(it) }
+            // Anchor the trip with the platform's cached fix so the first 30 s are
+            // not lost when GPS is cold. The recorder only accepts it when it is
+            // fresh and accurate (a stale cached fix used to inflate the trip).
+            source.lastKnown()?.let { recorder.onAnchorHint(it) }
         } else {
             // No GPS permission or provider off: keep recording with 0 km and
             // no positions rather than dropping the trip (graceful).

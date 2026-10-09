@@ -2,7 +2,7 @@
 
 Version anglaise : [English](en/release-notes.md).
 
-## 1.0 — 7 octobre 2026 (code de version 2)
+## 1.0 — 7 octobre 2026 (code de version 3)
 
 ```
 1.0 — première version.
