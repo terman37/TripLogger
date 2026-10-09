@@ -35,16 +35,38 @@ Configuration requise : Android 14 ou version ultérieure.
    l'interrupteur **Suivi des trajets** : aucun appareil n'étant encore
    enregistré, l'application vous amène dans l'onglet **Réglages** avec la liste
    *Disponibles* déjà ouverte.
+
+   <img src="assets/img/fr/01.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 3. Touchez **Autoriser l'accès Bluetooth** (le bouton ambre), puis **+** à côté de
    votre voiture dans la liste *Disponibles*. Votre voiture apparaît maintenant
    sous *Enregistrés*.
+
+      <img src="assets/img/fr/02.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/03.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/04.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/05.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 4. Revenez à l'onglet **Accueil** (premier onglet) et activez l'interrupteur
    **Suivi des trajets**. L'application affiche d'abord un message d'information
    qui explique l'usage de la position (y compris en arrière-plan, écran éteint) :
    touchez **Continuer**. Android demande alors les autorisations (Bluetooth,
    localisation, notifications) : acceptez les trois, elles sont nécessaires.
+
+      <img src="assets/img/fr/01.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/06.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/07.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/08.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/09.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/10.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/11.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/12.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 5. Une petite notification « Suivi actif » apparaît. La configuration est
    terminée.
+
+      <img src="assets/img/fr/13.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="assets/img/fr/14.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
 
 Vous pouvez enregistrer plusieurs voitures/appareils : ajoutez-les avec **+**, et
 supprimez-les avec le **X** à côté de leur nom.
@@ -83,6 +105,8 @@ plus récent au plus ancien.
 Un trajet de moins de 50 mètres est ignoré — par exemple quand le moteur tourne
 alors que la voiture reste stationnée et que le Bluetooth se connecte.
 
+<img src="assets/img/fr/15.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 ## Rapports et tableurs
 
 Ouvrez l'onglet **Rapport** :
@@ -91,6 +115,9 @@ Ouvrez l'onglet **Rapport** :
    jours sont affichés ; la liste se met à jour dès que vous changez une date.
 2. Une ligne de résumé indique le nombre de trajets et le total de kilomètres de la
    période.
+
+  <img src="assets/img/fr/16.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 3. Touchez le **bouton d'export** (en bas à droite) pour créer le fichier : le
    partage Android s'ouvre, ce qui vous permet de l'envoyer par e-mail, de
    l'enregistrer sur Drive ou de l'ouvrir dans Google Sheets/Excel.
@@ -104,6 +131,8 @@ dans Google Maps), les kilomètres et un lien « Trajet » ouvrant l'itinéraire
 complet. La ligne d'en-tête est figée et gris clair, et la ligne des totaux est
 mise en évidence. Chaque ligne de trajet peut aussi être supprimée depuis le
 rapport avec son icône corbeille rouge.
+
+  <img src="assets/img/fr/17.png"  alt="Screenshot"  style="height: 180px; margin: 10px;" />
 
 > Si un trajet s'est terminé alors que vous n'aviez pas de réseau, ses adresses
 > apparaissent comme « Adresse en attente ». Elles se complètent toutes seules la

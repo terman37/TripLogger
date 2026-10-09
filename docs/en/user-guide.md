@@ -33,14 +33,37 @@ Requirement: Android 14 or newer.
 2. Open **TripToExcel**. On a fresh install, just tap the **Monitor trips**
    switch: there is no device yet, so the app takes you to the **Settings** tab
    with the *Available* list already open.
+
+
+   <img src="../assets/img/en/01.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 3. Tap **Allow Bluetooth access** (the amber button), then tap **+** next to
    your car in the *Available* list. Your car now appears under *Registered*.
+
+   <img src="../assets/img/en/02.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/03.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/04.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/05.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 4. Go back to **Home** (first tab) and turn on the **Monitor trips** switch.
    The app first shows an information dialog explaining how the location is used
    (including in the background with the screen off): tap **Continue**. Android
    then asks for permissions (Bluetooth, Location, Notifications): accept all
    three — they are required.
+
+   <img src="../assets/img/en/01.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/06.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/07.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/08.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/09.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/10.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/11.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/12.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 5. A small "Monitoring active" notification appears. Setup is done.
+
+      <img src="../assets/img/en/13.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+      <img src="../assets/img/en/14.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
 
 You can log several cars/devices: add each one with **+**. Remove one with the
 **X** next to it.
@@ -74,6 +97,8 @@ Home; tap **Stop** when you arrive. Manual trips ignore Bluetooth entirely.
 A trip shorter than 50 meters is ignored — for example when the engine runs
 while the car stays parked and Bluetooth connects.
 
+<img src="../assets/img/en/15.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 ## Reports and spreadsheets
 
 Open the **Report** tab:
@@ -81,6 +106,9 @@ Open the **Report** tab:
 1. Pick a **From** and **To** date (side by side). By default the last 7 days
    are shown; the list updates as soon as you change a date.
 2. A summary line shows how many trips and total kilometers are in the range.
+
+  <img src="../assets/img/en/16.png"  alt="Screenshot"  style="width: 180px; margin: 10px;" />
+
 3. Tap the **export button** (bottom right) to create the spreadsheet: Android's
    share sheet opens, so you can send it by mail, save it to Drive, or open it
    in Google Sheets/Excel.
@@ -93,6 +121,8 @@ and end address (each opens the place in Google Maps), the kilometers, and a
 "trip" link opening the whole route. The header row is frozen and light gray and
 the total row is highlighted. Every trip row can also be deleted from the report
 with its red trash icon.
+
+  <img src="../assets/img/en/17.png"  alt="Screenshot"  style="height: 180px; margin: 10px;" />
 
 > If a trip ended while you had no network, its addresses appear as
 > "Address pending". They fill in by themselves the next time you open the

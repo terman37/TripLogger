@@ -121,6 +121,14 @@ class SampleDataSeederTest {
         // A registered device + monitoring enabled make Home show its realistic
         // "waiting for the car" state instead of the first-run card. No service is
         // started: the screenshot only needs the state, not a running recorder.
+        //
+        // Clear any real device the owner had registered first: the sample state has
+        // to be deterministic, and a leftover real device would show up in
+        // screenshots *and* change Home's wording to "one of your registered
+        // devices" instead of naming the sample car.
+        app.container.settings.registeredDevices.value.forEach {
+            app.container.settings.removeRegisteredDevice(it.address)
+        }
         app.container.settings.addRegisteredDevice(sampleDevice)
         app.container.settings.setGracePeriodMinutes(3)
         app.container.settings.setMonitoringEnabled(true)
@@ -144,9 +152,10 @@ class SampleDataSeederTest {
             "monitoring must be enabled for the Home screenshot",
             app.container.settings.monitoringEnabled.value,
         )
-        assertTrue(
-            "a registered device makes Home show its realistic waiting state",
-            app.container.settings.registeredDevices.value.isNotEmpty(),
+        assertEquals(
+            "the sample state must contain exactly the sample device: a leftover real",
+            listOf(sampleDevice),
+            app.container.settings.registeredDevices.value,
         )
         println(
             "Seeded ${stored.size} sample trips (${"%.1f".format(stored.sumOf { it.distanceKm })} km) " +
