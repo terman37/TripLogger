@@ -87,6 +87,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Local/dev builds get their own package id. Reason: Android refuses to
+            // install a package whose signature differs from an existing copy *for any
+            // user on the device*, so a debug build signed with the debug key blocked
+            // installing the Play build (and vice versa) — including copies sitting in
+            // a work profile. With the suffix the two are separate apps: they can be
+            // installed side by side and uninstalling one never touches the other.
+            applicationIdSuffix = ".debug"
+        }
         release {
             // R8 shrinks and obfuscates the published build. Room and Compose
             // ship their own keep rules, so no custom proguard file is needed

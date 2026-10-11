@@ -73,10 +73,13 @@ The current sets use **seeded sample data**, not the owner's trips:
 `app/src/androidTest/.../tools/SampleDataSeederTest.kt` inserts a Paris → Orléans
 → Limoges → Toulouse drive in three legs plus a local Toulouse hop, a fake
 registered device and monitoring on. Public addresses only, no personal data.
-See the "How to reproduce" bullet in release_guide.md §Phase L4 for the exact
-commands (and the three traps: `connectedDebugAndroidTest` uninstalls the app
-afterwards, `SharedPreferences.apply()` needs a forced commit, and the four
-permissions must be granted or monitoring switches itself off).
+See the "Two-package setup" section in release_guide.md for the exact commands.
+Three traps to remember: `connectedDebugAndroidTest` uninstalls the app afterwards
+(run `am instrument` instead), `SharedPreferences.apply()` needs a forced commit in
+the seeder, and the four permissions must be granted or monitoring switches itself
+off. Local builds install as **`com.terman37.triplogger.debug`** (the debug build
+type has `applicationIdSuffix = ".debug"`), so they no longer clash with the Play
+build.
 
 ## Privacy
 
