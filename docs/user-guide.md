@@ -28,6 +28,8 @@ Configuration requise : Android 14 ou version ultérieure.
 
 ## Première configuration (2 minutes)
 
+[En vidéo](https://youtube.com/shorts/sIF45OVaHW0)
+
 1. **Appairez votre voiture dans les réglages Android** (l'application ne fait
    jamais l'appairage elle-même) : Réglages → Bluetooth → appairez votre voiture,
    votre autoradio ou votre adaptateur habituel.

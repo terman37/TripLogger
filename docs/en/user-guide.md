@@ -27,6 +27,8 @@ Requirement: Android 14 or newer.
 
 ## First-time setup (2 minutes)
 
+[Video Demo](https://youtube.com/shorts/sIF45OVaHW0)
+
 1. **Pair your car in Android settings** (the app never does the pairing
    itself): Settings → Bluetooth → pair your car/head unit or your usual car
    adapter.
